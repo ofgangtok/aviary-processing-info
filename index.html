@@ -1,1512 +1,1322 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coffee Processing Technical Reference - Complete 29 Methods</title>
-  
-  <!-- Tailwind CSS CDN -->
+  <title>Coffee Post-Harvest Processing - Illustrated Technical Infographic</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          colors: {
+            coffee: {
+              50: '#FDFBF7',
+              100: '#F7F2EA',
+              200: '#E9DEC9',
+              300: '#D5C3A5',
+              400: '#BBA27E',
+              500: '#9E8057',
+              600: '#81633F',
+              700: '#654B2E',
+              800: '#4B3520',
+              900: '#322214',
+              950: '#1C120A',
+            },
+            accent: {
+              teal: '#0D9488',
+              amber: '#D97706',
+              rose: '#E11D48',
+              indigo: '#4F46E5',
+              cyan: '#0891B2',
+            }
+          },
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            coffee: {
-              50: '#fdf8f6',
-              100: '#f2e8e5',
-              500: '#b45309',
-              800: '#451a03',
-              900: '#270e02',
-              950: '#140601'
-            }
           }
         }
       }
     }
   </script>
-
   <style>
+    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #090d16;
+      background: #1C120A;
     }
     ::-webkit-scrollbar-thumb {
-      background: #1e293b;
+      background: #4B3520;
       border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
+      background: #81633F;
     }
-    
-    html {
-      scroll-behavior: smooth;
-    }
-
-    .flow-connect-line {
-      background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #f59e0b 100%);
-      background-size: 200% 100%;
-      animation: pulseLine 3s ease infinite;
-    }
-
-    @keyframes pulseLine {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+    .badge-glow-green { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+    .badge-glow-amber { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+    .badge-glow-blue { box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
   </style>
 </head>
-<body class="min-h-full font-sans antialiased flex flex-col bg-slate-950 text-slate-200">
+<body class="bg-coffee-950 text-coffee-100 font-sans min-h-screen antialiased selection:bg-coffee-500 selection:text-white">
 
-  <!-- Top Navigation & Stats Header -->
-  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      
-      <!-- Title & Branding -->
+  <!-- TOP HEADER / NAV -->
+  <header class="sticky top-0 z-40 bg-coffee-950/90 backdrop-blur-md border-b border-coffee-800/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400 shrink-0">
-          <i data-lucide="flask-conical" class="w-6 h-6"></i>
+        <div class="p-2 bg-coffee-800/80 rounded-xl border border-coffee-700 text-amber-400">
+          <i data-lucide="coffee" class="w-6 h-6"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg font-bold tracking-tight text-white">Coffee Processing Technical Manual</h1>
-            <span class="text-[10px] font-mono px-2 py-0.5 bg-emerald-950/80 text-emerald-400 rounded-full border border-emerald-800/80">29 Specs Verified</span>
-          </div>
-          <p class="text-xs text-slate-400">Objective Variables, Parametric Metrics & Flowchart Diagrams</p>
+          <h1 class="text-lg font-bold text-coffee-50 tracking-tight leading-none flex items-center gap-2">
+            Coffee Processing Technical Matrix
+            <span class="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">29 Methods</span>
+          </h1>
+          <p class="text-xs text-coffee-400 font-mono mt-0.5">Objective Post-Harvest Processing Specifications</p>
         </div>
       </div>
 
-      <!-- Quick Metrics Summary Bar -->
-      <div class="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 md:pb-0 text-xs font-mono">
-        <div class="bg-slate-950/80 border border-slate-800 px-2.5 py-1.5 rounded-lg flex items-center gap-2 shrink-0">
-          <span class="text-slate-500">Total:</span>
-          <span class="text-white font-bold" id="statTotal">29</span>
+      <!-- Live Stats & Global View Selector -->
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 bg-coffee-900/80 border border-coffee-800 rounded-lg p-1 text-xs">
+          <button id="viewGridBtn" onclick="setViewMode('grid')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md transition bg-coffee-700 text-white font-medium">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Grid
+          </button>
+          <button id="viewMatrixBtn" onclick="setViewMode('matrix')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md transition text-coffee-400 hover:text-white">
+            <i data-lucide="table" class="w-3.5 h-3.5"></i> Matrix
+          </button>
+          <button id="viewFlowBtn" onclick="setViewMode('flow')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md transition text-coffee-400 hover:text-white">
+            <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Flowcharts
+          </button>
         </div>
-        <div class="bg-slate-950/80 border border-slate-800 px-2.5 py-1.5 rounded-lg flex items-center gap-2 shrink-0">
-          <span class="text-purple-400">Inoculated:</span>
-          <span class="text-white font-bold" id="statInoc">12</span>
-        </div>
-        <div class="bg-slate-950/80 border border-slate-800 px-2.5 py-1.5 rounded-lg flex items-center gap-2 shrink-0">
-          <span class="text-cyan-400">Low-O2/Gas:</span>
-          <span class="text-white font-bold" id="statGas">8</span>
-        </div>
-        <div class="bg-slate-950/80 border border-slate-800 px-2.5 py-1.5 rounded-lg flex items-center gap-2 shrink-0">
-          <span class="text-amber-400">Thermal:</span>
-          <span class="text-white font-bold" id="statThermal">4</span>
-        </div>
+        
+        <a href="#quick-index" class="p-2 text-coffee-400 hover:text-white bg-coffee-900 hover:bg-coffee-800 border border-coffee-800 rounded-lg transition" title="Quick Index">
+          <i data-lucide="list-tree" class="w-5 h-5"></i>
+        </a>
       </div>
-
-      <!-- Action Tools -->
-      <div class="flex items-center gap-2 shrink-0">
-        <button onclick="copyAllSpecs()" class="px-3 py-1.5 text-xs font-mono font-medium text-amber-400 bg-amber-950/40 hover:bg-amber-900/50 border border-amber-800/60 rounded-lg flex items-center gap-1.5 transition">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-          Copy Summary
-        </button>
-        <button onclick="exportJSON()" class="px-3 py-1.5 text-xs font-mono font-medium text-emerald-400 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/60 rounded-lg flex items-center gap-1.5 transition">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          Export JSON
-        </button>
-      </div>
-
     </div>
   </header>
 
-  <!-- Main Application Body -->
-  <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col lg:flex-row gap-6">
-    
-    <!-- Quick-Jump Sidebar Navigation (Desktop Sticky) -->
-    <aside class="w-full lg:w-64 shrink-0 space-y-4">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 sticky top-20 shadow-xl space-y-4">
+  <!-- MAIN CONTAINER WITH INDEX SIDEBAR & CONTENT -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
+
+    <!-- LEFT QUICK JUMP INDEX SIDEBAR -->
+    <aside class="w-full lg:w-64 flex-shrink-0">
+      <div class="sticky top-22 space-y-4">
         
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="list-tree" class="w-3.5 h-3.5 text-amber-400"></i>
-            Index Jump (29)
-          </span>
-          <button onclick="scrollToTop()" class="text-[10px] text-slate-500 hover:text-slate-300 font-mono">Top ↑</button>
+        <!-- Search & Filters Block -->
+        <div class="bg-coffee-900/60 border border-coffee-800/80 rounded-xl p-4 backdrop-blur-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-coffee-400 font-mono flex items-center gap-1.5">
+              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-amber-400"></i> Filters & Search
+            </h2>
+            <button onclick="resetFilters()" class="text-[10px] text-amber-400 hover:underline">Reset All</button>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Search Bar -->
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-coffee-400"></i>
+              <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Search method, equipment..." 
+                class="w-full bg-coffee-950 border border-coffee-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-coffee-100 placeholder-coffee-500 focus:outline-none focus:border-amber-500/50 font-mono">
+            </div>
+
+            <!-- Filter 1: Pulp Removal -->
+            <div>
+              <label class="text-[11px] text-coffee-300 font-medium block mb-1">Pulp Removal State</label>
+              <select id="filterPulp" onchange="applyFilters()" class="w-full bg-coffee-950 border border-coffee-800 rounded-lg px-2.5 py-1 text-xs text-coffee-200 focus:outline-none focus:border-amber-500/50">
+                <option value="ALL">All States</option>
+                <option value="Yes">Yes / Always Pulped</option>
+                <option value="No">No / Whole Cherry</option>
+                <option value="Eventually">Eventually / Multi-Phase</option>
+                <option value="Variable">Variable / Optional</option>
+              </select>
+            </div>
+
+            <!-- Filter 2: Oxygen Environment -->
+            <div>
+              <label class="text-[11px] text-coffee-300 font-medium block mb-1">Atmospheric Environment</label>
+              <select id="filterEnv" onchange="applyFilters()" class="w-full bg-coffee-950 border border-coffee-800 rounded-lg px-2.5 py-1 text-xs text-coffee-200 focus:outline-none focus:border-amber-500/50">
+                <option value="ALL">All Environments</option>
+                <option value="Low-O2">Low-Oxygen / Anaerobic / Sealed</option>
+                <option value="Ambient">Ambient / Open Air / Aerobic</option>
+                <option value="CO2">CO2 Flushed / Carbonic</option>
+                <option value="Chilled">Cold Water / Cryo</option>
+                <option value="Heated">High Temp / Thermal</option>
+                <option value="Vacuum">Vacuum / Pressure</option>
+              </select>
+            </div>
+
+            <!-- Filter 3: Inoculation -->
+            <div>
+              <label class="text-[11px] text-coffee-300 font-medium block mb-1">Inoculants / Additives</label>
+              <select id="filterInoculant" onchange="applyFilters()" class="w-full bg-coffee-950 border border-coffee-800 rounded-lg px-2.5 py-1 text-xs text-coffee-200 focus:outline-none focus:border-amber-500/50">
+                <option value="ALL">All Inoculant Types</option>
+                <option value="Yeast">Commercial / Isolated Yeast</option>
+                <option value="Culture">Wild Starter / Native Culture</option>
+                <option value="SCOBY">SCOBY / Kombucha / LAB</option>
+                <option value="Substrate">Additive Substrate (Juice/Cascara/Hops)</option>
+                <option value="None">None / Spontaneous</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <!-- Quick Search Sidebar Filter -->
-        <div>
-          <input type="text" id="quickJumpSearch" oninput="filterJumpList()" placeholder="Filter index..." 
-            class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 font-mono">
+        <!-- Quick Jump Index List -->
+        <div id="quick-index" class="bg-coffee-900/60 border border-coffee-800/80 rounded-xl p-4 max-h-[calc(100vh-22rem)] overflow-y-auto">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-coffee-400 font-mono mb-2 flex items-center justify-between">
+            <span>Methods Index</span>
+            <span id="visibleCount" class="text-amber-400">29</span>
+          </h3>
+          <ul id="indexList" class="space-y-1 text-xs">
+            <!-- Dynamically populated index links -->
+          </ul>
         </div>
-
-        <!-- Scrollable Method Jump List -->
-        <nav id="jumpList" class="max-h-[calc(100vh-220px)] overflow-y-auto space-y-1 text-xs pr-1">
-          <!-- Dynamically populated via JS -->
-        </nav>
 
       </div>
     </aside>
 
-    <!-- Main Content Workspace -->
-    <main class="flex-1 min-w-0 space-y-6">
+    <!-- RIGHT MAIN CONTENT AREA -->
+    <main class="flex-1 min-w-0">
 
-      <!-- Interactive Filter & Search Control Panel -->
-      <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-4">
-        
-        <!-- Search and Primary Category Pills -->
-        <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
-          
-          <!-- Search Box -->
-          <div class="relative flex-1">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-            <input type="text" id="searchInput" placeholder="Search 29 methods by name, code, inoculant, vessel, or keyword..." 
-              class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition">
-          </div>
-
-          <!-- View Mode Toggle -->
-          <div class="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-1 self-start lg:self-auto shrink-0">
-            <button id="btnViewGrid" onclick="setViewMode('grid')" class="px-3 py-1.5 rounded-md text-amber-400 bg-slate-800 text-xs font-mono font-medium flex items-center gap-1.5 transition">
-              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-              Grid Cards
-            </button>
-            <button id="btnViewMatrix" onclick="setViewMode('matrix')" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200 text-xs font-mono font-medium flex items-center gap-1.5 transition">
-              <i data-lucide="table" class="w-3.5 h-3.5"></i>
-              Matrix Table
-            </button>
-            <button id="btnViewFlow" onclick="setViewMode('flow')" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200 text-xs font-mono font-medium flex items-center gap-1.5 transition">
-              <i data-lucide="git-merge" class="w-3.5 h-3.5"></i>
-              Flowcharts Only
-            </button>
-          </div>
-
+      <!-- View Bar Mobile Switcher -->
+      <div class="md:hidden flex items-center justify-between bg-coffee-900 border border-coffee-800 rounded-lg p-1.5 mb-4 text-xs">
+        <span class="text-coffee-300 font-mono px-2">View Mode:</span>
+        <div class="flex gap-1">
+          <button onclick="setViewMode('grid')" class="px-2.5 py-1 rounded bg-coffee-700 text-white">Grid</button>
+          <button onclick="setViewMode('matrix')" class="px-2.5 py-1 rounded bg-coffee-950 text-coffee-400">Matrix</button>
+          <button onclick="setViewMode('flow')" class="px-2.5 py-1 rounded bg-coffee-950 text-coffee-400">Flow</button>
         </div>
+      </div>
 
-        <!-- Parametric Dropdown Filters -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800/80 text-xs">
-          
-          <div>
-            <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Pulp Removal</label>
-            <select id="filterPulp" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-amber-500/50 font-mono">
-              <option value="ALL">All Pulping States</option>
-              <option value="Yes">Yes (Pulped Prior)</option>
-              <option value="No">No (Whole Cherry)</option>
-              <option value="Sequential">Sequential / Fractionated</option>
-              <option value="Partial">Partial / Interrupted</option>
-            </select>
-          </div>
+      <!-- Active Filter Pills Display -->
+      <div id="activeFilterPills" class="hidden flex-wrap gap-2 mb-4">
+        <!-- Rendered dynamically -->
+      </div>
 
-          <div>
-            <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Environment / Oxygen</label>
-            <select id="filterOxygen" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-amber-500/50 font-mono">
-              <option value="ALL">All Oxygen Levels</option>
-              <option value="Aerobic">Aerobic (Open Air)</option>
-              <option value="Anaerobic">Anaerobic / Low-O2</option>
-              <option value="CO2 Flushed">CO2 Flushed / Maceration</option>
-              <option value="Vacuum">Vacuum / High Gravity</option>
-              <option value="Monsooned">Monsooned / Extreme Air</option>
-            </select>
-          </div>
+      <!-- MAIN CONTAINER FOR GRID VIEW -->
+      <div id="gridView" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Rendered dynamically via JS -->
+      </div>
 
-          <div>
-            <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Inoculants / Additives</label>
-            <select id="filterInoculant" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-amber-500/50 font-mono">
-              <option value="ALL">All Inoculant Types</option>
-              <option value="None">None / Wild Microflora</option>
-              <option value="Commercial Yeast">Commercial Yeast</option>
-              <option value="Koji Mold">Koji Mold Spores</option>
-              <option value="SCOBY">SCOBY / Kombucha</option>
-              <option value="Farm Native Culture">Farm Native Culture</option>
-              <option value="Recycled Fruit/Tea">Recycled Fruit / Tea / Juice</option>
-              <option value="Heat/Cold Shock">Thermal Shock / Thermal Step</option>
-            </select>
-          </div>
+      <!-- MAIN CONTAINER FOR MATRIX TABLE VIEW -->
+      <div id="matrixView" class="hidden overflow-x-auto bg-coffee-900/50 border border-coffee-800 rounded-xl">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-coffee-900 border-b border-coffee-800 text-coffee-300 font-mono uppercase text-[10px] tracking-wider">
+              <th class="p-3">#</th>
+              <th class="p-3">Method Name</th>
+              <th class="p-3">Pulp Removal</th>
+              <th class="p-3">Environment</th>
+              <th class="p-3">Inoculant / Additive</th>
+              <th class="p-3">Time / Contact</th>
+              <th class="p-3">Key Mechanism</th>
+            </tr>
+          </thead>
+          <tbody id="matrixTableBody" class="divide-y divide-coffee-800/50 font-sans">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
 
-          <div>
-            <label class="block text-[10px] font-mono text-slate-500 uppercase mb-1">Category Group</label>
-            <select id="filterCategory" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-amber-500/50 font-mono">
-              <option value="ALL">All Categories</option>
-              <option value="Traditional">Traditional / Primary</option>
-              <option value="Anaerobic / Gas-Flushed">Anaerobic & Gas-Flushed</option>
-              <option value="Inoculated / Cultured">Inoculated & Cultured</option>
-              <option value="Thermal / Temp-Controlled">Thermal & Temp-Controlled</option>
-              <option value="Recycled / Fruit Infused">Recycled & Fruit-Infused</option>
-              <option value="Post-Harvest / Special">Post-Harvest & Regional</option>
-            </select>
-          </div>
-
-        </div>
-
-      </section>
-
-      <!-- Dynamic Method Output Container -->
-      <div id="methodContainer" class="space-y-6">
-        <!-- Rendered via JS -->
+      <!-- MAIN CONTAINER FOR FLOWCHARTS FOCUS VIEW -->
+      <div id="flowView" class="hidden space-y-4">
+        <!-- Rendered dynamically -->
       </div>
 
     </main>
   </div>
 
-  <!-- Full Spec Detail Modal -->
-  <div id="specModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
-      <div id="modalHeader" class="px-6 py-4 border-b border-slate-800 flex justify-between items-center sticky top-0 bg-slate-900 z-10">
-        <h3 id="modalTitle" class="text-base font-bold text-white font-mono flex items-center gap-2">Method Details</h3>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div id="modalBody" class="p-6 space-y-6 text-sm text-slate-300">
-        <!-- Dynamic Content -->
-      </div>
-      <div class="px-6 py-4 border-t border-slate-800 bg-slate-950/60 flex justify-end gap-3 rounded-b-2xl">
-        <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-medium rounded-lg">Close</button>
+  <!-- MODAL FOR DETAILED SPECIFICATION VIEW -->
+  <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-coffee-900 border border-coffee-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 p-1 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-coffee-300 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div id="modalContent">
+        <!-- Populated via JS -->
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification Popup -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-emerald-500/50 text-emerald-300 text-xs font-mono px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
-    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-    <span id="toastMsg">Action executed successfully.</span>
-  </div>
-
   <!-- FOOTER -->
-  <footer class="border-t border-slate-800/80 bg-slate-950 py-6 mt-12 text-center text-xs text-slate-500 font-mono">
-    Objective Coffee Processing Reference Manual • 29 Distinct Processing Workflows • Non-Subjective Variables
+  <footer class="bg-coffee-950 border-t border-coffee-800/80 py-8 text-center text-xs text-coffee-400">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p class="font-mono text-coffee-300">
+        created by <a href="https://github.com/ofgangtok/aviary-processing-info" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">ofgangtok</a> for educational purpose. rights reserved with <a href="https://christopherferan.com/2025/10/23/coffee-post-harvest-processing-flowchart/" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">Christopher Feran</a>
+      </p>
+    </div>
   </footer>
 
+  <!-- DATA & APPLICATION LOGIC -->
   <script>
-    // Complete Dataset for all 29 Processing Methods
-    const coffeeDataset = [
+    // 29 DATA OBJECTS DIRECTLY FROM BOOK1.XLSX
+    const processesData = [
       {
-        id: "WET-01",
+        id: 1,
         name: "Wet Process",
         aka: "General Category",
-        category: "Traditional",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic / Variable",
-        inoculants: "None",
-        duration: "Standard (24-48h)",
-        badges: {
-          pulp: { label: "Yes, always", color: "emerald" },
-          oxygen: { label: "Aerobic / Variable", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "24–48 Hours", color: "indigo" }
-        },
-        objectiveSummary: "A primary general category defining any process where the outer skin and pulp are mechanically removed before drying, regardless of whether water channels or tanks are utilized for secondary cleaning.",
-        technicalParameters: {
-          pH: "4.5 – 3.8 pH drop",
-          moisture: "65% → 11.0%",
-          vessel: "Open Water Channels / Pits",
-          flora: "Native Surface Microflora"
-        },
+        pulp: "Yes",
+        pulpText: "Yes, always",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Optional",
+        inocType: "None",
+        time: "Not critical / varies wildly",
+        desc: "General category defining all coffee processes in which outer skin is removed before drying. The exposure of the seed during drying defines the category, regardless of water volume used.",
         steps: [
-          { num: 1, title: "Whole Cherry Sorting", desc: "Density separation in water basins to eliminate floaters." },
-          { num: 2, title: "Mechanical Pulping", desc: "Squeezes fruit through metal disk or drum to peel outer skin." },
-          { num: 3, title: "Exposed Ferment / Rinsing", desc: "Open tank mucilage hydrolyzation or channel rinsing." },
-          { num: 4, title: "Patio / Raised Bed Drying", desc: "Moisture reduction until parchment reaches 10-12% target." }
-        ]
+          { name: "Harvest", icon: "cherry", desc: "Whole ripe cherry" },
+          { name: "Pulp Removal", icon: "cog", desc: "Skin removed before drying" },
+          { name: "Fermentation / Rinse", icon: "droplet", desc: "Optional mucilage breakdown" },
+          { name: "Drying", icon: "sun", desc: "Dried in parchment state" }
+        ],
+        pH: "4.5 - 5.5",
+        temp: "Ambient (18-28°C)",
+        vessel: "Open concrete tank / Washing channels"
       },
       {
-        id: "NAT-02",
-        name: "Dry Process / Natural",
+        id: 2,
+        name: "Dry / Natural",
         aka: "Natural Process",
-        category: "Traditional",
-        pulpRemoval: "No, never",
-        oxygenEnv: "Aerobic / Ambient Air",
-        inoculants: "None",
-        duration: "Prolonged (15-30 Days)",
-        badges: {
-          pulp: { label: "No, never", color: "amber" },
-          oxygen: { label: "Aerobic / Ambient Air", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "15–30 Days", color: "purple" }
-        },
-        objectiveSummary: "Harvested cherries dry intact with full skin, mucilage, and seed attached. Natural refers strictly to fruit dried intact under ambient conditions without added inoculants or prior fermentation.",
-        technicalParameters: {
-          pH: "5.5 – 4.2 pH gradual",
-          moisture: "65% → 11.0%",
-          vessel: "Patio / Raised Drying Beds",
-          flora: "Wild Filamentous Fungi & Yeast"
-        },
+        pulp: "No",
+        pulpText: "No, never",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Sometimes",
+        inocType: "None",
+        time: "Not critical / dried in cherry",
+        desc: "Coffee dries with outer skin and pulp intact. Natural process specifically refers to coffees dried in cherry without additional experimental pre-fermentation steps.",
         steps: [
-          { num: 1, title: "Ripe Cherry Floating", desc: "Submersion in water tanks to separate low-density fruit." },
-          { num: 2, title: "Intact Fruit Spreading", desc: "Layering whole cherries on raised beds or concrete patios." },
-          { num: 3, title: "Controlled Ambient Drying", desc: "Frequent raking to prevent mold until husk dehydrates completely." },
-          { num: 4, title: "Dry Hulling (Garbelling)", desc: "Mechanical removal of dried outer husk and parchment." }
-        ]
+          { name: "Harvest", icon: "cherry", desc: "Ripe cherry picking" },
+          { name: "Flotation / Sort", icon: "waves", desc: "Density sorting in water" },
+          { name: "Intact Drying", icon: "sun", desc: "Dried whole on raised beds" },
+          { name: "Hulling", icon: "archive", desc: "Dry husk removed mechanically" }
+        ],
+        pH: "5.0 - 6.0",
+        temp: "Ambient patio heat",
+        vessel: "Raised African beds / Concrete patio"
       },
       {
-        id: "WSH-03",
+        id: 3,
         name: "Washed Process",
         aka: "Fully Washed",
-        category: "Traditional",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic / Submerged",
-        inoculants: "None",
-        duration: "Standard (12-36 Hours)",
-        badges: {
-          pulp: { label: "Yes, always", color: "emerald" },
-          oxygen: { label: "Aerobic / Submerged", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "12–36 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Fruit skin and sticky mucilage are completely removed prior to parchment drying. Mucilage is digested via natural enzymatic hydrolysis or mechanical demucilagination, followed by thorough water washing.",
-        technicalParameters: {
-          pH: "4.2 – 3.6 pH drop",
-          moisture: "60% → 11.0%",
-          vessel: "Concrete / Ceramic Tanks",
-          flora: "Endogenous Enzymes & Yeast"
-        },
+        pulp: "Yes",
+        pulpText: "Yes, always",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Optional",
+        inocType: "None",
+        time: "Not critical / varies wildly",
+        desc: "Refers specifically to coffee that has had its pectin-rich mucilage completely removed (either via enzymatic degradation or mechanical washing) before drying.",
         steps: [
-          { num: 1, title: "Mechanical Pulping", desc: "Peels outer skin leaving mucilage-covered parchment." },
-          { num: 2, title: "Mucilage Hydrolysis", desc: "Fermentation in water tanks until pectin layer breaks down." },
-          { num: 3, title: "Water Channel Washing", desc: "Agitated rinsing with fresh water to strip residual mucilage." },
-          { num: 4, title: "Clean Parchment Drying", desc: "Sun drying on raised beds to 11% export moisture." }
-        ]
+          { name: "Depulping", icon: "cog", desc: "Skin removed immediately" },
+          { name: "Mucilage Degradation", icon: "flask-conical", desc: "Enzymatic breakdown" },
+          { name: "Water Wash", icon: "droplets", desc: "Mucilage rinsed clean" },
+          { name: "Parchment Drying", icon: "sun", desc: "Dried to ~11% moisture" }
+        ],
+        pH: "4.0 - 4.8",
+        temp: "15-25°C water bath",
+        vessel: "Fermentation tanks & washing channels"
       },
       {
-        id: "HNY-04",
+        id: 4,
         name: "Pulped Natural / Honey",
         aka: "Honey (White, Yellow, Red, Black)",
-        category: "Traditional",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic / Ambient Air",
-        inoculants: "None",
-        duration: "Standard (10-20 Days)",
-        badges: {
-          pulp: { label: "Yes, skin off", color: "emerald" },
-          oxygen: { label: "Aerobic / Ambient Air", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "10–20 Days", color: "indigo" }
-        },
-        objectiveSummary: "Cherries are pulped to remove outer skin, but dried with specific targeted amounts of mucilage remaining attached. Honey color variants depend on remaining mucilage volume and drying shade control.",
-        technicalParameters: {
-          pH: "5.0 – 4.0 pH",
-          moisture: "55% → 11.0%",
-          vessel: "Shaded Raised Beds",
-          flora: "Atmospheric Yeasts & Mold"
-        },
+        pulp: "Yes",
+        pulpText: "Yes, always",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Sometimes",
+        inocType: "None",
+        time: "Until dry",
+        desc: "Skin is pulped off, but coffee is dried with varying fractions of mucilage remaining attached. Popularized to balance body and sweetness with clean acidity.",
         steps: [
-          { num: 1, title: "Calibrated Pulping", desc: "Adjusted de-pulper leaves 20% to 100% mucilage on seed." },
-          { num: 2, title: "Shaded Bed Layering", desc: "Immediate transfer to drying beds without washing." },
-          { num: 3, title: "Controlled Oxidation Drying", desc: "Regulated raking yields white, yellow, red, or black color." },
-          { num: 4, title: "Parchment Dry Hulling", desc: "Mechanical removal of dried mucilage crust and shell." }
-        ]
+          { name: "Depulping", icon: "cog", desc: "Skin removed; mucilage kept" },
+          { name: "Graded Drying", icon: "sun", desc: "Drying with sticky mucilage" },
+          { name: "Frequent Raking", icon: "wind", desc: "Prevents clumping & mold" },
+          { name: "Hulling", icon: "archive", desc: "Hulled at target moisture" }
+        ],
+        pH: "4.8 - 5.5",
+        temp: "Ambient patio",
+        vessel: "Shaded or open raised drying beds"
       },
       {
-        id: "CAR-05",
+        id: 5,
         name: "Carbonic Maceration",
-        aka: "CO2 Flushed Anoxic",
-        category: "Anaerobic / Gas-Flushed",
-        pulpRemoval: "No, never",
-        oxygenEnv: "CO2 Flushed",
-        inoculants: "Heat/Cold Shock",
-        duration: "Extended (48-120 Hours)",
-        badges: {
-          pulp: { label: "No, whole cherry", color: "amber" },
-          oxygen: { label: "CO2 Flushed", color: "purple" },
-          inoculant: { label: "Industrial CO2 Gas", color: "purple" },
-          duration: { label: "48–120 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Adaptation of winemaking protocol where un-pulped whole cherries undergo intracellular enzymatic fermentation inside a sealed tank purged of oxygen using forced carbon dioxide gas injection.",
-        technicalParameters: {
-          pH: "4.2 – 3.6 pH",
-          moisture: "65% → 11.0%",
-          vessel: "Sealed Stainless Bioreactor",
-          flora: "Obligate Anaerobes & Yeasts"
-        },
+        aka: "CM Process",
+        pulp: "No",
+        pulpText: "No — not initially",
+        env: "CO2 Flushed",
+        envType: "CO2",
+        inoculant: "Sometimes",
+        inocType: "None",
+        time: "Not critical / varies",
+        desc: "Adapted from Beaujolais winemaking. Whole coffee cherries are sealed inside a vessel that is purged and pressurised with carbon dioxide gas to restrict oxygen.",
         steps: [
-          { num: 1, title: "Whole Cherry Tank Loading", desc: "Intact cherries placed inside airtight stainless steel vessel." },
-          { num: 2, title: "CO2 Gas Injection", desc: "Forced carbon dioxide purges all ambient oxygen from headspace." },
-          { num: 3, title: "Intracellular Maceration", desc: "Extended fermentation under positive CO2 gas pressure." },
-          { num: 4, title: "Pulping or Whole Bed Drying", desc: "Post-ferment pulping or direct transfer to sun drying beds." }
-        ]
+          { name: "Whole Cherries", icon: "cherry", desc: "Unpulped ripe cherries" },
+          { name: "Sealed Tank", icon: "container", desc: "Airtight stainless vessel" },
+          { name: "CO2 Flush", icon: "wind", desc: "Forced carbon dioxide purge" },
+          { name: "Pulp or Dry", icon: "sun", desc: "Followed by pulped or natural finish" }
+        ],
+        pH: "3.8 - 4.5",
+        temp: "18-22°C controlled",
+        vessel: "Sealed stainless steel or food-grade tanks"
       },
       {
-        id: "ANB-06",
+        id: 6,
         name: "Anaerobic / Anoxic",
         aka: "Anoxic, Hypoxic",
-        category: "Anaerobic / Gas-Flushed",
-        pulpRemoval: "Variable",
-        oxygenEnv: "Anaerobic",
-        inoculants: "None",
-        duration: "Extended (48-96 Hours)",
-        badges: {
-          pulp: { label: "Variable", color: "purple" },
-          oxygen: { label: "Anaerobic / Low-O2", color: "purple" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "48–96 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Fermentation conducted in airtight barrels or sealed tanks fitted with one-way airlocks to restrict oxygen availability, favoring facultative or obligate anaerobic microorganisms.",
-        technicalParameters: {
-          pH: "4.0 – 3.5 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Sealed Drums with Airlock",
-          flora: "Lactic Acid Bacteria & Anaerobic Yeasts"
-        },
+        pulp: "Sometimes",
+        pulpText: "Sometimes",
+        env: "Low oxygen / Closed container",
+        envType: "Low-O2",
+        inoculant: "Sometimes",
+        inocType: "None",
+        time: "Not critical / varies",
+        desc: "Fermentation occurring in an oxygen-deprived environment (e.g. closed drum with airlock). CO2 produced naturally displaces headspace oxygen, favoring obligate/facultative anaerobes.",
         steps: [
-          { num: 1, title: "Vessel Seal Loading", desc: "Whole or pulped coffee packed tightly into food-grade drum." },
-          { num: 2, title: "Airlock Seal Fitting", desc: "One-way valve allows released gas to exit while blocking oxygen." },
-          { num: 3, title: "Oxygen-Depleted Ferment", desc: "Microbial gas build-up starches aerobic competitors." },
-          { num: 4, title: "Sun Drying Phase", desc: "Discharge from tank to patio or raised beds for final drying." }
-        ]
+          { name: "Enclosure", icon: "package", desc: "Placed in sealed 55gal drum" },
+          { name: "Airlock Valve", icon: "gauge", desc: "Allows CO2 escape without O2 entry" },
+          { name: "Anaerobic Phase", icon: "microscope", desc: "Lactic/yeast dominant pathway" },
+          { name: "Finish", icon: "sun", desc: "Washed or dried intact" }
+        ],
+        pH: "3.6 - 4.2",
+        temp: "15-25°C",
+        vessel: "Sealed plastic drums with one-way valves"
       },
       {
-        id: "AER-07",
+        id: 7,
         name: "Aerobic Process",
         aka: "Open Air Ferment",
-        category: "Traditional",
-        pulpRemoval: "Variable",
-        oxygenEnv: "Aerobic",
-        inoculants: "None",
-        duration: "Standard (24-48 Hours)",
-        badges: {
-          pulp: { label: "Variable", color: "purple" },
-          oxygen: { label: "Aerobic (Open Air)", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "24–48 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Fermentation executed in open tanks or shallow beds exposed continuously to ambient air and atmospheric oxygen exchange.",
-        technicalParameters: {
-          pH: "4.5 – 3.8 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Open Concrete / Plastic Pits",
-          flora: "Aerobic Yeasts & Acetobacter"
-        },
+        pulp: "Variable",
+        pulpText: "Varies wildly",
+        env: "Oxygen-rich (Ambient air)",
+        envType: "Ambient",
+        inoculant: "Variable",
+        inocType: "None",
+        time: "Not critical / varies",
+        desc: "Fermentation conducted in direct contact with ambient oxygen. Encourages aerobic microorganisms and oxidative chemical pathways.",
         steps: [
-          { num: 1, title: "Open Tank Deposit", desc: "Pulped parchment or cherries placed in unsealed vessels." },
-          { num: 2, title: "Atmospheric Exposure", desc: "Ambient oxygen promotes oxidative microbial metabolism." },
-          { num: 3, title: "Water Rinsing", desc: "Rinsing broken down pectin residues with plain water." },
-          { num: 4, title: "Patio Dehydration", desc: "Sun drying until target export moisture is attained." }
-        ]
+          { name: "Open Vessel", icon: "box", desc: "Coffee in open tank/patio" },
+          { name: "Oxygenation", icon: "wind", desc: "Ambient air exposure" },
+          { name: "Microbial Phase", icon: "activity", desc: "Aerobic yeast/bacteria activity" },
+          { name: "Drying", icon: "sun", desc: "Standard sun drying" }
+        ],
+        pH: "4.2 - 5.0",
+        temp: "Ambient outdoor temp",
+        vessel: "Open concrete vats or wooden tanks"
       },
       {
-        id: "ACE-08",
+        id: 8,
         name: "Acetic Process",
-        aka: "Continuous Aeration",
-        category: "Traditional",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic",
-        inoculants: "None",
-        duration: "Extended (48-72 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Aerobic (Agitated O2)", color: "sky" },
-          inoculant: { label: "None (AAB Select)", color: "slate" },
-          duration: { label: "48–72 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Oxygenated fermentation designed specifically to favor Acetic Acid Bacteria (AAB) metabolic pathways through continuous aeration or mechanical mixing of pulped coffee.",
-        technicalParameters: {
-          pH: "3.8 – 3.2 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Agitated Open Bioreactor",
-          flora: "Acetic Acid Bacteria (AAB)"
-        },
+        aka: "AAB Aerobic Process",
+        pulp: "Variable",
+        pulpText: "Depends who you ask",
+        env: "Oxygen-rich (Ambient air)",
+        envType: "Ambient",
+        inoculant: "Not usually",
+        inocType: "None",
+        time: "Not critical / varies",
+        desc: "Requires oxygen-rich conditions to stimulate obligate aerobic Acetic Acid Bacteria (AAB). Involves periodic or continuous agitation to reoxygenate the mass.",
         steps: [
-          { num: 1, title: "Pulped Parchment Loading", desc: "Fresh pulped parchment loaded into open aerated container." },
-          { num: 2, title: "Continuous Aeration & Agitation", desc: "Mechanical mixing introduces maximum air and oxygen flow." },
-          { num: 3, title: "Acetic Acid Accumulation", desc: "AAB metabolize ethanol into acetic acid compounds." },
-          { num: 4, title: "Water Wash & Drying", desc: "Rinsing and drying on raised beds under sun." }
-        ]
+          { name: "Open Vessel", icon: "rotate-cw", desc: "Pulped/cherry in ventilated tank" },
+          { name: "Agitation/Mixing", icon: "refresh-cw", desc: "Continuous mixing for aeration" },
+          { name: "AAB Metabolism", icon: "flask-round", desc: "Oxidation of ethanol to acetic acid" },
+          { name: "Rinse & Dry", icon: "sun", desc: "Washed and patio dried" }
+        ],
+        pH: "3.5 - 4.2",
+        temp: "22-30°C",
+        vessel: "Open tanks with mechanical agitators"
       },
       {
-        id: "GGI-09",
-        name: "Animal-Gastrointestinal",
-        aka: "Kopi Luwak, Jacu Bird",
-        category: "Post-Harvest / Special",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Anaerobic",
-        inoculants: "SCOBY",
-        duration: "Prolonged (Transit + Dry)",
-        badges: {
-          pulp: { label: "Digestive Ingested", color: "emerald" },
-          oxygen: { label: "Anaerobic / Gut", color: "purple" },
-          inoculant: { label: "Digestive Enzymes", color: "amber" },
-          duration: { label: "Prolonged", color: "purple" }
-        },
-        objectiveSummary: "Ripe coffee cherries are ingested by an animal (e.g., civet, bird), undergoing enzymatic digestive breakdown and natural internal gastrointestinal fermentation prior to excretion, collection, sanitizing, and drying.",
-        technicalParameters: {
-          pH: "5.2 – 4.5 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Animal Digestive Tract",
-          flora: "Gastrointestinal Microflora & Proteases"
-        },
+        id: 9,
+        name: "Gastrointestinal (Kopi Luwak / Jacu)",
+        aka: "Kopi Luwak / Jacu Bird",
+        pulp: "Yes",
+        pulpText: "Yes (digested)",
+        env: "Animal Digestive Tract",
+        envType: "Ambient",
+        inoculant: "Gastric Enzymes",
+        inocType: "Culture",
+        time: "Transit time",
+        desc: "Fermentation occurs while passing through the digestive tract of an animal (Asian palm civet or Jacu bird), where gastrointestinal enzymes and flora break down proteins and mucilage.",
         steps: [
-          { num: 1, title: "Animal Cherry Ingestion", desc: "Animal eats ripe coffee fruit selectively." },
-          { num: 2, title: "Gut Enzymatic Digestion", desc: "Proteolytic enzymes degrade outer pulp inside digestive system." },
-          { num: 3, title: "Excretion & Manual Collection", desc: "Excreted parchment gathered from ground." },
-          { num: 4, title: "Sanitization, Washing & Drying", desc: "Thorough washing, microbial sanitizing, and sun drying." }
-        ]
+          { name: "Ingestion", icon: "utensils", desc: "Animal eats whole cherries" },
+          { name: "GI Transit", icon: "activity", desc: "Enzymatic gastric digestion" },
+          { name: "Collection", icon: "download", desc: "Excreted seeds harvested" },
+          { name: "Sanitization", icon: "shield-check", desc: "Thorough washing and sun drying" }
+        ],
+        pH: "5.5 - 6.2",
+        temp: "37-39°C (Body temp)",
+        vessel: "Animal gastrointestinal system"
       },
       {
-        id: "CRY-10",
+        id: 10,
         name: "Cryomaceration",
         aka: "Cold Soul Process",
-        category: "Thermal / Temp-Controlled",
-        pulpRemoval: "Variable",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Heat/Cold Shock",
-        duration: "Prolonged (200-700+ Hours)",
-        badges: {
-          pulp: { label: "Variable", color: "purple" },
-          oxygen: { label: "Anaerobic / Submerged", color: "purple" },
-          inoculant: { label: "Chilled Temp Shock", color: "cyan" },
-          duration: { label: "200–700+ Hours", color: "purple" }
-        },
-        objectiveSummary: "Extended low-temperature fermentation carried out by submerging coffee in chilled water (8–10°C) inside closed containers to drastically slow microbial kinetic rates over extended durations.",
-        technicalParameters: {
-          pH: "4.0 – 3.6 pH controlled",
-          moisture: "65% → 11.0%",
-          vessel: "Chilled Jacket Tanks (8–10°C)",
-          flora: "Psychrophilic & Cryotolerant Microbes"
-        },
+        pulp: "Yes",
+        pulpText: "Yes (usually after cold soak)",
+        env: "Chilled Water (8-10°C)",
+        envType: "Chilled",
+        inoculant: "Sometimes yeast",
+        inocType: "Yeast",
+        time: "200 to 700+ Hours",
+        desc: "Whole ripe cherries or pulped coffee are submerged in ultra-cold water (8-10°C) inside sealed containers for extended multi-week fermentations to slow metabolic rates.",
         steps: [
-          { num: 1, title: "Chilled Water Submersion", desc: "Coffee submerged in temperature-controlled water at 8–10°C." },
-          { num: 2, title: "Ultra-Slow Kinetic Ferment", desc: "Sustained cold environment slows bacterial multiplication." },
-          { num: 3, title: "Extended Duration Hold", desc: "Fermentation extended safely for up to 700 hours." },
-          { num: 4, title: "Post-Cold Pulp & Bed Drying", desc: "Pulping or direct transfer to raised beds for sun drying." }
-        ]
+          { name: "Chilled Bath", icon: "snowflake", desc: "Submerged in 8-10°C cold water" },
+          { name: "Extended Soak", icon: "clock", desc: "Held for 200–700+ hours" },
+          { name: "Suppressed Rate", icon: "thermometer-snowflake", desc: "Metabolism dramatically retarded" },
+          { name: "Slow Drying", icon: "sun", desc: "Dried under cold air/shade" }
+        ],
+        pH: "4.2 - 4.8",
+        temp: "8-10°C constant",
+        vessel: "Jacketed cooling tanks or cold-room drums"
       },
       {
-        id: "TSH-11",
+        id: 11,
         name: "Thermal Shock",
-        aka: "Temperature Wash Transition",
-        category: "Thermal / Temp-Controlled",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Heat/Cold Shock",
-        duration: "Extended (48-96 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Anaerobic / Sealed", color: "purple" },
-          inoculant: { label: "Hot & Cold Rinse", color: "rose" },
-          duration: { label: "48–96 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Post-fermentation washing technique where fermented parchment is subjected to a rapid temperature transition: first rinsed with hot water (~40°C), followed immediately by cold water (~12°C).",
-        technicalParameters: {
-          pH: "3.8 – 3.4 pH",
-          moisture: "55% → 11.0%",
-          vessel: "Thermal Shock Wash Bioreactor",
-          flora: "Target Yeast Inoculant"
-        },
+        aka: "Bermudez Protocol",
+        pulp: "Yes",
+        pulpText: "Yes",
+        env: "Hot / Cold Water Sequence",
+        envType: "Heated",
+        inoculant: "Targeted Inoculant",
+        inocType: "Yeast",
+        time: "Multi-day ferment + instant shock",
+        desc: "After precise fermentation, coffee is subjected to a extreme temperature rinse: first washed with hot water (~40°C) to open bean pores, then rapidly chilled with 12°C water.",
         steps: [
-          { num: 1, title: "Controlled Fermentation", desc: "Coffee undergoes initial anaerobic fermentation step." },
-          { num: 2, title: "Hot Water Rinse Phase", desc: "Submerged in 40°C hot water for 10-15 minutes to open pores." },
-          { num: 3, title: "Cold Water Shock Rinse", desc: "Immediate flush with 12°C cold water to shrink pores and lock compounds." },
-          { num: 4, title: "Dehumidified Drying", desc: "Mechanical or raised bed drying under monitored conditions." }
-        ]
+          { name: "Controlled Ferment", icon: "flame", desc: "Inoculated warm fermentation" },
+          { name: "Hot Rinse", icon: "thermometer-sun", desc: "40°C hot water flush" },
+          { name: "Cold Shock", icon: "snowflake", desc: "Immediate 12°C chilled water rinse" },
+          { name: "Dehydration", icon: "wind", desc: "Closed dehumidifier drying" }
+        ],
+        pH: "3.8 - 4.2",
+        temp: "40°C down to 12°C",
+        vessel: "Pressurized thermal tanks with heat exchangers"
       },
       {
-        id: "TRD-12",
+        id: 12,
         name: "Tree-Dried",
-        aka: "Raisin Process",
-        category: "Post-Harvest / Special",
-        pulpRemoval: "No, never",
-        oxygenEnv: "Aerobic",
-        inoculants: "None",
-        duration: "Prolonged (30-60 Days)",
-        badges: {
-          pulp: { label: "No, on branch", color: "amber" },
-          oxygen: { label: "Aerobic Air", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "30–60 Days", color: "purple" }
-        },
-        objectiveSummary: "Cherries are intentionally left unharvested on the coffee tree branches beyond peak ripening to dehydrate naturally in ambient air before collection.",
-        technicalParameters: {
-          pH: "5.2 – 4.5 pH",
-          moisture: "20% On Tree → 11.0%",
-          vessel: "Live Coffee Tree Branches",
-          flora: "Solar UV Exposed Microflora"
-        },
+        aka: "Raisin Coffee",
+        pulp: "No",
+        pulpText: "No",
+        env: "On Tree Branch",
+        envType: "Ambient",
+        inoculant: "No",
+        inocType: "None",
+        time: "Until naturally dried on vine",
+        desc: "Coffee cherries are left unharvested on the tree past peak ripeness until they desiccate completely on the branch.",
         steps: [
-          { num: 1, title: "Extended Tree Retention", desc: "Cherries left attached to tree past standard harvest stage." },
-          { num: 2, title: "In-Situ Dehydration", desc: "Solar heat dries cherry into wrinkled raisin state on branch." },
-          { num: 3, title: "Late Tree Stripping", desc: "Dried raisin cherries harvested directly from branches." },
-          { num: 4, title: "Dry Mechanical Hulling", desc: "Hulling outer shriveled husk to yield clean green coffee." }
-        ]
+          { name: "Over-Ripening", icon: "sun-medium", desc: "Left on branch past ripeness" },
+          { name: "Tree Desiccation", icon: "feather", desc: "Dries intact in ambient air" },
+          { name: "Harvest", icon: "hand", desc: "Picked as shriveled raisins" },
+          { name: "Hulling", icon: "archive", desc: "Direct dry hulling" }
+        ],
+        pH: "5.2 - 5.8",
+        temp: "Ambient sunlight",
+        vessel: "Live coffee tree branches"
       },
       {
-        id: "TST-13",
+        id: 13,
         name: "Thermal Stroke / Thermophilic",
-        aka: "High-Heat Sealed Ferment",
-        category: "Thermal / Temp-Controlled",
-        pulpRemoval: "No, never",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Heat/Cold Shock",
-        duration: "Extended (72-120 Hours)",
-        badges: {
-          pulp: { label: "No, whole cherry", color: "amber" },
-          oxygen: { label: "Anaerobic / Low-O2", color: "purple" },
-          inoculant: { label: "Sealed 70°C Thermal", color: "rose" },
-          duration: { label: "72–120 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Multi-stage protocol combining initial low-oxygen cherry ferment, partial low-temperature mechanical drying (<35°C), a high-temperature sealed thermal cycle (~70°C for 24h), and final sun drying.",
-        technicalParameters: {
-          pH: "3.9 – 3.4 pH",
-          moisture: "65% → 30% → 11.0%",
-          vessel: "Thermal Sealed Oven / Bioreactor",
-          flora: "Thermophilic Microorganisms"
-        },
+        aka: "Thermophilic Maceration",
+        pulp: "No",
+        pulpText: "No",
+        env: "High Heat (~70-75°C)",
+        envType: "Heated",
+        inoculant: "Not usually",
+        inocType: "None",
+        time: "Multi-day heat process",
+        desc: "Whole cherries undergo low-oxygen ferment, partial low-temp dehydration, followed by an extreme high-temperature sealed thermal cycle (~70°C) to kill non-thermophilic microbes.",
         steps: [
-          { num: 1, title: "Low-O2 Ferment (Phase 1)", desc: "Sealed cherry fermentation in drum for 48 hours." },
-          { num: 2, title: "Partial Low-Temp Drying", desc: "Mechanical drying below 35°C until moisture drops partially." },
-          { num: 3, title: "Sealed 70°C Thermal Step", desc: "Sealed high-heat chamber exposure (~70°C) for 24 hours." },
-          { num: 4, title: "Patio Sun Drying", desc: "Final drying on open sun beds to export moisture." }
-        ]
+          { name: "Low-O2 Phase", icon: "shield", desc: "2-day whole cherry ferment" },
+          { name: "Partial Dehydrate", icon: "wind", desc: "Drying at <35°C" },
+          { name: "Heat Stroke", icon: "flame", desc: "Sealed barrel heat at 70°C for ~20h" },
+          { name: "Patio Finish", icon: "sun", desc: "Final sun drying" }
+        ],
+        pH: "4.0 - 4.5",
+        temp: "Up to 70-75°C",
+        vessel: "Insulated heated bioreactor drums"
       },
       {
-        id: "BIO-14",
+        id: 14,
         name: "Bio Innovation",
-        aka: "Farm Wild-Culture Process",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Sequential",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Farm Native Culture",
-        duration: "Extended (~100 Hours)",
-        badges: {
-          pulp: { label: "Sequential", color: "purple" },
-          oxygen: { label: "Anaerobic / Clay Vessel", color: "purple" },
-          inoculant: { label: "Native Wild Culture", color: "emerald" },
-          duration: { label: "~100 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Cherries undergo extended low-oxygen fermentation in porous clay vessels using a continuous starter culture propagated exclusively from native farm microflora, followed by pulping and secondary washing.",
-        technicalParameters: {
-          pH: "3.7 – 3.3 pH",
-          moisture: "65% → 11.0%",
-          vessel: "Porous Clay Fermentation Vessels",
-          flora: "Farm Native Cultivated Starter"
-        },
+        aka: "Clay Pot Native Culture",
+        pulp: "Eventually",
+        pulpText: "Yes, eventually",
+        env: "Low-Oxygen / Clay Vessel",
+        envType: "Low-O2",
+        inoculant: "Wild Native Microflora",
+        inocType: "Culture",
+        time: "100 Hours total (84h cherry + 16h pulped)",
+        desc: "Proprietary process where cherries undergo initial 84-hour whole-cherry ferment in sealed clay pots with farm-cultivated wild microflora, followed by depulping and 16-hour secondary ferment.",
         steps: [
-          { num: 1, title: "Clay Tank Whole Cherry Ferment", desc: "Whole cherries ferment in clay vessels for 84 hours." },
-          { num: 2, title: "Depulping Phase", desc: "Fruit pulped to expose mucilage-covered parchment." },
-          { num: 3, title: "Native Starter Inoculation", desc: "Secondary 16-hour ferment inoculated with farm native culture." },
-          { num: 4, title: "Channel Wash & Sun Drying", desc: "Rinsed and dried on raised beds under parabolic plastic." }
-        ]
+          { name: "Clay Vessel", icon: "box", desc: "Cherries placed in porous clay pots" },
+          { name: "Native Inoculum", icon: "microscope", desc: "Fed with farm-isolated microflora" },
+          { name: "Phase 1 (84h)", icon: "clock", desc: "Whole cherry low-O2 ferment" },
+          { name: "Phase 2 (16h)", icon: "droplet", desc: "Pulped parchment secondary ferment" }
+        ],
+        pH: "3.7 - 4.2",
+        temp: "18-24°C",
+        vessel: "Sealed porous earthenware / clay tanks"
       },
       {
-        id: "HGV-15",
+        id: 15,
         name: "High Gravity",
-        aka: "Vacuum Bioreactor",
-        category: "Anaerobic / Gas-Flushed",
-        pulpRemoval: "Variable",
-        oxygenEnv: "Vacuum",
-        inoculants: "Commercial Yeast",
-        duration: "Standard (24-48 Hours)",
-        badges: {
-          pulp: { label: "Variable", color: "purple" },
-          oxygen: { label: "Headspace Vacuum", color: "cyan" },
-          inoculant: { label: "Selected Yeast", color: "emerald" },
-          duration: { label: "24–48 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Fermentation conducted under negative pressure (headspace air purged via vacuum pump) inside steel bioreactors to accelerate microbial metabolic exchange and equalized moisture diffusion.",
-        technicalParameters: {
-          pH: "4.0 – 3.6 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Steel Vacuum Bioreactor",
-          flora: "Inoculated Yeast Strains"
-        },
+        aka: "Vacuum Fermentation",
+        pulp: "Variable",
+        pulpText: "Doesn't matter",
+        env: "Vacuum / Sub-Atmospheric",
+        envType: "Vacuum",
+        inoculant: "Selected Yeast",
+        inocType: "Yeast",
+        time: "Accelerated duration",
+        desc: "Derived from brewing tech. Air is pumped out of sealed steel tanks to create a headspace vacuum. Accelerates mass transfer and metabolite homogenization.",
         steps: [
-          { num: 1, title: "Steel Bioreactor Loading", desc: "Coffee and yeast inoculant placed in pressure tank." },
-          { num: 2, title: "Headspace Vacuum Purge", desc: "Vacuum pump removes air to establish negative pressure." },
-          { num: 3, title: "Accelerated Mass Transfer", desc: "Sub-atmospheric condition speeds up yeast uptake." },
-          { num: 4, title: "Equalization & Sun Drying", desc: "Pressure normalized, rinsed, and dried on beds." }
-        ]
+          { name: "Tank Loading", icon: "container", desc: "Coffee placed in steel reactor" },
+          { name: "Vacuum Evacuation", icon: "gauge", desc: "Air pumped out to negative pressure" },
+          { name: "Accelerated Phase", icon: "zap", desc: "Rapid cellular metabolite exchange" },
+          { name: "Discharge & Dry", icon: "sun", desc: "Standard drying protocol" }
+        ],
+        pH: "4.0 - 4.6",
+        temp: "Controlled 20-25°C",
+        vessel: "Hermetic steel vacuum bioreactors"
       },
       {
-        id: "IPA-16",
+        id: 16,
         name: "IPA Anaerobic",
-        aka: "Hop & Ale Yeast Ferment",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Sequential",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Commercial Yeast",
-        duration: "Extended (216 Hours Total)",
-        badges: {
-          pulp: { label: "Sequential", color: "purple" },
-          oxygen: { label: "Anaerobic Low-O2", color: "purple" },
-          inoculant: { label: "IPA Yeast + Hops", color: "emerald" },
-          duration: { label: "216 Hours Total", color: "purple" }
-        },
-        objectiveSummary: "Two-stage anaerobic fermentation process utilizing an initial whole-cherry phase (120h), followed by pulping and a secondary anaerobic phase (96h) inoculated with brewing yeast and terpene-rich hop cones.",
-        technicalParameters: {
-          pH: "3.6 – 3.2 pH",
-          moisture: "65% → 11.0%",
-          vessel: "Sealed Anaerobic Drums",
-          flora: "Ale Brewing Yeast + Hop Terpenes"
-        },
+        aka: "Hop Inoculated Anaerobic",
+        pulp: "Eventually",
+        pulpText: "Yes, eventually",
+        env: "Double Closed Container",
+        envType: "Low-O2",
+        inoculant: "IPA Yeast + Hop Pellets",
+        inocType: "Substrate",
+        time: "~120h cherry + ~96h pulped",
+        desc: "Initial 120-hour anaerobic cherry ferment. Depulped, then fermented anaerobically for 96 hours with IPA beer brewing yeast and hop additions containing antiseptic terpenes.",
         steps: [
-          { num: 1, title: "Phase 1: Whole Cherry Anaerobic", desc: "Intact cherries in sealed tanks for 120 hours." },
-          { num: 2, title: "Pulping & Hop Inoculation", desc: "Pulped and dosed with IPA beer yeast and real hop cones." },
-          { num: 3, title: "Phase 2: Secondary Anaerobic", desc: "Sealed ferment for 96 hours to transfer hop terpenes." },
-          { num: 4, title: "Raised Bed Drying", desc: "Transfer to drying beds with remaining hop particles." }
-        ]
+          { name: "Cherry Phase", icon: "clock", desc: "120-hour low-O2 cherry ferment" },
+          { name: "Depulping", icon: "cog", desc: "Skin removed" },
+          { name: "Hop Inoculation", icon: "flower2", desc: "Added IPA yeast & terpene hops" },
+          { name: "Parchment Phase", icon: "shield", desc: "96-hour anaerobic parchment ferment" }
+        ],
+        pH: "3.6 - 4.0",
+        temp: "18-22°C",
+        vessel: "Sealed plastic drums with airlocks"
       },
       {
-        id: "YST-17",
+        id: 17,
         name: "Yeast Processing",
-        aka: "Inoculated Fermentation",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Variable",
-        oxygenEnv: "Aerobic / Variable",
-        inoculants: "Commercial Yeast",
-        duration: "Standard (24-72 Hours)",
-        badges: {
-          pulp: { label: "Variable", color: "purple" },
-          oxygen: { label: "Variable Tank", color: "sky" },
-          inoculant: { label: "Saccharomyces Strain", color: "emerald" },
-          duration: { label: "24–72 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Targeted inoculation of coffee with high concentrations of commercial yeast strains (e.g., Saccharomyces cerevisiae) to dominate microbial competition and suppress wild spoilage organisms.",
-        technicalParameters: {
-          pH: "4.2 – 3.7 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Inoculated Fermentation Tank",
-          flora: "Saccharomyces cerevisiae Strain"
-        },
+        aka: "Inoculated / Yeast-Controlled",
+        pulp: "Variable",
+        pulpText: "Sometimes",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Commercial Yeast (Saccharomyces)",
+        inocType: "Yeast",
+        time: "Not critical / varies",
+        desc: "High-dose inoculation of selected yeast strains (e.g., Lalcafé, wine/beer strains) to suppress wild spoilage microflora and dominate metabolic output.",
         steps: [
-          { num: 1, title: "Commercial Yeast Rehydration", desc: "Active dry yeast rehydrated in warm water solution." },
-          { num: 2, title: "Direct Mass Inoculation", desc: "Yeast poured evenly over pulped or whole coffee." },
-          { num: 3, title: "Dominated Sugar Ferment", desc: "High cell count dominates wild bacteria and molds." },
-          { num: 4, title: "Water Washing & Sun Drying", desc: "Washed cleanly and sun dried on patio or beds." }
-        ]
+          { name: "Dosing", icon: "flask-conical", desc: "High ratio cultured yeast pitch" },
+          { name: "Microbial Dominance", icon: "shield-alert", desc: "Target strain outcompetes wild flora" },
+          { name: "Controlled Ferment", icon: "activity", desc: "Predictable ester production" },
+          { name: "Washing / Drying", icon: "sun", desc: "Standard finish" }
+        ],
+        pH: "4.0 - 4.8",
+        temp: "20-30°C optimal for yeast",
+        vessel: "Stainless tanks, open vats, or poly drums"
       },
       {
-        id: "KOJ-18",
+        id: 18,
         name: "Koji Processing",
         aka: "Koji Supernatural",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "No, never",
-        oxygenEnv: "Aerobic",
-        inoculants: "Koji Mold",
-        duration: "Extended (72-120 Hours)",
-        badges: {
-          pulp: { label: "No, whole cherry", color: "amber" },
-          oxygen: { label: "Aerobic Controlled", color: "sky" },
-          inoculant: { label: "Aspergillus oryzae", color: "emerald" },
-          duration: { label: "72–120 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Dusting coffee fruit with Aspergillus oryzae (Koji mold) spores to break down complex starches and proteins into fermentable simple sugars and amino acids via hydrolytic enzymes.",
-        technicalParameters: {
-          pH: "5.0 – 4.2 pH",
-          moisture: "65% → 11.0%",
-          vessel: "Humidified Aerobic Trays",
-          flora: "Aspergillus oryzae (Koji Mold)"
-        },
+        pulp: "Variable",
+        pulpText: "Sometimes",
+        env: "Aerobic Humidity Controlled",
+        envType: "Ambient",
+        inoculant: "Aspergillus oryzae spores",
+        inocType: "Culture",
+        time: "Multi-stage fungal growth",
+        desc: "Spores of Koji mold (Aspergillus oryzae) are dusted over coffee. Fungal mycelium produces hydrolytic enzymes (amylase, protease) breaking starches into fermentable sugars.",
         steps: [
-          { num: 1, title: "Whole Cherry Spore Dusting", desc: "Ripe cherries dusted with Aspergillus oryzae Koji spores." },
-          { num: 2, title: "Humidified Aerobic Incubate", desc: "Kept on wooden trays with controlled humidity and air." },
-          { num: 3, title: "Enzymatic Starch Breakdown", desc: "Mold mycelium secretes amylase to convert complex starches." },
-          { num: 4, title: "Sun Bed Drying Phase", desc: "Transferred to outdoor beds once mycelium flowers." }
-        ]
+          { name: "Spores Dusting", icon: "sparkles", desc: "Aspergillus oryzae sprinkled on cherry" },
+          { name: "Fungal Growth", icon: "network", desc: "Mycelium grows aerobically" },
+          { name: "Enzymatic Breakdown", icon: "scissors", desc: "Protease/Amylase converts starches" },
+          { name: "Secondary Ferment", icon: "droplet", desc: "Sugars fed to secondary yeasts" }
+        ],
+        pH: "4.8 - 5.5",
+        temp: "25-30°C warm humid environment",
+        vessel: "Cedar trays / ventilated growing beds"
       },
       {
-        id: "LAC-19",
+        id: 19,
         name: "Lactic Process",
-        aka: "Salt / LAB Process",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Farm Native Culture",
-        duration: "Extended (48-96 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Anaerobic Low-O2", color: "purple" },
-          inoculant: { label: "LAB Culture or 2% Salt", color: "emerald" },
-          duration: { label: "48–96 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Process engineered to favor Lactic Acid Bacteria (LAB) growth by creating low-oxygen, high-carbohydrate, or halotolerant (2% saline solution) environments that inhibit competing organisms.",
-        technicalParameters: {
-          pH: "3.6 – 3.1 pH high acid",
-          moisture: "60% → 11.0%",
-          vessel: "Sealed Saline / LAB Vessel",
-          flora: "Lactobacillus & Leuconostoc Strains"
-        },
+        aka: "Salt Process / LAB Focus",
+        pulp: "Often",
+        pulpText: "Often",
+        env: "Low-O2 / 2% Saline Bath",
+        envType: "Low-O2",
+        inoculant: "LAB Culture or 2% Salt",
+        inocType: "SCOBY",
+        time: "Not critical / varies",
+        desc: "Engineered to favor Lactic Acid Bacteria (LAB). Uses starter cultures or a 2% saline solution bath (halotolerant selection) in anaerobic conditions.",
         steps: [
-          { num: 1, title: "Pulping & Container Prep", desc: "Pulped parchment loaded into anaerobic tank." },
-          { num: 2, title: "LAB Starter / Saline Addition", desc: "Dosed with lactic starter culture or 2% sodium chloride bath." },
-          { num: 3, title: "Acid Accumulation Phase", desc: "Lactic acid bacteria generate high lactic acid concentrations." },
-          { num: 4, title: "Rinsing & Raised Bed Drying", desc: "Water rinse and drying on raised beds." }
-        ]
+          { name: "Inoculation / Salt", icon: "flask-round", desc: "Pitch LAB starter or 2% NaCl solution" },
+          { name: "Anaerobic Condition", icon: "shield", desc: "Sealed container prevents oxidation" },
+          { name: "Lactic Acid Production", icon: "activity", desc: "Carbohydrates converted to lactic acid" },
+          { name: "Rinse & Dry", icon: "sun", desc: "Washed and dried" }
+        ],
+        pH: "3.4 - 3.9",
+        temp: "22-28°C",
+        vessel: "Sealed plastic bioreactors or saline tanks"
       },
       {
-        id: "MOL-20",
+        id: 20,
         name: "Molecular Process",
-        aka: "Native Isolate Protocol",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Farm Native Culture",
-        duration: "Extended (48-72 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Anaerobic / Airlock", color: "purple" },
-          inoculant: { label: "Isolated Farm Microbes", color: "emerald" },
-          duration: { label: "48–72 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Fermentation where coffee is inoculated with a concentrated starter culture propagated specifically from indigenous microflora harvested from that exact farm property.",
-        technicalParameters: {
-          pH: "3.8 – 3.4 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Bioreactor with Airlock",
-          flora: "Isolated Farm Microflora Strains"
-        },
+        aka: "Single-Farm Starter Culture",
+        pulp: "Usually",
+        pulpText: "Usually",
+        env: "Closed Container with Airlock",
+        envType: "Low-O2",
+        inoculant: "Propagated Farm Isolate",
+        inocType: "Culture",
+        time: "Not critical / varies",
+        desc: "Coffee is inoculated with a starter culture isolated and grown exclusively from wild native cherries harvested on that specific single farm property.",
         steps: [
-          { num: 1, title: "Farm Microbe Sampling", desc: "Native wild yeasts sampled from local farm cherries." },
-          { num: 2, title: "Lab Culture Expansion", desc: "Isolates grown into high-density liquid starter culture." },
-          { num: 3, title: "Pulp Batch Inoculation", desc: "Fresh pulped coffee inoculated with farm-specific isolate." },
-          { num: 4, title: "Controlled Wash & Dry", desc: "Rinsed and sun-dried on elevated drying tables." }
-        ]
+          { name: "Isolation", icon: "microscope", desc: "Microbes cultured from farm cherry" },
+          { name: "Starter Propagation", icon: "test-tube-2", desc: "Culture expanded in liquid media" },
+          { name: "Tank Inoculation", icon: "container", desc: "Added to freshly pulped batch" },
+          { name: "Controlled Wash", icon: "sun", desc: "Washed wet process finish" }
+        ],
+        pH: "3.8 - 4.4",
+        temp: "20-25°C",
+        vessel: "Sealed bioreactors with airlocks"
       },
       {
-        id: "CAS-21",
+        id: 21,
         name: "Cascara Tea Process",
         aka: "Cascara Maceration",
-        category: "Recycled / Fruit Infused",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic",
-        inoculants: "Recycled Fruit/Tea",
-        duration: "Standard (24-48 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Aerobic / Submerged", color: "sky" },
-          inoculant: { label: "Cascara Extract / Tea", color: "amber" },
-          duration: { label: "24–48 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Parchment coffee ferments submerged in an aqueous extract or tea derived from dried or fresh coffee skins (cascara) to recycled soluble fruit solids.",
-        technicalParameters: {
-          pH: "4.2 – 3.7 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Submerged Cascara Tank",
-          flora: "Cascara Fruit Microflora"
-        },
+        pulp: "Yes",
+        pulpText: "Yes, always",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Cascara Extract / Frozen Tea",
+        inocType: "Substrate",
+        time: "Not critical / varies",
+        desc: "Parchment coffee ferments submerged in an aqueous tea made from dried/fresh coffee skins or frozen cascara concentrate to enrich sugar/acid substrate levels.",
         steps: [
-          { num: 1, title: "Cascara Tea Preparation", desc: "Dried or fresh coffee skins brewed into concentrated tea." },
-          { num: 2, title: "Parchment Submersion", desc: "Pulped parchment immersed directly into cascara bath." },
-          { num: 3, title: "Co-Fermentation Phase", desc: "Soluble fruit solids re-absorbed into parchment layer." },
-          { num: 4, title: "Water Wash & Sun Drying", desc: "Rinsed clean and sun-dried on raised beds." }
-        ]
+          { name: "Tea Preparation", icon: "coffee", desc: "Concentrated tea brewed from skins" },
+          { name: "Depulping", icon: "cog", desc: "Coffee pulped to parchment" },
+          { name: "Tea Submersion", icon: "droplet", desc: "Parchment steeped in cascara liquid" },
+          { name: "Washing & Drying", icon: "sun", desc: "Rinsed and patio dried" }
+        ],
+        pH: "4.0 - 4.6",
+        temp: "18-25°C",
+        vessel: "Fermentation vats filled with skin extract"
       },
       {
-        id: "KOM-22",
+        id: 22,
         name: "Kombucha Process",
-        aka: "SCOBY Fermentation",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic",
-        inoculants: "SCOBY",
-        duration: "Extended (48-96 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Aerobic / Exposed", color: "sky" },
-          inoculant: { label: "Active Kombucha SCOBY", color: "emerald" },
-          duration: { label: "48–96 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Inoculation of the fermentation batch using an active Kombucha SCOBY containing acetic acid bacteria, lactic acid bacteria, and osmophilic yeasts.",
-        technicalParameters: {
-          pH: "3.5 – 3.0 pH high acid",
-          moisture: "60% → 11.0%",
-          vessel: "Cloth-Covered Open Tank",
-          flora: "Symbiotic Culture of Bacteria & Yeast"
-        },
+        aka: "SCOBY Inoculated",
+        pulp: "Yes",
+        pulpText: "Yes",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Kombucha SCOBY",
+        inocType: "SCOBY",
+        time: "Not critical / varies",
+        desc: "Inoculated with an active Kombucha SCOBY (Symbiotic Culture of Bacteria and Yeast) containing AAB, LAB, and yeasts (*Brettanomyces*, *Saccharomyces*, *Zygosaccharomyces*).",
         steps: [
-          { num: 1, title: "Pulping & SCOBY Addition", desc: "Pulped coffee combined with active liquid SCOBY starter." },
-          { num: 2, title: "Symbiotic Microbial Ferment", desc: "Bacteria and yeast form cellulose mat and acetic acid." },
-          { num: 3, title: "Acid Termination Rinse", desc: "Coffee washed with clean water once pH drops to target." },
-          { num: 4, title: "Patio / Raised Bed Drying", desc: "Sun drying until target export moisture is achieved." }
-        ]
+          { name: "SCOBY Pitch", icon: "disc", desc: "Active SCOBY culture added" },
+          { name: "Symbiotic Phase", icon: "activity", desc: "Simultaneous acetic/lactic/ethanolic pathways" },
+          { name: "Acidification", icon: "trending-down", desc: "Rapid decline in pH" },
+          { name: "Washing & Drying", icon: "sun", desc: "Washed and dried on raised beds" }
+        ],
+        pH: "3.2 - 3.8",
+        temp: "22-28°C",
+        vessel: "Open or semi-sealed food grade containers"
       },
       {
-        id: "YOG-23",
+        id: 23,
         name: "Yogurt Process",
-        aka: "Dairy Lactic Inoculation",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Commercial Yeast",
-        duration: "Extended (36-72 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Anaerobic Temp-Control", color: "purple" },
-          inoculant: { label: "Dairy Yogurt Culture", color: "emerald" },
-          duration: { label: "36–72 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Direct inoculation of pulped coffee with commercial dairy yogurt cultures (Lactobacillus bulgaricus & Streptococcus thermophilus) to select for specific strains of lactic acid bacteria.",
-        technicalParameters: {
-          pH: "3.8 – 3.3 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Insulated Thermal Tank",
-          flora: "L. bulgaricus & S. thermophilus"
-        },
+        aka: "Dairy LAB Inoculated",
+        pulp: "Yes",
+        pulpText: "Yes",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Commercial Yogurt Culture",
+        inocType: "SCOBY",
+        time: "Not critical / varies",
+        desc: "Pulped coffee is inoculated directly with dairy yogurt starter cultures (*Lactobacillus bulgaricus*, *Streptococcus thermophilus*) to select for specific thermophilic LAB.",
         steps: [
-          { num: 1, title: "Yogurt Starter Dosing", desc: "Commercial active yogurt culture mixed into pulped coffee mass." },
-          { num: 2, title: "Warm Thermal Holding", desc: "Kept at warm incubation temperature (~38–42°C)." },
-          { num: 3, title: "Lactic Fermentation Phase", desc: "Rapid conversion of mucilage glucose into lactic acid." },
-          { num: 4, title: "Thorough Rinse & Bed Drying", desc: "Washed thoroughly with cold water and sun-dried." }
-        ]
+          { name: "Depulping", icon: "cog", desc: "Coffee pulped" },
+          { name: "Yogurt Pitch", icon: "milk", desc: "Yogurt starter cultures added" },
+          { name: "Incubation", icon: "thermometer-sun", desc: "Held at warm target incubation temp" },
+          { name: "Washing", icon: "droplets", desc: "Rinsed clean and dried" }
+        ],
+        pH: "3.6 - 4.2",
+        temp: "35-42°C targeted warmth",
+        vessel: "Insulated thermal tanks"
       },
       {
-        id: "FLW-24",
+        id: 24,
         name: "Flower Cultured",
         aka: "Blossom Yeast Isolation",
-        category: "Inoculated / Cultured",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Anaerobic",
-        inoculants: "Farm Native Culture",
-        duration: "Extended (72 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Anaerobic Tank", color: "purple" },
-          inoculant: { label: "Blossom Yeasts (5%)", color: "emerald" },
-          duration: { label: "72 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Inoculation of pulped coffee using isolated yeast strains (Metschnikowia pulcherrima / Hanseniaspora) cultured directly from fresh coffee blossoms.",
-        technicalParameters: {
-          pH: "3.9 – 3.5 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Sealed Inoculation Vessel",
-          flora: "Metschnikowia & Hanseniaspora"
-        },
+        pulp: "Yes",
+        pulpText: "Yes",
+        env: "Ambient Exposed",
+        envType: "Ambient",
+        inoculant: "Metschnikowia / Hanseniaspora from blossoms",
+        inocType: "Yeast",
+        time: "3 Day Fermentation",
+        desc: "Isolated yeast species (*Metschnikowia pulcherrima*, *Hanseniaspora*) cultured directly from fresh coffee blossoms are grown on agar and pitched at 5% concentration.",
         steps: [
-          { num: 1, title: "Coffee Blossom Harvesting", desc: "Fresh white coffee flowers gathered during bloom season." },
-          { num: 2, title: "Yeast Isolation & Culture", desc: "Agar isolation yields concentrated 5% liquid flower yeast inoculum." },
-          { num: 3, title: "3-Day Inoculated Ferment", desc: "Pulped parchment ferments in sealed tank for 72 hours." },
-          { num: 4, title: "Channel Wash & Sun Drying", desc: "Water washed and dried under parabolic solar driers." }
-        ]
+          { name: "Blossom Isolation", icon: "flower", desc: "Yeasts swabbed from coffee blossoms" },
+          { name: "Agar Expansion", icon: "test-tube", desc: "Cultured in laboratory environment" },
+          { name: "5% Dosing Pitch", icon: "droplet", desc: "Inoculated at 5% volume with water" },
+          { name: "3-Day Ferment", icon: "clock", desc: "Fermented 72h prior to drying" }
+        ],
+        pH: "4.0 - 4.5",
+        temp: "20-26°C",
+        vessel: "Open stainless processing tanks"
       },
       {
-        id: "CLR-25",
+        id: 25,
         name: "[Color]-Washed",
-        aka: "Orange-Washed, Golden-Washed",
-        category: "Recycled / Fruit Infused",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic",
-        inoculants: "Recycled Fruit/Tea",
-        duration: "Standard (24-48 Hours)",
-        badges: {
-          pulp: { label: "Yes, pulped", color: "emerald" },
-          oxygen: { label: "Aerobic Recycled Wash", color: "sky" },
-          inoculant: { label: "Recycled Cherry Juice", color: "amber" },
-          duration: { label: "24–48 Hours", color: "indigo" }
-        },
-        objectiveSummary: "Washed variation where pulped coffee is washed using concentrated macerated cherry juice (and pulp for orange-washed, or filtered juice for golden-washed) rather than plain water to preserve solids.",
-        technicalParameters: {
-          pH: "4.1 – 3.6 pH",
-          moisture: "60% → 11.0%",
-          vessel: "Recycled Juice Tank",
-          flora: "Recycled Cherry Microflora"
-        },
+        aka: "Orange-Washed / Golden-Washed",
+        pulp: "Yes",
+        pulpText: "Yes",
+        env: "Variable",
+        envType: "Ambient",
+        inoculant: "Recycled Cherry Juice & Pulp",
+        inocType: "Substrate",
+        time: "Not critical / varies",
+        desc: "Pulped coffee is washed using macerated cherry juice and pulp (Orange-washed) or filtered juice (Golden-washed) instead of pure water to avoid diluting soluble solids.",
         steps: [
-          { num: 1, title: "Macerated Juice Extraction", desc: "Separate batch of ripe cherry pressed into thick fruit juice." },
-          { num: 2, title: "Recycled Juice Wash Cycle", desc: "Pulped parchment washed in fruit juice instead of plain water." },
-          { num: 3, title: "Solids Preservation Ferment", desc: "Recycled fruit sugars increase dissolved solids concentration." },
-          { num: 4, title: "Direct Bed Sun Drying", desc: "Transferred directly to drying beds without plain water rinsing." }
-        ]
+          { name: "Juice Maceration", icon: "citrus", desc: "Cherries crushed into concentrated juice" },
+          { name: "Depulping", icon: "cog", desc: "Coffee seeds separated" },
+          { name: "Juice Washing", icon: "refresh-ccw", desc: "Washed in concentrated fruit liquid" },
+          { name: "Drying", icon: "sun", desc: "Dried with residue intact" }
+        ],
+        pH: "4.1 - 4.7",
+        temp: "Ambient",
+        vessel: "Recirculating juice wash channels"
       },
       {
-        id: "HYD-26",
+        id: 26,
         name: "Natural-Hydro-Honey",
         aka: "Rehydrated Honey",
-        category: "Post-Harvest / Special",
-        pulpRemoval: "Partial / Interrupted",
-        oxygenEnv: "Submerged / Interrupted",
-        inoculants: "None",
-        duration: "Extended (10-15 Days)",
-        badges: {
-          pulp: { label: "Partial / Rehydrated", color: "purple" },
-          oxygen: { label: "Submerged Water Bath", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "10–15 Days", color: "indigo" }
-        },
-        objectiveSummary: "Multi-stage method where whole cherries are partially sun dried, submerged in a water bath for ~36 hours to rehydrate, pulped, and then dried to completion as a honey process with mucilage.",
-        technicalParameters: {
-          pH: "4.6 – 3.9 pH",
-          moisture: "65% → 35% → 60% → 11.0%",
-          vessel: "Rehydration Submersion Tank",
-          flora: "Interrupted Ferment Microflora"
-        },
+        pulp: "Eventually",
+        pulpText: "Yes, always, eventually",
+        env: "Variable (Interrupted)",
+        envType: "Ambient",
+        inoculant: "Water rehydration bath",
+        inocType: "Substrate",
+        time: "Interrupted timeline (~36h soak)",
+        desc: "Cherries are partially dried as a natural, then submerged in a 36-hour water bath to rehydrate, depulped, and dried to completion as a honey process with mucilage.",
         steps: [
-          { num: 1, title: "Partial Natural Sun Drying", desc: "Whole cherries sun dried on beds until moisture drops to ~35%." },
-          { num: 2, title: "36h Water Submersion", desc: "Dried cherries submerged in water bath for 36 hours to rehydrate." },
-          { num: 3, title: "Interrupted Depulping", desc: "Rehydrated cherry pulped to leave swollen mucilage." },
-          { num: 4, title: "Final Honey Drying", desc: "Secondary sun drying on raised beds to target export moisture." }
-        ]
+          { name: "Partial Natural", icon: "sun", desc: "Partial sun drying in cherry" },
+          { name: "Hydro Soak", icon: "droplets", desc: "36-hour water rehydration bath" },
+          { name: "Depulping", icon: "cog", desc: "Pulped while soft" },
+          { name: "Honey Finish", icon: "sun-medium", desc: "Final drying with mucilage attached" }
+        ],
+        pH: "4.4 - 5.0",
+        temp: "Ambient water soak",
+        vessel: "Soaking vats + drying beds"
       },
       {
-        id: "GIL-27",
-        name: "Wet Hulled",
-        aka: "Giling Basah, Semi-Washed",
-        category: "Traditional",
-        pulpRemoval: "Yes, always",
-        oxygenEnv: "Aerobic / High Moisture",
-        inoculants: "None",
-        duration: "Standard (5-7 Days)",
-        badges: {
-          pulp: { label: "Yes, pulped wet", color: "emerald" },
-          oxygen: { label: "Aerobic Humid Air", color: "sky" },
-          inoculant: { label: "None", color: "slate" },
-          duration: { label: "5–7 Days Total", color: "indigo" }
-        },
-        objectiveSummary: "Regional technique where coffee is pulped, briefly fermented/washed, dried to a high moisture content (~30%), mechanically hulled while wet, and then dried to export moisture as bare green coffee.",
-        technicalParameters: {
-          pH: "5.0 – 4.5 pH",
-          moisture: "60% → 30% Wet Hull → 12.0%",
-          vessel: "Wet Huller Machine (Giling Basah)",
-          flora: "Ambient Humid Soil & Air Microflora"
-        },
+        id: 27,
+        name: "Wet Hulled / Giling Basah",
+        aka: "Semi-Washed",
+        pulp: "Yes",
+        pulpText: "Yes, always",
+        env: "Usually Ambient",
+        envType: "Ambient",
+        inoculant: "Rarely",
+        inocType: "None",
+        time: "Hulled at high moisture (~30%)",
+        desc: "Indonesian method. Coffee is pulped, briefly fermented/washed, dried partially to high moisture (~30%), mechanically hulled wet, and dried to 12% as bare green beans.",
         steps: [
-          { num: 1, title: "Pulped & Overnight Ferment", desc: "Pulping and overnight bag fermentation to loosen mucilage." },
-          { num: 2, title: "Brief Wash to 30% Moisture", desc: "Mucilage rinsed and parchment sun dried briefly to 30% moisture." },
-          { num: 3, title: "Wet Hulling (Parchment Removal)", desc: "Wet huller strips protective parchment while bean is soft." },
-          { num: 4, title: "Exposed Green Bean Drying", desc: "Bare green coffee seeds sun dried directly on patio to 12%." }
-        ]
+          { name: "Pulp & Bag", icon: "package", desc: "Pulped and stored overnight in jute" },
+          { name: "Partial Dry", icon: "sun", desc: "Dried to high moisture (~30%)" },
+          { name: "Wet Hulling", icon: "hammer", desc: "Friction hulling of damp parchment" },
+          { name: "Green Drying", icon: "wind", desc: "Bare green beans patio dried to 12%" }
+        ],
+        pH: "5.0 - 5.8",
+        temp: "Ambient tropical heat",
+        vessel: "Jute bags + wet friction huller"
       },
       {
-        id: "MON-28",
+        id: 28,
         name: "Monsooned Process",
         aka: "Monsooned Malabar",
-        category: "Post-Harvest / Special",
-        pulpRemoval: "No, never",
-        oxygenEnv: "Monsooned",
-        inoculants: "None",
-        duration: "Prolonged (3-4 Months)",
-        badges: {
-          pulp: { label: "No, whole bean", color: "amber" },
-          oxygen: { label: "Monsooned Wind Air", color: "amber" },
-          inoculant: { label: "Coastal Monsoonal Air", color: "amber" },
-          duration: { label: "3–4 Months", color: "purple" }
-        },
-        objectiveSummary: "Post-harvest aging process unique to coastal India where dried natural coffee is exposed to humid monsoon winds for 3–4 months in open-sided warehouses, causing beans to absorb moisture, swell, and fade in color.",
-        technicalParameters: {
-          pH: "5.8 – 5.2 pH neutral",
-          moisture: "11% → 16% Swell → 12.0%",
-          vessel: "Open-Sided Coastal Warehouses",
-          flora: "Halotolerant Marine Air Microflora"
-        },
+        pulp: "No",
+        pulpText: "No",
+        env: "Monsoon Wind Conditions",
+        envType: "Ambient",
+        inoculant: "No",
+        inocCount: "None",
+        time: "3-4 Months Exposure",
+        desc: "Post-harvest aging technique unique to coastal India. Dried natural coffee is stored in open-sided ventilated warehouses exposed to humid monsoon ocean winds for 3-4 months.",
         steps: [
-          { num: 1, title: "Dry Natural Base Coffee", desc: "Standard natural dry processed coffee delivered to coast." },
-          { num: 2, title: "Ventilated Warehouse Raking", desc: "Spread in open-sided structures exposed to humid monsoons." },
-          { num: 3, title: "3-4 Month Wind Exposure", desc: "Beans absorb moisture, swell in size, and turn pale golden-yellow." },
-          { num: 4, title: "Polishing & Export Bagging", desc: "Gravity sorting, polishing, and bagging for export." }
-        ]
+          { name: "Dried Natural", icon: "sun", desc: "Coffee dried intact in cherry" },
+          { name: "Open Warehouse", icon: "home", desc: "Spread in open coastal structures" },
+          { name: "Monsoon Exposure", icon: "cloud-rain", desc: "Exposed to humid winds (3–4 months)" },
+          { name: "Swollen Bean Sort", icon: "box", desc: "Paled swollen green beans bagged" }
+        ],
+        pH: "5.8 - 6.5",
+        temp: "Ambient coastal humidity",
+        vessel: "Open-sided coastal brick warehouses"
       },
       {
-        id: "DEC-29",
+        id: 29,
         name: "Deconstructed Fermentation",
-        aka: "Lychee-Style Bioreactor Protocol",
-        category: "Advanced Bioreactor",
-        pulpRemoval: "Sequential",
-        oxygenEnv: "CO2 Flushed",
-        inoculants: "Commercial Yeast",
-        duration: "Extended (120-240 Hours)",
-        badges: {
-          pulp: { label: "Sequential / Fractionated", color: "purple" },
-          oxygen: { label: "Multi-Phase / CO2", color: "purple" },
-          inoculant: { label: "Isolated Yeast + Nectar", color: "emerald" },
-          duration: { label: "120–240 Hours", color: "purple" }
-        },
-        objectiveSummary: "Complex multi-reactor protocol where cherry skin, extracted mesocarp juice, and parchment are physically separated into distinct fractions, inoculated with targeted yeast in secondary vessels, recombined, and finished with a thermal shock wash.",
-        technicalParameters: {
-          pH: "3.5 – 3.2 pH precise tracking",
-          moisture: "65% → 11.0%",
-          vessel: "Multi-Stage Steel Bioreactor",
-          flora: "Proprietary Isolated Yeast Lines"
-        },
+        aka: "Lychee Protocol / Bermudez Bioreactor",
+        pulp: "Eventually",
+        pulpText: "Yes, eventually",
+        env: "Multi-Phase CO2 Bioreactor + Thermal Shock",
+        envType: "Heated",
+        inoculant: "Juice-Grown Yeast Culture",
+        inocType: "Yeast",
+        time: "Multi-week multi-vessel protocol",
+        desc: "Complex protocol: cherries undergo CO2 bioreactor ferment; juices are collected, inoculated with agar-isolated yeasts, and multiplied. Recombined with seeds for final ferment, finished with thermal shock.",
         steps: [
-          { num: 1, title: "Phase 1: Whole Cherry Bioreactor", desc: "Sealed whole cherry pre-ferment under CO2 for 48 hours." },
-          { num: 2, title: "Fraction Depulping & Extraction", desc: "Mechanical separation of skin, juice nectar, and seeds." },
-          { num: 3, title: "Phase 2: Inoculated Nectar Ferment", desc: "Isolated yeast culture propagation in extracted cherry juice." },
-          { num: 4, title: "Phase 3: Fraction Recombination", desc: "Recombining seeds with enriched juice ferment for 96 hours." },
-          { num: 5, title: "Thermal Shock Wash & Drying", desc: "40°C hot rinse, 12°C cold shock, and controlled dehydration." }
-        ]
+          { name: "Phase 1: Cherry CO2", icon: "container", desc: "Bioreactor ferment & juice collection" },
+          { name: "Phase 2: Culture Boost", icon: "test-tube", desc: "Yeast propagated in collected juice" },
+          { name: "Phase 3: Recombination", icon: "refresh-cw", desc: "Pulped seeds & culture fermented together" },
+          { name: "Phase 4: Thermal Shock", icon: "flame", desc: "Hot/Cold shock wash & closed dry" }
+        ],
+        pH: "3.5 - 3.9",
+        temp: "35°C ferment / 40°C-12°C shock",
+        vessel: "Closed steel bioreactors with heat exchangers"
       }
     ];
 
-    // Application View State
-    let currentViewMode = 'grid'; // 'grid' | 'matrix' | 'flow'
+    // APPLICATION STATE
+    let currentView = 'grid'; // 'grid', 'matrix', 'flow'
+    let activeFilters = {
+      search: '',
+      pulp: 'ALL',
+      env: 'ALL',
+      inoculant: 'ALL'
+    };
 
-    // Generate inline SVG/CSS Step-by-Step Flowchart
-    function generateFlowchartHTML(steps) {
-      const stepCount = steps.length;
-      return `
-        <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5 my-2.5 overflow-x-auto">
-          <div class="text-[10px] font-mono uppercase text-slate-400 mb-2.5 flex items-center gap-1.5">
-            <i data-lucide="git-commit" class="w-3.5 h-3.5 text-amber-400"></i>
-            Procedural Mechanics Sequence (${stepCount} Steps)
-          </div>
-          <div class="flex items-start justify-between gap-3 min-w-[550px] pt-1 pb-1">
-            ${steps.map((step, idx) => `
-              <div class="flex-1 min-w-[120px] max-w-[180px] flex flex-col items-center relative group">
-                <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-amber-400 flex items-center justify-center font-mono font-bold text-xs shadow-md group-hover:border-amber-500 group-hover:scale-105 transition-all">
-                  ${step.num}
-                </div>
-                <div class="mt-2 text-center">
-                  <div class="text-xs font-semibold text-slate-200 group-hover:text-amber-300 transition-colors leading-tight">${step.title}</div>
-                  <div class="text-[10px] text-slate-400 mt-0.5 leading-tight line-clamp-2 font-sans">${step.desc}</div>
-                </div>
-                ${idx < stepCount - 1 ? `
-                  <div class="hidden sm:block absolute top-4 left-[calc(50%+16px)] right-[calc(-50%+16px)] h-[2px] bg-slate-800 -z-0">
-                    <div class="h-full bg-amber-500/40 w-full"></div>
-                  </div>
-                ` : ''}
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
+    // INIT FUNCTION
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderIndexList();
+      renderAllViews();
+    });
 
-    // Helper to generate styled metric badge pill
-    function generateBadgePill(label, data) {
-      const colorMap = {
-        emerald: 'bg-emerald-950/80 border-emerald-800/80 text-emerald-300',
-        amber: 'bg-amber-950/80 border-amber-800/80 text-amber-300',
-        purple: 'bg-purple-950/80 border-purple-800/80 text-purple-300',
-        sky: 'bg-sky-950/80 border-sky-800/80 text-sky-300',
-        indigo: 'bg-indigo-950/80 border-indigo-800/80 text-indigo-300',
-        cyan: 'bg-cyan-950/80 border-cyan-800/80 text-cyan-300',
-        rose: 'bg-rose-950/80 border-rose-800/80 text-rose-300',
-        slate: 'bg-slate-900 border-slate-700 text-slate-300'
-      };
+    // VIEW MODE SWITCHER
+    function setViewMode(mode) {
+      currentView = mode;
+      
+      const gridBtn = document.getElementById('viewGridBtn');
+      const matrixBtn = document.getElementById('viewMatrixBtn');
+      const flowBtn = document.getElementById('viewFlowBtn');
+      
+      const gridView = document.getElementById('gridView');
+      const matrixView = document.getElementById('matrixView');
+      const flowView = document.getElementById('flowView');
 
-      const style = colorMap[data.color] || colorMap.slate;
+      // Reset active button styling
+      [gridBtn, matrixBtn, flowBtn].forEach(btn => {
+        if(btn) btn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition text-coffee-400 hover:text-white";
+      });
 
-      return `
-        <div class="flex flex-col p-2 bg-slate-950/90 rounded-lg border border-slate-800/80">
-          <span class="text-[9px] font-mono text-slate-500 uppercase tracking-wider mb-0.5">${label}</span>
-          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-medium border ${style} w-max truncate max-w-full">
-            ${data.label}
-          </span>
-        </div>
-      `;
-    }
+      // Hide all containers
+      gridView.classList.add('hidden');
+      matrixView.classList.add('hidden');
+      flowView.classList.add('hidden');
 
-    // Render Grid Cards View
-    function renderGridView(data) {
-      if (data.length === 0) {
-        return `
-          <div class="text-center py-16 bg-slate-900 border border-slate-800 rounded-xl">
-            <i data-lucide="filter-x" class="w-10 h-10 text-slate-600 mx-auto mb-3"></i>
-            <p class="text-slate-400 text-sm font-mono">No coffee processing methods match your query filter criteria.</p>
-          </div>
-        `;
+      if (mode === 'grid') {
+        gridBtn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition bg-coffee-700 text-white font-medium";
+        gridView.classList.remove('hidden');
+      } else if (mode === 'matrix') {
+        matrixBtn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition bg-coffee-700 text-white font-medium";
+        matrixView.classList.remove('hidden');
+      } else if (mode === 'flow') {
+        flowBtn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition bg-coffee-700 text-white font-medium";
+        flowView.classList.remove('hidden');
       }
-
-      return data.map(item => `
-        <article id="${item.id}" class="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all shadow-xl space-y-4 scroll-mt-24">
-          
-          <!-- Header -->
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-mono font-bold px-2 py-0.5 bg-slate-800 text-amber-400 rounded border border-slate-700">${item.id}</span>
-                <span class="text-xs font-mono px-2 py-0.5 bg-slate-800/60 text-slate-400 rounded">${item.category}</span>
-                ${item.aka ? `<span class="text-xs font-mono text-slate-400">AKA: ${item.aka}</span>` : ''}
-              </div>
-              <h2 class="text-lg font-bold text-white mt-1 flex items-center gap-2">
-                ${item.name}
-              </h2>
-            </div>
-            <button onclick="openModal('${item.id}')" class="self-start md:self-auto px-3 py-1.5 text-xs font-mono text-amber-400 hover:text-amber-300 bg-amber-950/40 hover:bg-amber-900/40 border border-amber-800/60 rounded-lg flex items-center gap-1.5 transition shrink-0">
-              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-              Full Technical Spec
-            </button>
-          </div>
-
-          <!-- Objective Technical Summary -->
-          <p class="text-xs text-slate-300 leading-relaxed font-sans">
-            ${item.objectiveSummary}
-          </p>
-
-          <!-- Parametric Badges Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            ${generateBadgePill('Pulp Removal', item.badges.pulp)}
-            ${generateBadgePill('Environment / O2', item.badges.oxygen)}
-            ${generateBadgePill('Inoculants / Additives', item.badges.inoculant)}
-            ${generateBadgePill('Duration', item.badges.duration)}
-          </div>
-
-          <!-- Visual Step Flowchart -->
-          ${generateFlowchartHTML(item.steps)}
-
-        </article>
-      `).join('');
     }
 
-    // Render Comparative Matrix Table View
-    function renderMatrixView(data) {
-      if (data.length === 0) return renderGridView(data);
+    // FILTER LOGIC
+    function applyFilters() {
+      activeFilters.search = document.getElementById('searchInput').value.toLowerCase().trim();
+      activeFilters.pulp = document.getElementById('filterPulp').value;
+      activeFilters.env = document.getElementById('filterEnv').value;
+      activeFilters.inoculant = document.getElementById('filterInoculant').value;
 
-      return `
-        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-xl">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950 text-slate-400 font-mono text-[10px] uppercase border-b border-slate-800">
-              <tr>
-                <th class="p-3">Code / Name</th>
-                <th class="p-3">Category</th>
-                <th class="p-3">Pulp Removal</th>
-                <th class="p-3">Oxygen Level</th>
-                <th class="p-3">Inoculants</th>
-                <th class="p-3">Duration</th>
-                <th class="p-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800/60">
-              ${data.map(item => `
-                <tr id="${item.id}" class="hover:bg-slate-800/40 transition">
-                  <td class="p-3 font-medium text-white">
-                    <div class="font-bold flex items-center gap-1.5">
-                      <span class="text-[10px] font-mono text-amber-400 bg-slate-800 px-1.5 py-0.5 rounded">${item.id}</span>
-                      ${item.name}
-                    </div>
-                    ${item.aka ? `<div class="text-[10px] text-slate-500 font-mono mt-0.5">${item.aka}</div>` : ''}
-                  </td>
-                  <td class="p-3 font-mono text-slate-400">${item.category}</td>
-                  <td class="p-3 font-mono">${item.pulpRemoval}</td>
-                  <td class="p-3 font-mono">${item.oxygenEnv}</td>
-                  <td class="p-3 font-mono">${item.inoculants}</td>
-                  <td class="p-3 font-mono">${item.duration}</td>
-                  <td class="p-3 text-right">
-                    <button onclick="openModal('${item.id}')" class="p-1.5 text-amber-400 hover:bg-slate-800 rounded" title="View Full Spec">
-                      <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
-                    </button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
+      renderAllViews();
+      renderActivePills();
     }
 
-    // Render Flowcharts Focus View
-    function renderFlowView(data) {
-      if (data.length === 0) return renderGridView(data);
-
-      return data.map(item => `
-        <div id="${item.id}" class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-3 scroll-mt-24">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 class="font-bold text-white text-sm flex items-center gap-2">
-              <span class="text-xs font-mono text-amber-400 bg-slate-800 px-2 py-0.5 rounded">${item.id}</span>
-              ${item.name} 
-              <span class="text-xs text-slate-400 font-normal">(${item.category})</span>
-            </h3>
-            <span class="text-xs font-mono text-slate-400">${item.duration}</span>
-          </div>
-          ${generateFlowchartHTML(item.steps)}
-        </div>
-      `).join('');
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterPulp').value = 'ALL';
+      document.getElementById('filterEnv').value = 'ALL';
+      document.getElementById('filterInoculant').value = 'ALL';
+      applyFilters();
     }
 
-    // Master Filtering Engine
     function getFilteredData() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const pulp = document.getElementById('filterPulp').value;
-      const oxygen = document.getElementById('filterOxygen').value;
-      const inoculant = document.getElementById('filterInoculant').value;
-      const category = document.getElementById('filterCategory').value;
+      return processesData.filter(item => {
+        // Search term
+        const matchesSearch = !activeFilters.search || 
+          item.name.toLowerCase().includes(activeFilters.search) ||
+          item.aka.toLowerCase().includes(activeFilters.search) ||
+          item.desc.toLowerCase().includes(activeFilters.search) ||
+          item.vessel.toLowerCase().includes(activeFilters.search);
 
-      return coffeeDataset.filter(item => {
-        // Query check
-        const matchesQuery = 
-          item.name.toLowerCase().includes(query) ||
-          item.id.toLowerCase().includes(query) ||
-          (item.aka && item.aka.toLowerCase().includes(query)) ||
-          item.objectiveSummary.toLowerCase().includes(query) ||
-          item.category.toLowerCase().includes(query) ||
-          item.inoculants.toLowerCase().includes(query);
+        // Pulp state
+        const matchesPulp = activeFilters.pulp === 'ALL' || item.pulp === activeFilters.pulp;
 
-        // Pulp check
-        const matchesPulp = pulp === 'ALL' || item.pulpRemoval.toLowerCase().includes(pulp.toLowerCase());
+        // Environment type
+        const matchesEnv = activeFilters.env === 'ALL' || item.envType === activeFilters.env;
 
-        // Oxygen check
-        const matchesOxygen = oxygen === 'ALL' || item.oxygenEnv.toLowerCase().includes(oxygen.toLowerCase());
+        // Inoculant type
+        const matchesInoculant = activeFilters.inoculant === 'ALL' || item.inocType === activeFilters.inoculant;
 
-        // Inoculant check
-        const matchesInoculant = inoculant === 'ALL' || item.inoculants.toLowerCase().includes(inoculant.toLowerCase());
-
-        // Category check
-        const matchesCategory = category === 'ALL' || item.category.toLowerCase() === category.toLowerCase();
-
-        return matchesQuery && matchesPulp && matchesOxygen && matchesInoculant && matchesCategory;
+        return matchesSearch && matchesPulp && matchesEnv && matchesInoculant;
       });
     }
 
-    // Main UI Render Function
-    function renderUI() {
+    // RENDER INDEX LIST
+    function renderIndexList() {
       const filtered = getFilteredData();
-      const container = document.getElementById('methodContainer');
+      const indexList = document.getElementById('indexList');
+      const visibleCount = document.getElementById('visibleCount');
+      
+      visibleCount.textContent = filtered.length;
+      indexList.innerHTML = '';
 
-      if (currentViewMode === 'grid') {
-        container.innerHTML = renderGridView(filtered);
-      } else if (currentViewMode === 'matrix') {
-        container.innerHTML = renderMatrixView(filtered);
-      } else if (currentViewMode === 'flow') {
-        container.innerHTML = renderFlowView(filtered);
-      }
-
-      // Re-initialize Lucide Icons
+      filtered.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <a href="#card-${item.id}" onclick="highlightCard(${item.id})" class="flex items-center justify-between p-1.5 rounded hover:bg-coffee-800/60 text-coffee-300 hover:text-amber-400 transition group">
+            <span class="truncate font-medium">${item.id}. ${item.name}</span>
+            <i data-lucide="chevron-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition"></i>
+          </a>
+        `;
+        indexList.appendChild(li);
+      });
       lucide.createIcons();
     }
 
-    // Switch View Mode
-    function setViewMode(mode) {
-      currentViewMode = mode;
-      
-      const btnGrid = document.getElementById('btnViewGrid');
-      const btnMatrix = document.getElementById('btnViewMatrix');
-      const btnFlow = document.getElementById('btnViewFlow');
+    // RENDER ACTIVE PILLS
+    function renderActivePills() {
+      const pillsContainer = document.getElementById('activeFilterPills');
+      pillsContainer.innerHTML = '';
+      let activeCount = 0;
 
-      const activeClass = "px-3 py-1.5 rounded-md text-amber-400 bg-slate-800 text-xs font-mono font-medium flex items-center gap-1.5 transition";
-      const inactiveClass = "px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200 text-xs font-mono font-medium flex items-center gap-1.5 transition";
+      if(activeFilters.search) {
+        activeCount++;
+        pillsContainer.appendChild(createPill(`Search: "${activeFilters.search}"`, () => {
+          document.getElementById('searchInput').value = '';
+          applyFilters();
+        }));
+      }
 
-      btnGrid.className = mode === 'grid' ? activeClass : inactiveClass;
-      btnMatrix.className = mode === 'matrix' ? activeClass : inactiveClass;
-      btnFlow.className = mode === 'flow' ? activeClass : inactiveClass;
+      if(activeFilters.pulp !== 'ALL') {
+        activeCount++;
+        pillsContainer.appendChild(createPill(`Pulp: ${activeFilters.pulp}`, () => {
+          document.getElementById('filterPulp').value = 'ALL';
+          applyFilters();
+        }));
+      }
 
-      renderUI();
+      if(activeFilters.env !== 'ALL') {
+        activeCount++;
+        pillsContainer.appendChild(createPill(`Env: ${activeFilters.env}`, () => {
+          document.getElementById('filterEnv').value = 'ALL';
+          applyFilters();
+        }));
+      }
+
+      if(activeFilters.inoculant !== 'ALL') {
+        activeCount++;
+        pillsContainer.appendChild(createPill(`Inoculant: ${activeFilters.inoculant}`, () => {
+          document.getElementById('filterInoculant').value = 'ALL';
+          applyFilters();
+        }));
+      }
+
+      if(activeCount > 0) {
+        pillsContainer.classList.remove('hidden');
+        pillsContainer.classList.add('flex');
+      } else {
+        pillsContainer.classList.add('hidden');
+        pillsContainer.classList.remove('flex');
+      }
     }
 
-    // Populate Sidebar Index Jump List
-    function populateSidebarJumpList() {
-      const jumpList = document.getElementById('jumpList');
-      const filterText = document.getElementById('quickJumpSearch').value.toLowerCase();
-
-      const items = coffeeDataset.filter(i => 
-        i.name.toLowerCase().includes(filterText) || 
-        i.id.toLowerCase().includes(filterText)
-      );
-
-      jumpList.innerHTML = items.map(item => `
-        <a href="#${item.id}" class="block px-2 py-1.5 rounded bg-slate-950/60 hover:bg-slate-800 text-slate-300 hover:text-amber-400 transition truncate flex items-center justify-between group">
-          <span class="font-mono text-[10px] text-slate-500 group-hover:text-amber-400 mr-1.5">${item.id}</span>
-          <span class="truncate text-xs flex-1">${item.name}</span>
-        </a>
-      `).join('');
+    function createPill(text, onRemove) {
+      const div = document.createElement('div');
+      div.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-mono";
+      div.innerHTML = `<span>${text}</span><button class="hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>`;
+      div.querySelector('button').onclick = onRemove;
+      return div;
     }
 
-    function filterJumpList() {
-      populateSidebarJumpList();
+    // RENDER ALL VIEWS
+    function renderAllViews() {
+      const filtered = getFilteredData();
+      renderIndexList();
+      renderGridCards(filtered);
+      renderMatrixTable(filtered);
+      renderFlowchartsView(filtered);
+      lucide.createIcons();
     }
 
-    // Modal Control Functions
-    function openModal(id) {
-      const item = coffeeDataset.find(p => p.id === id);
-      if (!item) return;
+    // 1. GRID CARDS RENDERER
+    function renderGridCards(data) {
+      const container = document.getElementById('gridView');
+      container.innerHTML = '';
 
-      document.getElementById('modalTitle').innerHTML = `
-        <span class="text-xs font-mono text-amber-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${item.id}</span>
-        ${item.name} Spec Manual
-      `;
-
-      document.getElementById('modalBody').innerHTML = `
-        <div class="space-y-5">
-          <div>
-            <h4 class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Objective Summary</h4>
-            <p class="text-xs text-slate-200 bg-slate-950 p-3 rounded-lg border border-slate-800 leading-relaxed">${item.objectiveSummary}</p>
+      if(data.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-coffee-400 bg-coffee-900/30 border border-coffee-800 rounded-xl">
+            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-coffee-500"></i>
+            <p class="font-medium text-sm">No processing methods match your criteria.</p>
+            <button onclick="resetFilters()" class="mt-3 px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-mono">Reset All Filters</button>
           </div>
+        `;
+        return;
+      }
 
-          <div>
-            <h4 class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Technical Parametric Breakdown</h4>
-            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div class="bg-slate-950 p-2.5 rounded border border-slate-800"><span class="text-slate-500">pH Dynamics:</span> <span class="text-amber-400">${item.technicalParameters.pH}</span></div>
-              <div class="bg-slate-950 p-2.5 rounded border border-slate-800"><span class="text-slate-500">Moisture Reduction:</span> <span class="text-amber-400">${item.technicalParameters.moisture}</span></div>
-              <div class="bg-slate-950 p-2.5 rounded border border-slate-800"><span class="text-slate-500">Ferment Vessel:</span> <span class="text-amber-400">${item.technicalParameters.vessel}</span></div>
-              <div class="bg-slate-950 p-2.5 rounded border border-slate-800"><span class="text-slate-500">Microbial Dominance:</span> <span class="text-amber-400">${item.technicalParameters.flora}</span></div>
-            </div>
-          </div>
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.id = `card-${item.id}`;
+        card.className = "bg-coffee-900/70 border border-coffee-800 hover:border-coffee-700/80 rounded-xl p-4 flex flex-col justify-between transition-all duration-200 hover:shadow-lg relative group";
 
+        // Badges HTML
+        const pulpBadgeColor = item.pulp === 'Yes' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : (item.pulp === 'No' ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-amber-400 bg-amber-500/10 border-amber-500/20');
+        
+        card.innerHTML = `
           <div>
-            <h4 class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Step-by-Step Execution Diagram</h4>
-            <div class="space-y-2">
-              ${item.steps.map(s => `
-                <div class="flex items-start gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800">
-                  <span class="w-6 h-6 rounded bg-slate-900 border border-slate-700 text-amber-400 text-xs font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">${s.num}</span>
-                  <div>
-                    <div class="font-bold text-slate-200 text-xs">${s.title}</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">${s.desc}</div>
-                  </div>
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs text-amber-400/80 font-semibold">#${item.id < 10 ? '0' + item.id : item.id}</span>
+                  <h3 class="text-base font-bold text-coffee-50 tracking-tight">${item.name}</h3>
                 </div>
-              `).join('')}
+                <p class="text-xs text-coffee-400 font-mono mt-0.5">AKA: ${item.aka}</p>
+              </div>
+              <button onclick="openModal(${item.id})" class="p-1.5 text-coffee-400 hover:text-white bg-coffee-800/80 hover:bg-coffee-700 rounded-lg border border-coffee-700/60 transition" title="View Full Specs">
+                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+              </button>
             </div>
+
+            <!-- Parametric Badges Row -->
+            <div class="flex flex-wrap gap-1.5 my-3">
+              <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md border ${pulpBadgeColor}">
+                <i data-lucide="scissors" class="w-3 h-3"></i> Pulp: ${item.pulpText}
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 bg-cyan-500/10 border-cyan-500/20">
+                <i data-lucide="wind" class="w-3 h-3"></i> ${item.env}
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md border text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
+                <i data-lucide="flask-conical" class="w-3 h-3"></i> ${item.inoculant}
+              </span>
+            </div>
+
+            <!-- Flowchart Steps Diagram -->
+            <div class="bg-coffee-950/80 border border-coffee-800/60 rounded-lg p-2.5 my-3">
+              <div class="text-[10px] font-mono text-coffee-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span>Process Flowchart</span>
+                <span class="text-coffee-500"><i data-lucide="clock" class="w-2.5 h-2.5 inline mr-1"></i>${item.time}</span>
+              </div>
+              <div class="flex items-center justify-between gap-1">
+                ${item.steps.map((step, idx) => `
+                  <div class="flex-1 flex flex-col items-center text-center">
+                    <div class="w-7 h-7 rounded-lg bg-coffee-900 border border-coffee-700/80 flex items-center justify-center text-amber-400 mb-1">
+                      <i data-lucide="${step.icon}" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[9px] text-coffee-200 font-medium leading-tight">${step.name}</span>
+                  </div>
+                  ${idx < item.steps.length - 1 ? `<i data-lucide="chevron-right" class="w-3 h-3 text-coffee-600 flex-shrink-0"></i>` : ''}
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Description -->
+            <p class="text-xs text-coffee-300 leading-relaxed line-clamp-3 my-2">${item.desc}</p>
+          </div>
+
+          <!-- Card Footer Metrics -->
+          <div class="pt-3 border-t border-coffee-800/60 mt-2 flex items-center justify-between text-[11px] font-mono text-coffee-400">
+            <span class="truncate"><strong class="text-coffee-300">Vessel:</strong> ${item.vessel}</span>
+            <span class="flex-shrink-0 text-amber-400/90 font-medium">pH ~ ${item.pH}</span>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // 2. MATRIX TABLE RENDERER
+    function renderMatrixTable(data) {
+      const tbody = document.getElementById('matrixTableBody');
+      tbody.innerHTML = '';
+
+      if(data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-coffee-400">No data found.</td></tr>`;
+        return;
+      }
+
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-coffee-800/40 transition border-b border-coffee-800/40";
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-amber-400 font-semibold">#${item.id}</td>
+          <td class="p-3">
+            <button onclick="openModal(${item.id})" class="font-bold text-coffee-50 hover:text-amber-400 text-left transition">
+              ${item.name}
+            </button>
+            <div class="text-[10px] text-coffee-400 font-mono">${item.aka}</div>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-coffee-800 text-coffee-200 border border-coffee-700">${item.pulpText}</span>
+          </td>
+          <td class="p-3 text-coffee-200">${item.env}</td>
+          <td class="p-3 text-coffee-300 font-mono text-[11px]">${item.inoculant}</td>
+          <td class="p-3 text-coffee-400 text-[11px]">${item.time}</td>
+          <td class="p-3 text-coffee-300 truncate max-w-xs">${item.desc}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 3. FLOWCHARTS FOCUS RENDERER
+    function renderFlowchartsView(data) {
+      const container = document.getElementById('flowView');
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "bg-coffee-900/60 border border-coffee-800 rounded-xl p-4";
+        div.innerHTML = `
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs text-amber-400 font-bold">#${item.id}</span>
+              <h3 class="font-bold text-sm text-white">${item.name}</h3>
+              <span class="text-xs text-coffee-400 font-mono">(${item.time})</span>
+            </div>
+            <span class="text-xs font-mono text-coffee-400">${item.env}</span>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 bg-coffee-950 p-4 rounded-lg border border-coffee-800 overflow-x-auto">
+            ${item.steps.map((step, idx) => `
+              <div class="flex-1 min-w-[120px] flex flex-col items-center text-center p-2 bg-coffee-900/80 rounded-lg border border-coffee-800">
+                <div class="w-8 h-8 rounded-full bg-coffee-800 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2">
+                  <i data-lucide="${step.icon}" class="w-4 h-4"></i>
+                </div>
+                <span class="text-xs font-bold text-coffee-100 mb-1">${step.name}</span>
+                <span class="text-[10px] text-coffee-400 leading-tight">${step.desc}</span>
+              </div>
+              ${idx < item.steps.length - 1 ? `<i data-lucide="arrow-right" class="w-4 h-4 text-amber-500/60 flex-shrink-0"></i>` : ''}
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // MODAL LOGIC
+    function openModal(id) {
+      const item = processesData.find(p => p.id === id);
+      if(!item) return;
+
+      const content = document.getElementById('modalContent');
+      content.innerHTML = `
+        <div class="flex items-center gap-2 text-amber-400 font-mono text-xs mb-1">
+          <span>SPECIFICATION SHEET #${item.id}</span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-white mb-1">${item.name}</h2>
+        <p class="text-xs text-coffee-400 font-mono mb-4">Also Known As: ${item.aka}</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-coffee-950 p-3.5 rounded-xl border border-coffee-800 mb-5 text-xs font-mono">
+          <div>
+            <span class="text-coffee-500 block text-[10px] uppercase">Pulp Removal</span>
+            <span class="text-coffee-200 font-semibold">${item.pulpText}</span>
+          </div>
+          <div>
+            <span class="text-coffee-500 block text-[10px] uppercase">Environment</span>
+            <span class="text-cyan-400 font-semibold">${item.env}</span>
+          </div>
+          <div>
+            <span class="text-coffee-500 block text-[10px] uppercase">Inoculant</span>
+            <span class="text-indigo-400 font-semibold">${item.inoculant}</span>
+          </div>
+          <div>
+            <span class="text-coffee-500 block text-[10px] uppercase">Est. pH Range</span>
+            <span class="text-amber-400 font-semibold">${item.pH}</span>
+          </div>
+          <div>
+            <span class="text-coffee-500 block text-[10px] uppercase">Temperature</span>
+            <span class="text-coffee-200 font-semibold">${item.temp}</span>
+          </div>
+          <div>
+            <span class="text-coffee-500 block text-[10px] uppercase">Target Vessel</span>
+            <span class="text-coffee-200 font-semibold">${item.vessel}</span>
           </div>
         </div>
+
+        <h4 class="text-xs font-mono uppercase text-coffee-400 tracking-wider mb-2">Process Sequence</h4>
+        <div class="space-y-2 mb-5">
+          ${item.steps.map((step, i) => `
+            <div class="flex items-center gap-3 bg-coffee-950/60 p-2.5 rounded-lg border border-coffee-800/80">
+              <span class="w-5 h-5 rounded-full bg-coffee-800 text-amber-400 font-mono text-xs flex items-center justify-center font-bold">${i+1}</span>
+              <div class="flex-1">
+                <span class="text-xs font-bold text-coffee-100">${step.name}</span>
+                <p class="text-[11px] text-coffee-400">${step.desc}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <h4 class="text-xs font-mono uppercase text-coffee-400 tracking-wider mb-2">Technical Description</h4>
+        <p class="text-xs text-coffee-200 leading-relaxed bg-coffee-950/40 p-3 rounded-lg border border-coffee-800/50">${item.desc}</p>
       `;
 
-      document.getElementById('specModal').classList.remove('hidden');
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.getElementById('detailModal').classList.add('flex');
       lucide.createIcons();
     }
 
     function closeModal() {
-      document.getElementById('specModal').classList.add('hidden');
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('detailModal').classList.remove('flex');
     }
 
-    // Toast Alert
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toastMsg').innerText = msg;
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
+    // HIGHLIGHT CARD ON INDEX CLICK
+    function highlightCard(id) {
+      if(currentView !== 'grid') setViewMode('grid');
+      
       setTimeout(() => {
-        toast.classList.add('translate-y-20', 'opacity-0');
-        toast.classList.remove('translate-y-0', 'opacity-100');
-      }, 3000);
+        const el = document.getElementById(`card-${id}`);
+        if(el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-amber-400');
+          setTimeout(() => el.classList.remove('ring-2', 'ring-amber-400'), 2000);
+        }
+      }, 100);
     }
-
-    // Export & Copy Tools
-    function exportJSON() {
-      const jsonStr = JSON.stringify(coffeeDataset, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'coffee_processing_29_methods_specs.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast('Exported complete 29-method specification dataset to JSON!');
-    }
-
-    function copyAllSpecs() {
-      const text = coffeeDataset.map(p => 
-        `[${p.id}] ${p.name} (${p.category})\n- Pulping: ${p.pulpRemoval}\n- Oxygen: ${p.oxygenEnv}\n- Inoculants: ${p.inoculants}\n- Duration: ${p.duration}\n- Summary: ${p.objectiveSummary}\n`
-      ).join('\n---------------------------\n\n');
-
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      showToast('Copied summary of all 29 coffee methods to clipboard!');
-    }
-
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Event Listeners
-    document.getElementById('searchInput').addEventListener('input', renderUI);
-    document.getElementById('filterPulp').addEventListener('change', renderUI);
-    document.getElementById('filterOxygen').addEventListener('change', renderUI);
-    document.getElementById('filterInoculant').addEventListener('change', renderUI);
-    document.getElementById('filterCategory').addEventListener('change', renderUI);
-
-    // Initial Load Setup
-    window.onload = function() {
-      populateSidebarJumpList();
-      renderUI();
-    };
   </script>
 </body>
 </html>
