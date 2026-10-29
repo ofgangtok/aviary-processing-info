@@ -340,13 +340,49 @@
       { o: 'Colombia', r: 'La Cabra / Phil & Sebastian', lot: 'Finca La Negrita, Tolima, 2,000 m, Gesha', p: 'honey', f: 'Not stated', d: '6 weeks (honey) and 5 weeks (semi-washed) in a dark room', u: 'https://philsebastian.com/products/project-iii' },
     ];
 
+    // Kalimpong season plan, Oct–Jan. From replaying six real seasons (2019–20 to 2024–25) of
+    // Open-Meteo archive weather through this app's own drying outlook, mornings 1 Oct to 31 Jan.
+    // Periods are [from MM-DD, to MM-DD]. It is advice; the live forecast still ranks processes.
+    const REPLAY_SRC = 'Season replay: six seasons of Open-Meteo archive weather (2019–20 to 2024–25) run through this app';
+    const REPLAY_URL = 'https://claude.ai/artifact/6CVSYYqMMPhMccQpRfQsF5';
+    const SEASON_PLAN = {
+      name: 'Kalimpong', lat: 27.06, lon: 88.47,
+      periods: [
+        { from: '10-01', to: '10-15', run: 'Washed. Split the first lots: half wild, half LalCafé Oro.', natural: false, warm: false,
+          why: 'The tail of the monsoon: half of early October\'s poor drying days were rain days. The air is at its warmest (about 19 °C on average), so an open tank ferments well.' },
+        { from: '10-16', to: '11-15', run: 'Washed, and start naturals.', natural: true, warm: false,
+          why: 'From mid-October the app allowed a natural on every morning in all six seasons. November had 84% good drying days and no poor days caused by rain.' },
+        { from: '11-16', to: '11-30', run: 'Washed and naturals. Warm the tank for LalCafé lots.', natural: true, warm: true,
+          why: 'Still the best drying of the season, but from the second half of November the air is below 15 °C for about 45 of every 72 hours, under the 15 °C Lallemand gives as the minimum for its yeast.' },
+        { from: '12-01', to: '12-31', run: 'Naturals, checked each morning. Washed only in a warm tank.', natural: true, warm: true,
+          why: '75% good drying days on average, but in two of six seasons the app allowed a natural on only 45% of December mornings. The air averages about 11 °C.' },
+        { from: '01-01', to: '01-31', run: 'Washed, indoors. Naturals only when the app says yes.', natural: false, warm: true,
+          why: 'The riskiest month for naturals: allowed on 72% of mornings, with up to 7 poor drying days in a row. The air is below 15 °C for about 21 hours a day.' },
+      ],
+    };
+    // The plan for this date, if the mill is at Kalimpong (within about 30 km)
+    function seasonPlan(t) {
+      const m = state.settings.mill;
+      if (m.lat == null || Math.abs(m.lat - SEASON_PLAN.lat) > 0.3 || Math.abs(m.lon - SEASON_PLAN.lon) > 0.3) return null;
+      const d = new Date(t || Date.now()), md = String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      return SEASON_PLAN.periods.find(p => md >= p.from && md <= p.to) || null;
+    }
+    function seasonHtml(compact) {
+      const p = seasonPlan();
+      if (!p) return '';
+      const ref = `${p.why} Grid weather at 1,179 m, not your yard, and a perfect forecast, so real days will be less certain. ¦ ${REPLAY_SRC}`;
+      return `<div class="card mt-4 space-y-1"><div class="text-xs font-semibold uppercase tracking-wide text-coffee-400">This time of season in ${esc(SEASON_PLAN.name)}</div>
+        <div class="inline-why text-[15px] text-white">${esc(p.run)}${why(ref)}</div>
+        ${compact ? '' : `<a href="${REPLAY_URL}" target="_blank" rel="noopener" class="text-sm text-coffee-300 underline">The whole season replay</a>`}</div>`;
+    }
+
     // ---------------------------------------------------------------
     // STATE
     // ---------------------------------------------------------------
     const STORE_KEY = 'millAssistant.v2';
     const DEFAULT_SETTINGS = {
       preset: 'lucia', reliefPsi: 5, overrides: {},
-      mill: { name: '', lat: null, lon: null },
+      mill: { name: 'Kalimpong', lat: 27.06, lon: 88.47 },
       setup: { patio: true, beds: true, shade: false, covered: false, polyhouse: false, dryer: false },
       capacityKg: null,
       processes: ['Washed', 'Natural', 'Honey'],
@@ -363,6 +399,7 @@
           state.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), s.settings || {});
           state.settings.setup = Object.assign({}, DEFAULT_SETTINGS.setup, (s.settings || {}).setup || {});
           state.settings.mill = Object.assign({}, DEFAULT_SETTINGS.mill, (s.settings || {}).mill || {});
+          if (state.settings.mill.lat == null || state.settings.mill.lon == null) state.settings.mill = Object.assign({}, DEFAULT_SETTINGS.mill);
         }
       } catch (e) { /* storage unavailable: run in memory */ }
       if (!state.cultivars) state.cultivars = DEFAULT_CULTIVARS.map(c => Object.assign({ optMin: null, optMax: null }, c));
@@ -1256,7 +1293,7 @@
       const now = Date.now();
       const soon = rs.filter(r => r.at <= now + 2 * HOUR), later = rs.filter(r => r.at > now + 2 * HOUR);
       const active = state.lots.filter(l => lotStage(l) !== 'resting' && !l.sample);
-      let html = weatherHtml();
+      let html = weatherHtml() + seasonHtml();
       if (!state.lots.length) {
         html += `<div class="card mt-6 space-y-3 text-center">
           <p class="text-lg text-white font-semibold">No lots yet</p>
@@ -1363,6 +1400,7 @@
               <button onclick="useRecipe('${r.id}')" class="btn-big ghost mt-2">Use this recipe</button></div>`).join('')}</div>`;
         }
         const warn = sg.general.filter(n => n.tone === 'amber' || n.tone === 'red');
+        html += seasonHtml(true);
         if (warn.length) html += `<div class="space-y-2 mt-3">${notesHtml(warn)}</div>`;
         html += `<div class="space-y-2 mt-3">`;
         sg.ranked.forEach((r, i) => {
@@ -1381,6 +1419,7 @@
           html += `<div class="card mt-3 space-y-3">
             <select onchange="wsetCulture(this.value)" class="field-lg">${CULTURES.filter(x => x.id !== 'none').map(x => `<option value="${x.id}" ${d.culture === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
             ${d.culture === 'lalcafe' ? lalcafeHtml(d.product) : ''}
+            ${d.culture === 'lalcafe' && seasonPlan() && seasonPlan().warm ? notesHtml([note('amber', 'Warm the tank: at this time of season the air in Kalimpong is below 15 °C for most of the day.', `Lallemand gives 15 °C inside the coffee as the minimum for its yeast to take hold. From late November the replay found the air below 15 °C for about 45 of every 72 hours, so ferment indoors or in an insulated tank, and log the tank temperature. ¦ ${REPLAY_SRC}; LalCafé by Lallemand: Cima and BSC pages`)]) : ''}
             <input value="${esc(d.product)}" oninput="wset('product', this.value)" placeholder="Product name (optional)" class="field-lg">
             ${c.needsDose ? `<div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div>
               ${d.cherryKg ? `<div class="text-sm">${planHtml(plan)}</div>` : '<p class="text-sm text-coffee-400">Enter the kg on the first screen to get grams and mixing steps.</p>'}
