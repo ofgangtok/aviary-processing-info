@@ -78,6 +78,8 @@
     .btn-big.ghost { background: #322214; color: #E9DEC9; border: 1px solid #4B3520; }
     .row-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(50, 34, 20, 0.6); border: 1px solid rgba(75, 53, 32, 0.8); }
     details.why { margin-top: 0.125rem; }
+    .inline-why details.why { display: inline; margin-left: 0.375rem; }
+    .inline-why details.why[open] { display: block; margin-left: 0; }
     details.why > summary { display: inline; cursor: pointer; font-size: 0.75rem; color: #BBA27E; text-decoration: underline; list-style: none; }
     details.why > summary::-webkit-details-marker { display: none; }
     details.why p { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; margin-top: 0.25rem; }
@@ -610,7 +612,9 @@
       const end = resolve('phEndpoint');
       const rs = readingsOf(l);
       const last = rs[rs.length - 1];
-      return { end, last, ph: last && last.ph != null && last.ph <= end.v, hand: !!(last && last.hand) };
+      const needHand = methodOf(l.method).drying === 'parchment';
+      const ph = !!(last && last.ph != null && last.ph <= end.v), hand = !!(last && last.hand);
+      return { end, last, ph, hand, needHand, ready: ph && (hand || !needHand) };
     }
 
     function dryingInfo(l) {
@@ -1051,7 +1055,7 @@
       return `<button type="button" onclick="${onclick}" class="chip ${on ? 'chip-on' : ''} ${sub ? 'text-left' : ''}">${esc(label)}${sub ? `<span class="block text-xs ${on ? 'text-white/80' : 'text-coffee-400'} font-normal">${esc(sub)}</span>` : ''}</button>`;
     }
     function tick(ok, text, ref) {
-      return `<div class="flex gap-2.5 items-start py-1.5"><span class="mt-0.5 w-5 h-5 flex-shrink-0 rounded-full border flex items-center justify-center ${ok ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-coffee-600'}">${ok ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}</span><div class="text-[15px] ${ok ? 'text-emerald-200' : 'text-coffee-100'}">${text}${why(ref)}</div></div>`;
+      return `<div class="flex gap-2.5 items-start py-1.5"><span class="mt-0.5 w-5 h-5 flex-shrink-0 rounded-full border flex items-center justify-center ${ok ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-coffee-600'}">${ok ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}</span><div class="inline-why text-[15px] ${ok ? 'text-emerald-200' : 'text-coffee-100'}">${text}${why(ref)}</div></div>`;
     }
     function firstBlock(hours, mode) {
       const i = hours.findIndex(h => h.mode === mode);
@@ -1148,7 +1152,7 @@
       const st = lotStage(l);
       if (st === 'fermenting') {
         const fr = fermentReady(l);
-        if (fr.ph && fr.hand) return { text: 'Ready to wash', cls: 'text-emerald-300' };
+        if (fr.ready) return { text: fr.needHand ? 'Ready to wash' : 'Ready to dry', cls: 'text-emerald-300' };
         return { text: `Fermenting ${fmt(fermentHours(l))} h · ${fr.last && fr.last.ph != null ? 'pH ' + fmt(fr.last.ph, 2) : 'no pH yet'}`, cls: 'text-amber-300' };
       }
       if (st === 'to dry') return { text: 'Washed, waiting to dry', cls: 'text-amber-300' };
@@ -1201,7 +1205,7 @@
     // NEW LOT: one question per screen
     // ---------------------------------------------------------------
     let wiz = null;
-    const WIZ_STEPS = ['Where is it from?', 'How much, and when was it picked?', 'How ripe is it?', 'Which process?', 'Ready to start'];
+    const WIZ_STEPS = ['Where is it from?', 'How much, and when was it picked?', 'How ripe is it?', 'Which process?', 'Set up', 'Your roadmap'];
     function newDraft() {
       return {
         farmer: '', masl: null, cultivar: '', cherryKg: null,
@@ -1330,13 +1334,21 @@
             </div>
             <p class="text-xs text-coffee-400 mt-1">${why('Lucia Solis: Producer Toolkit #3 (cleaning, water, soap, meters) and #7 (coffee is a sponge).')}</p>
             <label class="q">Notes <span class="opt">(optional)</span></label><input value="${esc(d.notes)}" oninput="wset('notes', this.value)" class="field-lg">
-            <button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="play" class="w-5 h-5"></i> Start fermenting now</button>`;
+            ${wiz.err ? `<p class="text-sm text-rose-300 mt-4">${esc(wiz.err)}</p>` : ''}<button onclick="wnext()" class="btn-big mt-6">See the roadmap <i data-lucide="arrow-right" class="w-5 h-5"></i></button>`;
         } else {
           html += `<label class="q">Where will it dry?</label>
             <div class="flex flex-wrap gap-2">${surfaceOptions().map(x => chip(x, d.surface === x, `wpick('surface', ${esc(JSON.stringify(x))})`)).join('')}</div>
             <label class="q">Notes <span class="opt">(optional)</span></label><input value="${esc(d.notes)}" oninput="wset('notes', this.value)" class="field-lg">
-            <button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="sun" class="w-5 h-5"></i> Start drying now</button>`;
+            <button onclick="wnext()" class="btn-big mt-6">See the roadmap <i data-lucide="arrow-right" class="w-5 h-5"></i></button>`;
         }
+      }
+      if (s === 5) {
+        const m = methodOf(d.method);
+        const recipe = d.recipeId ? state.recipes.find(r => r.id === d.recipeId) : null;
+        html += `<p class="text-[15px] text-coffee-300">${esc(d.method)} · ${esc(d.cultivar)} · ${fmt(d.cherryKg)} kg · ${fmt(d.masl)} m <button onclick="wiz.step=3;renderAll()" class="underline ml-1">change</button></p>`;
+        html += roadmapHtml(roadmap({ method: d.method, culture: d.culture, dose: d.dose, kg: d.cherryKg, surface: m.tank ? '' : d.surface, start: Date.now(), recipe }), null);
+        html += `<button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="${m.tank ? 'play' : 'sun'}" class="w-5 h-5"></i> ${m.tank ? 'Start fermenting now' : 'Start drying now'}</button>
+          <p class="text-sm text-coffee-400 mt-2">The app follows this roadmap, reminds you at each step and ticks off the checks as you log them.</p>`;
       }
       return html;
     }
@@ -1379,12 +1391,6 @@
       return html;
     }
 
-    function stepsHtml(l) {
-      const m = methodOf(l.method), st = lotStage(l);
-      const steps = [...(m.tank ? [['Ferment', st !== 'fermenting', st === 'fermenting']] : []), ['Dry', st === 'resting', st === 'drying' || st === 'to dry'], ['Bag', false, st === 'resting']];
-      return `<div class="flex items-center gap-1.5 text-sm mt-3">${steps.map(([n, done, cur], i) => `${i ? '<span class="h-px w-4 bg-coffee-700"></span>' : ''}<span class="px-2.5 py-1 rounded-full border ${cur ? 'border-amber-500 text-amber-300 bg-amber-500/10' : done ? 'border-emerald-600 text-emerald-300' : 'border-coffee-700 text-coffee-500'}">${done ? '✓ ' : ''}${n}</span>`).join('')}</div>`;
-    }
-
     function renderLot() {
       const l = lotById(state.selectedId);
       if (!l) return renderLots();
@@ -1394,13 +1400,9 @@
       let html = `<div>
         <div class="flex items-center gap-2"><h2 class="text-2xl font-bold text-white">${esc(l.code)}</h2>${l.sample ? '<span class="text-xs text-coffee-400 border border-coffee-700 rounded px-1.5">sample</span>' : ''}</div>
         <p class="text-[15px] text-coffee-300">${esc(l.method)} · ${esc(l.cultivar || '–')} · ${fmt(l.cherryKg)} kg${l.masl ? ` · ${fmt(l.masl)} m` : ''}${l.farmer || l.farm ? ` · ${esc(l.farmer || l.farm)}` : ''}</p>
-        ${stepsHtml(l)}
       </div>`;
       if (urgent.length) html += `<div class="space-y-2 mt-4">${notesHtml(urgent)}</div>`;
-      if (st === 'fermenting') html += fermentCard(l);
-      if (st === 'to dry') html += startDryCard(l);
-      if (st === 'drying') html += dryCard(l);
-      if (st === 'resting') html += restCard(l);
+      html += heading('Roadmap') + roadmapHtml(lotRoadmap(l), l);
       if (watch.length) html += heading('Watch out') + `<div class="space-y-2">${notesHtml(watch)}</div>`;
       const rems = lotReminders(l, 36).filter(r => r.kind !== 'ph' && r.kind !== 'moisture');
       if (rems.length) html += heading('Coming up') + `<div class="space-y-2">${rems.slice(0, 5).map(r => reminderCard(r, false)).join('')}</div>`;
@@ -1417,32 +1419,179 @@
       return html;
     }
 
-    function fermentCard(l) {
+    function fermentCard(l, bare) {
       const S = state.settings;
       const fr = fermentReady(l);
       const rs = readingsOf(l);
-      const ready = fr.ph && fr.hand;
+      const ready = fr.ready;
       const open = state.openForm === 'ph';
-      let html = heading(`Fermenting · ${fmt(fermentHours(l))} h`);
+      let html = bare ? `<div class="text-sm text-coffee-300 mb-2">Fermenting for ${fmt(fermentHours(l))} h</div>` : heading(`Fermenting · ${fmt(fermentHours(l))} h`);
       html += `<div class="card space-y-3">`;
-      if (ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">Ready. Wash it now.</div>`;
+      if (ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">${fr.needHand ? 'Ready. Wash it now.' : 'Ready. Take it out and start drying.'}</div>`;
       html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
         ${tick(fr.ph, `pH is ${fr.end.v} or lower${fr.last && fr.last.ph != null ? ` <span class="text-coffee-400">(last: ${fmt(fr.last.ph, 2)})</span>` : ''}`, srcLabel(fr.end))}
-        ${tick(fr.hand, 'Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10')}</div>`;
+        ${fr.needHand ? tick(fr.hand, 'Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10') : ''}</div>`;
       html += open ? `<form onsubmit="addReading(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
           <div class="grid grid-cols-2 gap-2"><div><div class="text-sm text-coffee-300 mb-1">pH</div><input name="ph" type="number" step="0.01" inputmode="decimal" class="field-lg" autofocus></div>
           ${S.thermometer ? '<div><div class="text-sm text-coffee-300 mb-1">Tank °C</div><input name="temp" type="number" step="0.1" inputmode="decimal" class="field-lg"></div>' : ''}</div>
           ${S.extraInstruments ? '<div class="grid grid-cols-2 gap-2"><input name="brix" type="number" step="0.1" placeholder="Brix °Bx" class="field-lg"><input name="psi" type="number" step="0.1" placeholder="Pressure PSI" class="field-lg"></div>' : ''}
           <input name="smell" placeholder="How does it smell? (optional)" class="field-lg">
-          <label class="chk-lg"><input name="hand" type="checkbox"> Hand test passed: gritty, like pebbles</label>
+          ${fr.needHand ? '<label class="chk-lg"><input name="hand" type="checkbox"> Hand test passed: gritty, like pebbles</label>' : ''}
           <details><summary class="text-sm text-coffee-400 underline cursor-pointer">Different time?</summary><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field-lg mt-2"></details>
           <div class="grid grid-cols-2 gap-2"><button type="button" onclick="toggleForm('ph')" class="btn-big ghost">Cancel</button><button class="btn-big">Save</button></div>
         </form>` : `<button onclick="toggleForm('ph')" class="btn-big ${ready ? 'ghost' : ''}"><i data-lucide="test-tube" class="w-5 h-5"></i> Log pH</button>`;
-      html += `<button onclick="finishFermentation('${l.id}')" class="btn-big ${ready ? '' : 'ghost'}"><i data-lucide="droplets" class="w-5 h-5"></i> Washed. Start drying</button>`;
+      html += `<button onclick="finishFermentation('${l.id}')" class="btn-big ${ready ? '' : 'ghost'}"><i data-lucide="droplets" class="w-5 h-5"></i> ${fr.needHand ? 'Washed. Start drying' : 'Done. Start drying'}</button>`;
       if (rs.length >= 2) html += lineChart(rs.map(r => ({ x: fermentHours(l, r), y: r.ph })), { title: 'pH', color: '#F59E0B', dp: 1, lines: [{ y: fr.end.v, label: `ready at ${fr.end.v}`, color: '#34D399' }] });
       const next = lotReminders(l, 48).find(r => r.kind === 'ph');
       if (next && !open) html += `<p class="text-sm text-coffee-400">Next pH check: ${esc(when(next.at))}.${why(next.ref)}</p>`;
       return html + '</div>';
+    }
+
+    // ---------------------------------------------------------------
+    // ROADMAP: every step from sorting to bagging, with what to do,
+    // how you know it's done, and dates where the forecast allows
+    // ---------------------------------------------------------------
+    // p: { method, culture, dose, kg, surface, start (ms), lot (optional), recipe (optional) }
+    function roadmap(p) {
+      const S = state.settings, m = methodOf(p.method), l = p.lot;
+      const parchment = m.drying === 'parchment';
+      const t0 = p.start;
+      const stages = [];
+      const R = k => resolve(k);
+
+      // 1. Sort
+      const sort = { key: 'sort', title: m.drying === 'cherry' ? 'Sort the cherry' : 'Sort and pulp', icon: 'filter', todo: [], done: [] };
+      sort.when = l ? `Done ${dayLabel(l.createdAt)}` : `Now, within ${R('pickToProcessH').v} h of picking`;
+      sort.todo.push([`Start within ${R('pickToProcessH').v} h of picking`, srcLabel(R('pickToProcessH'))]);
+      sort.todo.push(['Float the cherry and remove the floaters', 'Lucia Solis: Producer Toolkit #2 and #3']);
+      sort.todo.push(m.drying === 'cherry' ? ['Pick out overripe cherry before a natural', 'Lucia Solis: Making Coffee #71'] : ['Pick out green and overripe cherry', 'Lucia Solis: Producer Toolkit #2 and #3']);
+      if (m.drying !== 'cherry') sort.todo.push([`Pulp it. Quality drops if pulping waits past ${R('pickMaxH').v} h from picking`, srcLabel(R('pickMaxH'))]);
+      if (m.drying === 'honey') sort.todo.push(['Leave the mucilage on the parchment', 'Lucia Solis: Producer Toolkit #2']);
+      stages.push(sort);
+
+      // 2. Ferment (tank methods only)
+      let fermentEnd = null;
+      if (m.tank) {
+        const f = { key: 'ferment', title: m.sealed ? 'Ferment, sealed' : 'Ferment in the tank', icon: 'flask-conical', todo: [], done: [] };
+        const range = m.sealed ? `up to about ${R('maxHoursSealed').v} h` : 'usually 6–72 h, depending on temperature';
+        const rangeRef = m.sealed ? srcLabel(R('maxHoursSealed')) : 'Schwan & Fleet 2014, ch. 10';
+        if (l && l.washedAt) f.when = `Done after ${fmt(fermentHours(l))} h`;
+        else if (l) f.when = `Started ${when(l.fermentStart || l.createdAt)} · ${range}`;
+        else f.when = p.recipe && p.recipe.fermentH ? `Starts now · your recipe took ${fmt(p.recipe.fermentH)} h` : `Starts now · ${range}`;
+        f.whenRef = rangeRef;
+        if (l && l.washedAt) fermentEnd = new Date(l.washedAt).getTime();
+        const c = cultureOf(p.culture);
+        if (c.needsDose && p.kg) {
+          const plan = computePlan({ kg: p.kg, yeast: p.culture, dose: p.dose, container: 'barrel' });
+          f.todo.push([`Add ${fmt(plan.grams)} g of ${c.name.split(' (')[0].toLowerCase()}: ${plan.steps.join(' ')}`, c.ref]);
+        }
+        f.todo.push(['Check pH at the start, at about 12 h and 24 h, then at least twice a day', 'Lucia Solis: Producer Toolkit #3']);
+        if (S.thermometer) f.todo.push([`Check the tank temperature with each pH reading. Alert above ${R('tempMax').v} °C`, srcLabel(R('tempMax'))]);
+        if (m.sealed && S.extraInstruments) f.todo.push([`Vent if the pressure passes ${R('pressureMax').v} PSI`, srcLabel(R('pressureMax'))]);
+        f.done.push([`pH is ${R('phEndpoint').v} or lower`, srcLabel(R('phEndpoint'))]);
+        if (parchment) f.done.push(['Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10']);
+        stages.push(f);
+        if (parchment) {
+          const w = { key: 'wash', title: 'Wash', icon: 'droplets', todo: [], done: [] };
+          w.when = l && l.washedAt ? `Done ${when(l.washedAt)}` : 'As soon as the fermentation is ready';
+          w.todo.push(['Wash off the fermented mucilage', '']);
+          w.todo.push([`Start drying within ${R('washToDryMaxH').v} h of washing`, srcLabel(R('washToDryMaxH'))]);
+          stages.push(w);
+        }
+      }
+
+      // 3. Dry
+      const need = R(parchment ? 'dryDaysWashed' : 'dryDaysNatural');
+      const d = { key: 'dry', title: `Dry${p.surface || (l && l.drying && l.drying.surface) ? ' on ' + (p.surface || l.drying.surface).toLowerCase() : ''}`, icon: 'sun', todo: [], done: [] };
+      let dryStart = l && l.drying ? new Date(l.drying.startAt).getTime() : (m.tank ? fermentEnd : t0);
+      let dryEnd = null, endFromWeights = false;
+      if (l && l.drying) { const di = dryingInfo(l); if (di.eta) { dryEnd = di.eta.getTime(); endFromWeights = true; } }
+      if (!dryEnd && dryStart) dryEnd = dryStart + need.v * DAY;
+      if (l && l.bag) d.when = `Done in ${fmt((new Date(l.bag.at) - new Date(l.drying.startAt)) / DAY)} days`;
+      else if (dryStart && !endFromWeights && dryEnd < Date.now()) d.when = `${dryLabel(dryStart)} → expected around ${dayLabel(dryEnd)}. Check if it's dry`;
+      else if (dryStart) d.when = `${dryLabel(dryStart)} → ${endFromWeights ? 'about ' + dayLabel(dryEnd) + ' from your weighings' : 'around ' + dayLabel(dryEnd) + ` (about ${need.v} days)`}`;
+      else d.when = `After washing · about ${need.v} days`;
+      d.whenRef = endFromWeights ? 'At the latest drying rate. Below about 20% drying slows down (Lucia Solis, Producer Toolkit #2).' : srcLabel(need);
+      // Forecast inside the drying window
+      const sum = wxSummary(72);
+      if (sum && !(l && l.bag)) {
+        const from = dryStart || t0, to = (dryEnd || (t0 + (need.v + 3) * DAY));
+        const poor = sum.days.filter(x => x.sunset >= from && x.sunrise <= to && x.outlook === 'poor');
+        const last = sum.days[sum.days.length - 1];
+        d.forecast = poor.length ? `Poor drying days in the forecast: ${poor.map(x => new Date(x.sunrise).toLocaleDateString([], { weekday: 'short' }) + ' ' + new Date(x.sunrise).getDate()).join(', ')}. The app reminds you to cover.` : 'No poor drying days in the forecast for this window.';
+        if (last && to > last.sunset) d.forecast += ` The forecast only runs to ${dayLabel(last.sunrise)}.`;
+      }
+      const seed = seedLimitFor(m.drying);
+      d.todo.push(['Spread it out at sunrise in thin layers, about 10 cm', 'ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Rake 8–10 times a day', 'Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Pile and cover before sunset', 'ATI Philippines 2007; Hackler & Särchen 2025']);
+      d.todo.push(['Pile and cover before rain. The app reminds you from the forecast', 'Forecast: Open-Meteo']);
+      d.todo.push([`Keep the seed at or below ${seed.v} °C${S.setup.shade ? '. Shade cloth on in strong sun' : ''}`, srcLabel(seed)]);
+      if (m.drying === 'cherry') d.todo.push(["Light shade helps: Lucia's shaded lots dried in about 15 days under roughly 30–40% shade", 'Lucia Solis: Making Coffee #71']);
+      if (S.setup.dryer) d.todo.push([`With the dryer: use it first, then move to the patio at about ${R('dryerSwitch').v}%`, srcLabel(R('dryerSwitch'))]);
+      d.todo.push(['Weigh and take meter readings once a day, twice a day near the target', srcLabel(R('moistureCheckH'))]);
+      d.done.push([`Meter reads ${R('moistureTarget').v}% or less in ${R('meterSpots').v} spots`, srcLabel(R('moistureTarget'))]);
+      d.done.push([`The reading still holds ${R('holdHours').v} h later`, srcLabel(R('holdHours'))]);
+      d.done.push(['The beans feel hard and brittle', 'ATI Philippines 2007']);
+      stages.push(d);
+
+      // 4. Bag and rest
+      const b = { key: 'bag', title: 'Bag and rest', icon: 'package', todo: [], done: [] };
+      b.when = l && l.bag ? `Bagged ${dayLabel(l.bag.at)}` : dryEnd && !endFromWeights ? `Around ${dayLabel(dryEnd)}` : dryEnd ? `About ${dayLabel(dryEnd)}` : 'When the drying checks pass';
+      b.todo.push(['Use barrier bags (polyethylene plus EVOH)', 'Lucia Solis: Producer Toolkit #7']);
+      b.todo.push(['Store away from smoke, fuel and kitchen smells', 'Lucia Solis: Producer Toolkit #7']);
+      b.todo.push(['Rest it for several weeks before hulling', 'Hackler & Särchen 2025']);
+      b.todo.push(['Re-check the moisture once a month', 'Tool heuristic']);
+      b.todo.push(['The app saves the lot as a recipe for next time', '']);
+      stages.push(b);
+      return stages;
+    }
+    function dryLabel(t) { return t <= Date.now() + 12 * HOUR && new Date(t).toDateString() === new Date().toDateString() ? 'Today' : dayLabel(t); }
+
+    function currentStage(l) {
+      const st = lotStage(l);
+      if (st === 'fermenting') return 'ferment';
+      if (st === 'to dry') return 'dry';
+      if (st === 'drying') return 'dry';
+      return 'bag';
+    }
+
+    // Vertical timeline. With a lot, the current step holds its action card.
+    function roadmapHtml(stages, l) {
+      const order = stages.map(s => s.key);
+      const cur = l ? currentStage(l) : null;
+      const ci = cur ? order.indexOf(cur) : -1;
+      return `<ol class="mt-2">${stages.map((s, i) => {
+        const done = l ? (i < ci || (l.bag && s.key === 'bag')) : false;
+        const now = l ? i === ci && !(l.bag && s.key === 'bag') : i === 0;
+        const last = i === stages.length - 1;
+        const dot = done ? 'bg-emerald-500 border-emerald-500 text-white' : now ? 'bg-amber-500 border-amber-500 text-white' : 'border-coffee-600 text-coffee-400 bg-coffee-950';
+        let body = `<div class="flex items-baseline justify-between gap-2"><div class="text-lg font-bold ${done ? 'text-emerald-200' : now ? 'text-white' : 'text-coffee-200'}">${esc(s.title)}</div>${now && l ? '<span class="text-xs font-semibold text-amber-300 flex-shrink-0">NOW</span>' : ''}</div>
+          <div class="inline-why text-sm ${now ? 'text-amber-200' : 'text-coffee-400'}">${esc(s.when || '')}${why(s.whenRef)}</div>`;
+        const list = (items, cls) => items.map(([t, r]) => `<li class="flex gap-2 ${cls}"><span class="text-coffee-500">•</span><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('');
+        const plan = `${s.todo.length ? `<ul class="space-y-1.5 mt-2 text-[15px]">${list(s.todo, 'text-coffee-100')}</ul>` : ''}
+          ${s.done.length ? `<div class="mt-3 text-sm text-coffee-400">Done when</div><ul class="space-y-1.5 mt-1 text-[15px]">${s.done.map(([t, r]) => `<li class="flex gap-2 text-emerald-100"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0"></i><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('')}</ul>` : ''}
+          ${s.forecast ? `<p class="text-sm text-sky-200 mt-2">${esc(s.forecast)}</p>` : ''}`;
+        if (l && now) body += `<div class="mt-3">${actionCard(l)}</div><details class="mt-2"><summary class="text-sm text-coffee-300 underline cursor-pointer">Everything to do in this step</summary>${plan}</details>`;
+        else if (l && !done) body += `<details class="mt-1"><summary class="text-sm text-coffee-300 underline cursor-pointer">What you'll do</summary>${plan}</details>`;
+        else if (!l) body += plan;
+        return `<li class="relative flex gap-3 ${last ? '' : 'pb-6'}">
+          ${last ? '' : `<span class="absolute left-[15px] top-8 bottom-0 w-0.5 ${done ? 'bg-emerald-600' : 'bg-coffee-800'}"></span>`}
+          <span class="relative z-10 w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-sm font-bold ${dot}">${done ? '<i data-lucide="check" class="w-4 h-4"></i>' : i + 1}</span>
+          <div class="flex-1 min-w-0 pt-0.5">${body}</div>
+        </li>`;
+      }).join('')}</ol>`;
+    }
+    function actionCard(l) {
+      const st = lotStage(l);
+      if (st === 'fermenting') return fermentCard(l, true);
+      if (st === 'to dry') return startDryCard(l, true);
+      if (st === 'drying') return dryCard(l, true);
+      return restCard(l, true);
+    }
+    function lotRoadmap(l) {
+      const recipe = l.recipeId ? state.recipes.find(r => r.id === l.recipeId) : null;
+      return roadmap({ method: l.method, culture: l.culture, dose: l.dose, kg: l.cherryKg, surface: l.drying && l.drying.surface, start: new Date(l.createdAt).getTime(), lot: l, recipe });
     }
 
     function surfaceOptions() {
@@ -1451,8 +1600,8 @@
       if (s.shade) o.push('Raised beds under shade cloth');
       return o.length ? o : ['Patio'];
     }
-    function startDryCard(l) {
-      return heading('Start drying') + `<div class="card space-y-3">
+    function startDryCard(l, bare) {
+      return (bare ? '' : heading('Start drying')) + `<div class="card space-y-3">
         <form onsubmit="startDrying(event,'${l.id}')" class="space-y-3">
           <div class="text-[15px] text-coffee-100">Where will it dry?</div>
           <select name="surface" class="field-lg">${surfaceOptions().map(s => `<option>${esc(s)}</option>`).join('')}</select>
@@ -1462,12 +1611,12 @@
       </div>`;
     }
 
-    function dryCard(l) {
+    function dryCard(l, bare) {
       const S = state.settings;
       const di = dryingInfo(l);
       const day = Math.floor((Date.now() - new Date(l.drying.startAt)) / DAY) + 1;
       const open = state.openForm === 'weigh';
-      let html = heading(`Drying · day ${day} · ${esc(l.drying.surface || '')}`);
+      let html = bare ? `<div class="text-sm text-coffee-300 mb-2">Day ${day} of drying</div>` : heading(`Drying · day ${day} · ${esc(l.drying.surface || '')}`);
       html += `<div class="card space-y-3">`;
       if (di.ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">Dry. Bag it.</div>`;
       const facts = [];
@@ -1512,9 +1661,9 @@
       </form>`;
     }
 
-    function restCard(l) {
+    function restCard(l, bare) {
       const days = (Date.now() - new Date(l.bag.at)) / DAY;
-      return heading('Bagged') + `<div class="card space-y-2">
+      return (bare ? '' : heading('Bagged')) + `<div class="card space-y-2">
         <p class="text-[15px] text-coffee-100">Bagged ${esc(dayLabel(l.bag.at))} at ${fmt(l.bag.moisture, 1)}% in ${esc({ barrier: 'barrier bags', pe: 'plain plastic', jute: 'jute' }[l.bag.type] || 'bags')}. Resting for ${fmt(days)} days.</p>
         <p class="text-sm text-coffee-400">Lots rest for several weeks before hulling. Keep the bags away from smells.${why('Rest: Hackler & Särchen 2025. Smells: Lucia Solis, Producer Toolkit #7.')}</p>
         ${l.recipeSaved ? '<p class="text-sm text-emerald-300">Saved as a recipe.</p>' : ''}
@@ -1541,14 +1690,14 @@
     function addReading(e, id) {
       e.preventDefault();
       const l = lotById(id), f = e.target;
-      const r = { at: formTime(f), ph: num(f.ph.value), temp: f.temp ? num(f.temp.value) : null, brix: f.brix ? num(f.brix.value) : null, psi: f.psi ? num(f.psi.value) : null, smell: f.smell.value.trim(), hand: f.hand.checked };
+      const r = { at: formTime(f), ph: num(f.ph.value), temp: f.temp ? num(f.temp.value) : null, brix: f.brix ? num(f.brix.value) : null, psi: f.psi ? num(f.psi.value) : null, smell: f.smell.value.trim(), hand: !!(f.hand && f.hand.checked) };
       l.readings = (l.readings || []).filter(x => x.at !== r.at).concat([r]);
       state.openForm = null; save(); renderAll();
     }
     function deleteReading(id, at) { const l = lotById(id); l.readings = l.readings.filter(r => r.at !== at); save(); renderAll(); }
     function finishFermentation(id) {
       const l = lotById(id);
-      if (!fermentReady(l).ph && !confirm('The pH has not reached the endpoint yet. Mark it as washed anyway?')) return;
+      if (!fermentReady(l).ready && !confirm('The ready checks are not all ticked yet. Finish the fermentation anyway?')) return;
       l.washedAt = new Date().toISOString(); save(); renderAll();
     }
     function startDrying(e, id) {
