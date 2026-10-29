@@ -65,84 +65,48 @@
     table.wrap td { white-space: normal; vertical-align: top; }
     .mode-open { background: #F59E0B; } .mode-shade { background: #A855F7; } .mode-slow { background: #64748B; }
     .mode-cover { background: #0EA5E9; } .mode-night { background: #1E293B; }
-    .tab-btn { white-space: nowrap; }
+    .field-lg { width: 100%; background: #1C120A; border: 1px solid #4B3520; border-radius: 0.75rem; padding: 0.75rem 0.875rem; font-size: 17px; color: #F7F2EA; }
+    .field-lg:focus { outline: none; border-color: rgba(245, 158, 11, 0.6); }
+    .q { display: block; font-size: 1rem; font-weight: 600; color: #F7F2EA; margin: 1.25rem 0 0.5rem; }
+    .opt { font-weight: 400; color: #9E8057; font-size: 0.85rem; }
+    .chip { padding: 0.6rem 0.95rem; border-radius: 0.75rem; border: 1px solid #4B3520; background: #322214; color: #E9DEC9; font-size: 0.95rem; font-weight: 500; }
+    .chip-on { background: #D97706; border-color: #D97706; color: #fff; }
+    .chk-lg { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.875rem; border: 1px solid #4B3520; border-radius: 0.75rem; background: rgba(28, 18, 10, 0.6); font-size: 15px; color: #F7F2EA; }
+    .chk-lg input { width: 1.25rem; height: 1.25rem; accent-color: #D97706; flex-shrink: 0; }
+    .btn-big { display: flex; width: 100%; justify-content: center; align-items: center; gap: 0.5rem; padding: 0.9rem 1rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 600; background: #D97706; color: #fff; }
+    .btn-big:active { background: #B45309; }
+    .btn-big.ghost { background: #322214; color: #E9DEC9; border: 1px solid #4B3520; }
+    .row-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(50, 34, 20, 0.6); border: 1px solid rgba(75, 53, 32, 0.8); }
+    details.why { margin-top: 0.125rem; }
+    details.why > summary { display: inline; cursor: pointer; font-size: 0.75rem; color: #BBA27E; text-decoration: underline; list-style: none; }
+    details.why > summary::-webkit-details-marker { display: none; }
+    details.why p { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; margin-top: 0.25rem; }
+    .navbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0.55rem 0 0.45rem; font-size: 0.72rem; color: #9E8057; }
+    .navbtn.on { color: #F59E0B; }
   </style>
 </head>
 <body class="bg-coffee-950 text-coffee-100 font-sans min-h-screen antialiased selection:bg-coffee-500 selection:text-white">
-
-  <!-- TOP HEADER / NAV -->
   <header class="sticky top-0 z-40 bg-coffee-950/95 backdrop-blur-md border-b border-coffee-800/60">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-3 min-w-0">
-        <a href="index.html" class="p-2 bg-coffee-800/80 rounded-xl border border-coffee-700 text-amber-400" title="Back to the Processing Matrix">
-          <i data-lucide="flask-conical" class="w-5 h-5"></i>
-        </a>
-        <div class="min-w-0">
-          <h1 class="text-base font-bold text-coffee-50 tracking-tight leading-none">Mill Assistant</h1>
-          <p id="millName" class="text-[11px] text-coffee-400 font-mono mt-0.5 truncate">Buy, ferment, dry, rest</p>
-        </div>
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2">
+      <button id="backBtn" onclick="goBack()" class="hidden p-2 -ml-2 rounded-lg text-coffee-200" aria-label="Back"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+      <div class="min-w-0 flex-1">
+        <h1 id="pageTitle" class="text-lg font-bold text-white truncate leading-tight">Today</h1>
+        <p id="millName" class="text-xs text-coffee-400 truncate"></p>
       </div>
-      <label class="flex items-center gap-1.5 bg-coffee-900/80 border border-coffee-800 rounded-lg px-2 py-1 text-xs" title="Which source the default targets and alerts come from">
-        <span class="text-coffee-400 font-mono">Presets</span>
-        <select id="presetSelect" onchange="setPreset(this.value)" class="bg-transparent text-coffee-100 focus:outline-none">
-          <option value="lucia">Lucia Solis (default)</option>
-          <option value="research">Research papers</option>
-        </select>
-      </label>
+      <a href="index.html" class="p-2 text-amber-400" title="Back to the Processing Matrix"><i data-lucide="flask-conical" class="w-5 h-5"></i></a>
     </div>
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-2 overflow-x-auto">
-      <div class="flex items-center gap-1 text-xs w-max">
-        <button data-tab="today" onclick="setTab('today')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition"><i data-lucide="sun" class="w-3.5 h-3.5"></i> Today</button>
-        <button data-tab="buy" onclick="setTab('buy')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition"><i data-lucide="shopping-basket" class="w-3.5 h-3.5"></i> Buy cherry</button>
-        <button data-tab="lots" onclick="setTab('lots')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Lots</button>
-        <button data-tab="recipes" onclick="setTab('recipes')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition"><i data-lucide="book-marked" class="w-3.5 h-3.5"></i> Recipes &amp; references</button>
-        <button data-tab="calc" onclick="setTab('calc')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition"><i data-lucide="calculator" class="w-3.5 h-3.5"></i> Calculators</button>
-        <button data-tab="settings" onclick="setTab('settings')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Settings &amp; sources</button>
-      </div>
-    </nav>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-    <section id="view-today" class="hidden space-y-5"></section>
-    <section id="view-buy" class="hidden"></section>
-    <section id="view-lots" class="hidden">
-      <div class="flex flex-col lg:flex-row gap-6">
-        <aside id="lotAside" class="w-full lg:w-72 flex-shrink-0 space-y-3">
-          <button onclick="setTab('buy')" class="btn btn-primary w-full justify-center"><i data-lucide="plus" class="w-4 h-4"></i> Buy cherry (new lot)</button>
-          <div id="lotList" class="space-y-2"></div>
-        </aside>
-        <div id="lotDetail" class="flex-1 min-w-0"></div>
-      </div>
-    </section>
-    <section id="view-recipes" class="hidden space-y-5"></section>
-    <section id="view-calc" class="hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="card space-y-3">
-          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-amber-400"></i> Yeast dose planner</h2>
-          <p class="text-xs text-coffee-400">Works out yeast, rehydration water and barrel count for a given mass of coffee.</p>
-          <div class="grid grid-cols-2 gap-3">
-            <div><label class="lbl">Coffee into tank (kg)</label><input id="c_kg" type="number" min="0" value="500" class="field" oninput="renderCalc()"></div>
-            <div><label class="lbl">Yeast dose (g/kg)</label><input id="c_dose" type="number" min="0" step="0.1" class="field" oninput="renderCalc()"></div>
-            <div><label class="lbl">Culture type</label><select id="c_yeast" class="field" onchange="renderCalc()"></select></div>
-            <div><label class="lbl">Container</label><select id="c_container" class="field" onchange="renderCalc()"><option value="barrel">Barrels (40–45 kg)</option><option value="tank">Single tank</option></select></div>
-          </div>
-          <div id="calcDoseOut" class="text-sm space-y-2"></div>
-        </div>
-        <div class="card space-y-3">
-          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="scale" class="w-4 h-4 text-amber-400"></i> Target weight</h2>
-          <p class="text-xs text-coffee-400">Dry matter stays the same while coffee dries. So once your moisture meter gives a steady reading, one weighing tells you the weight the lot will have at the target moisture.</p>
-          <div class="grid grid-cols-2 gap-3">
-            <div><label class="lbl">Weight now (kg)</label><input id="m_w0" type="number" step="0.01" value="100" class="field" oninput="renderCalc()"></div>
-            <div><label class="lbl">Meter reading now (%)</label><input id="m_m0" type="number" step="0.1" value="20" class="field" oninput="renderCalc()"></div>
-            <div><label class="lbl">Later weight (kg)</label><input id="m_w1" type="number" step="0.01" value="95" class="field" oninput="renderCalc()"></div>
-            <div><label class="lbl">Target moisture (%)</label><input id="m_target" type="number" step="0.1" class="field" oninput="renderCalc()"></div>
-          </div>
-          <div id="calcMoistOut" class="text-sm space-y-2"></div>
-        </div>
-      </div>
-    </section>
-    <section id="view-settings" class="hidden space-y-5"></section>
-  </main>
+  <main id="view" class="max-w-2xl mx-auto px-4 pt-4 pb-28"></main>
+
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-coffee-950/95 backdrop-blur-md border-t border-coffee-800" style="padding-bottom: env(safe-area-inset-bottom)">
+    <div class="max-w-2xl mx-auto grid grid-cols-4">
+      <button data-nav="today" onclick="setTab('today')" class="navbtn"><i data-lucide="sun" class="w-6 h-6"></i>Today</button>
+      <button data-nav="new" onclick="startWizard()" class="navbtn"><i data-lucide="plus-circle" class="w-6 h-6"></i>New lot</button>
+      <button data-nav="lots" onclick="setTab('lots')" class="navbtn"><i data-lucide="layers" class="w-6 h-6"></i>Lots</button>
+      <button data-nav="more" onclick="setTab('more')" class="navbtn"><i data-lucide="menu" class="w-6 h-6"></i>More</button>
+    </div>
+  </nav>
 
   <script>
     // ---------------------------------------------------------------
@@ -396,7 +360,7 @@
     };
     const TONE_ICON = { red: 'alert-octagon', amber: 'alert-triangle', green: 'check-circle-2', info: 'info' };
     function notesHtml(list) {
-      return list.map(a => `<div class="flex gap-2 border rounded-lg p-2.5 text-sm ${TONE[a.tone]}"><i data-lucide="${TONE_ICON[a.tone]}" class="w-4 h-4 flex-shrink-0 mt-0.5"></i><div><div>${esc(a.text)}</div>${a.ref ? `<div class="src mt-0.5">${esc(a.ref)}</div>` : ''}</div></div>`).join('');
+      return list.map(a => `<div class="flex gap-2 border rounded-xl p-3 text-[15px] ${TONE[a.tone]}"><i data-lucide="${TONE_ICON[a.tone]}" class="w-4 h-4 flex-shrink-0 mt-0.5"></i><div><div>${esc(a.text)}</div>${why(a.ref)}</div></div>`).join('');
     }
 
     // Moisture from weight, assuming constant dry matter.
@@ -426,7 +390,7 @@
       const m = state.settings.mill;
       if (m.lat == null || m.lon == null) return;
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${m.lat}&longitude=${m.lon}&hourly=${WX_HOURLY}&daily=${WX_DAILY}&timezone=auto&forecast_days=16`;
-      wxStatus = 'loading'; if (state.tab !== 'buy') renderAll();
+      wxStatus = 'loading'; if (!typing()) renderAll();
       try {
         const r = await fetch(url);
         if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -438,9 +402,10 @@
         wxStatus = 'error: ' + e.message;
       }
       wxCache = null;
-      if (state.tab === 'buy' && document.getElementById('buyForm')) updateBuyOutputs(); else renderAll();
+      if (!typing()) renderAll();
     }
     let wxStatus = '';
+    function typing() { return state.tab === 'new' && wiz && wiz.step !== 3; }
     let wxCache = null;
 
     function wx() {
@@ -819,24 +784,10 @@
     }
     function doneReminder(lotId, kind) {
       const l = lotById(lotId);
-      if (kind === 'ph' || kind === 'moisture') { state.selectedId = lotId; setTab('lots'); setTimeout(() => { const f = document.getElementById(kind === 'ph' ? 'readingForm' : 'weighForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 50); return; }
-      if (kind === 'drystart') { state.selectedId = lotId; setTab('lots'); return; }
+      if (kind === 'ph' || kind === 'moisture') { state.selectedId = lotId; state.openForm = kind === 'ph' ? 'ph' : 'weigh'; setTab('lot'); return; }
+      if (kind === 'drystart') { openLot(lotId); return; }
       l.actions = (l.actions || []).concat([{ kind, at: new Date().toISOString() }]);
       save(); renderAll();
-    }
-    function reminderRow(r, showLot) {
-      const now = Date.now();
-      const overdue = r.at < now - 15 * 60000;
-      const btn = (r.kind === 'ph' || r.kind === 'moisture') ? 'Log it' : r.kind === 'drystart' ? 'Open' : 'Done';
-      return `<div class="flex items-center gap-3 p-2.5 rounded-lg border ${overdue ? 'border-amber-500/40 bg-amber-500/5' : 'border-coffee-800 bg-coffee-900/40'}">
-        <i data-lucide="${REM_ICON[r.kind] || 'bell'}" class="w-4 h-4 flex-shrink-0 ${overdue ? 'text-amber-300' : 'text-coffee-400'}"></i>
-        <div class="flex-1 min-w-0">
-          <div class="text-sm text-coffee-50">${esc(r.text)}${showLot ? ` <span class="text-coffee-400">· ${esc(r.lot.code)}</span>` : ''}</div>
-          <div class="text-[11px] font-mono ${overdue ? 'text-amber-300' : 'text-coffee-400'}">${overdue ? 'due ' : ''}${esc(when(r.at))}</div>
-          <div class="src">${esc(r.ref || '')}</div>
-        </div>
-        <button onclick="doneReminder('${r.lot.id}','${r.kind}')" class="btn btn-ghost btn-sm">${btn}</button>
-      </div>`;
     }
 
     // Calendar export (.ics) so reminders ring with the page closed
@@ -901,240 +852,6 @@
       return `<div class="card !p-3"><div class="text-xs font-mono text-coffee-400 mb-1">${esc(opts.title)}</div>${svg}</div>`;
     }
 
-    // ---------------------------------------------------------------
-    // TODAY
-    // ---------------------------------------------------------------
-    function weatherCardHtml() {
-      const m = state.settings.mill;
-      if (m.lat == null) {
-        return `<div class="card space-y-3">
-          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="cloud-sun" class="w-4 h-4 text-amber-400"></i> Weather at the mill</h2>
-          <p class="text-sm text-coffee-300">Set the mill's location once to get the forecast, the drying plan and rain reminders.</p>
-          <div class="flex flex-wrap gap-2"><button onclick="useMyLocation()" class="btn btn-primary"><i data-lucide="locate" class="w-4 h-4"></i> Use my location</button><button onclick="setTab('settings')" class="btn btn-ghost">Enter it by hand</button></div>
-          <p class="text-xs text-coffee-400">${esc(wxStatus)}</p>
-        </div>`;
-      }
-      const w = wx();
-      const age = state.weather ? hoursBetween(state.weather.fetchedAt, new Date()) : null;
-      let html = `<div class="card space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="cloud-sun" class="w-4 h-4 text-amber-400"></i> Weather at ${esc(m.name || 'the mill')}</h2>
-          <div class="flex items-center gap-2 text-xs text-coffee-400">${age != null ? `updated ${fmt(age, age < 1 ? 1 : 0)} h ago` : ''}<button onclick="fetchWeather()" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh</button></div>
-        </div>`;
-      if (wxStatus.startsWith('error')) html += `<p class="text-xs text-rose-300">Could not fetch the forecast (${esc(wxStatus)}). Showing the last saved one.</p>`;
-      if (!w) return html + `<p class="text-sm text-coffee-400">${wxStatus === 'loading' ? 'Loading forecast…' : 'No forecast yet. Tap Refresh when you have signal.'}</p></div>`;
-      const now = Date.now();
-      const cur = w.hours.find(h => h.t <= now && h.t + HOUR > now) || w.hours[0];
-      const next24 = w.hours.filter(h => h.t + HOUR > now && h.t < now + 24 * HOUR);
-      const sum = wxSummary(72);
-      html += `<div class="flex flex-wrap items-start gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl mode-${cur.mode} flex items-center justify-center text-white"><i data-lucide="${{ open: 'sun', shade: 'cloud-sun', slow: 'cloud', cover: 'cloud-rain', night: 'moon' }[cur.mode]}" class="w-6 h-6"></i></div>
-            <div><div class="text-lg font-bold text-white">${MODE_LABEL[cur.mode]}</div><div class="text-xs text-coffee-300">${esc(MODE_ACTION[cur.mode])}</div><div class="src">${esc(cur.why)}</div></div>
-          </div>
-          <div class="grid grid-cols-4 gap-2 text-center text-xs flex-1 min-w-[240px]">
-            ${[['Air', `${fmt(cur.temp, 1)} °C`], ['Humidity', `${fmt(cur.rh)}%`], ['Rain chance', `${fmt(cur.pp)}%`], ['Sun', `${fmt(cur.sw)} W/m²`]].map(([a, b]) => `<div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-2"><div class="text-[10px] font-mono uppercase text-coffee-400">${a}</div><div class="text-white font-semibold">${b}</div></div>`).join('')}
-          </div>
-        </div>`;
-      // Today strip
-      html += `<div><div class="text-xs font-mono uppercase text-coffee-400 mb-1">Next 24 hours</div>
-        <div class="flex gap-0.5 overflow-x-auto pb-1">${next24.map(h => `<div class="flex-1 min-w-0 text-center" title="${esc(h.hh + ' ' + MODE_LABEL[h.mode] + ': ' + h.why)}"><div class="h-7 rounded ${'mode-' + h.mode} ${h.t <= now && h.t + HOUR > now ? 'ring-2 ring-white/70' : ''}"></div><div class="text-[9px] font-mono text-coffee-400 mt-0.5">${(h.hh.slice(0, 2) % 3 === 0) ? h.hh.slice(0, 2) : '&nbsp;'}</div></div>`).join('')}</div>
-        <div class="flex flex-wrap gap-3 mt-1 text-[11px] text-coffee-300">${['open', 'shade', 'slow', 'cover', 'night'].map(k => `<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm mode-${k}"></span>${MODE_LABEL[k]}</span>`).join('')}</div>
-      </div>`;
-      // 16 days
-      html += `<div><div class="text-xs font-mono uppercase text-coffee-400 mb-1">Drying outlook, next ${sum.n} days</div>
-        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">${sum.days.map(d => `<div class="rounded-lg border p-1.5 text-center ${d.outlook === 'good' ? 'border-emerald-500/40 bg-emerald-500/10' : d.outlook === 'fair' ? 'border-amber-500/40 bg-amber-500/10' : 'border-sky-500/40 bg-sky-500/10'}" title="${d.dry} drying hours, ${d.wet} rain hours, ET₀ ${fmt(d.et0, 1)} mm">
-          <div class="text-[10px] font-mono text-coffee-300">${esc(new Date(d.sunrise).toLocaleDateString([], { weekday: 'short' }) + ' ' + new Date(d.sunrise).getDate())}</div>
-          <div class="text-xs font-semibold ${d.outlook === 'good' ? 'text-emerald-300' : d.outlook === 'fair' ? 'text-amber-300' : 'text-sky-300'}">${d.outlook}</div>
-          <div class="text-[10px] text-coffee-400">${fmt(d.tmin)}–${fmt(d.tmax)}° · ${fmt(d.ppMax)}%</div></div>`).join('')}</div>
-        <p class="text-xs text-coffee-300 mt-2">Dry window: <span class="text-white font-semibold">${sum.good}</span> good and <span class="text-white font-semibold">${sum.fair}</span> fair and <span class="text-white font-semibold">${sum.poor}</span> poor days of ${sum.n}. Naturals need about ${V('dryDaysNatural')}+ days, washed about ${V('dryDaysWashed')}+.</p>
-        <p class="src">Good: 6+ drying hours and at most 1 rain hour; poor: under 3 drying hours or 4+ rain hours (tool heuristic). Hour modes: thresholds in Settings.</p>
-      </div>`;
-      html += `<p class="src">Weather data by <a class="underline" href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0). The free API is for non-commercial use: daily business use needs their paid plan or another provider.</p></div>`;
-      return html;
-    }
-
-    function renderToday() {
-      const el = document.getElementById('view-today');
-      const rs = allReminders(24);
-      const active = state.lots.filter(l => !l.sample && lotStage(l) !== 'resting');
-      const notifOn = ('Notification' in window) && Notification.permission === 'granted';
-      el.innerHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div class="lg:col-span-2 space-y-5">${weatherCardHtml()}</div>
-          <div class="space-y-5">
-            <div class="card space-y-2">
-              <div class="flex items-center justify-between gap-2">
-                <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-amber-400"></i> Reminders, next 24 h</h2>
-              </div>
-              ${rs.length ? rs.map(r => reminderRow(r, true)).join('') : '<p class="text-sm text-coffee-400">Nothing due. Reminders appear once a lot is fermenting or drying.</p>'}
-              <div class="flex flex-wrap gap-2 pt-2">
-                <button onclick="exportIcs()" class="btn btn-ghost btn-sm"><i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Add next 48 h to phone calendar</button>
-                ${notifOn ? '<span class="text-[11px] text-emerald-300 self-center">Alerts on while this page is open</span>' : '<button onclick="enableNotifications()" class="btn btn-ghost btn-sm"><i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> Alerts while open</button>'}
-              </div>
-              <p class="src">A web page can only alert while it's open. The calendar file rings anyway; add it again after the forecast changes.</p>
-            </div>
-            <div class="card space-y-2">
-              <div class="flex items-center justify-between"><h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-amber-400"></i> Active lots</h2><button onclick="setTab('buy')" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Buy</button></div>
-              ${active.length ? active.map(lotButton).join('') : '<p class="text-sm text-coffee-400">No active lots.</p>'}
-            </div>
-          </div>
-        </div>`;
-    }
-
-    // ---------------------------------------------------------------
-    // BUY (intake + suggestion)
-    // ---------------------------------------------------------------
-    let buyDraft = null;
-    function newDraft() {
-      return {
-        farmer: '', farm: '', masl: null, cultivar: '', cherryKg: null,
-        pickedAt: toLocalInput(new Date(Date.now() - 4 * HOUR)), arrivedAt: toLocalInput(new Date()),
-        container: 'baskets', crushed: false, warm: false, ripeness: 'ripe', counts: {}, floatersKg: null, price: null,
-        experiment: false, method: '', culture: 'none', dose: null, labelDose: null, product: '', container2: 'barrel', notes: '',
-        checklist: {},
-      };
-    }
-    function draftFromForm() {
-      const f = document.getElementById('buyForm'); if (!f) return buyDraft;
-      const d = buyDraft;
-      Object.assign(d, {
-        farmer: f.farmer.value.trim(), farm: f.farm.value.trim(), masl: num(f.masl.value), cultivar: f.cultivar.value.trim(), cherryKg: num(f.cherryKg.value),
-        pickedAt: f.pickedAt.value, arrivedAt: f.arrivedAt.value, container: f.container.value, crushed: f.crushed.checked, warm: f.warm.checked,
-        ripeness: f.ripeness.value, counts: { green: num(f.green.value), hard: num(f.hard.value), soft: num(f.soft.value), over: num(f.over.value) },
-        floatersKg: num(f.floatersKg.value), price: f.price ? num(f.price.value) : null, experiment: f.experiment.checked,
-        method: f.method.value, culture: f.culture.value, dose: num(f.dose.value), labelDose: num(f.labelDose.value), product: f.product.value.trim(), container2: f.container2.value, notes: f.notes.value.trim(),
-        checklist: { water: f.chkWater.checked, clean: f.chkClean.checked, soap: f.chkSoap.checked, calib: f.chkCalib.checked, smell: f.chkSmell.checked },
-      });
-      return d;
-    }
-    function draftInput(d) {
-      return Object.assign({}, d, { pickedAt: d.pickedAt ? new Date(d.pickedAt) : null, arrivedAt: d.arrivedAt ? new Date(d.arrivedAt) : null });
-    }
-
-    function suggestionHtml(d) {
-      const sg = suggest(draftInput(d));
-      let html = '';
-      if (sg.cultivar) {
-        const c = sg.cultivar;
-        html += `<div class="card !p-3 space-y-1"><div class="text-xs font-mono uppercase text-amber-400">Cultivar: ${esc(c.name)}</div>
-          <div class="text-sm text-coffee-200">Optimal altitude: ${c.optMin != null ? `${fmt(c.optMin)}${c.optMax ? '–' + fmt(c.optMax) : '+'} m <span class="src">(your entry from WCR)</span>` : `not entered yet. <a class="underline" href="${WCR_URL}" target="_blank" rel="noopener">Look it up on World Coffee Research</a> and add it in Settings.`}</div>
-          ${c.flavor ? `<div class="text-sm text-coffee-200">Flavour tendency: ${esc(c.flavor)} <span class="src">(${esc(c.flavorRef)})</span></div>` : ''}
-          ${(() => { const mine = state.recipes.filter(r => r.cultivar && r.cultivar.toLowerCase() === c.name.toLowerCase()); return mine.length ? `<div class="text-xs text-coffee-300">Your recipes for it: ${mine.length}</div>` : ''; })()}
-        </div>`;
-      }
-      if (sg.recipes.length) {
-        html += `<div class="card !p-3 space-y-2 border-emerald-500/40"><div class="text-xs font-mono uppercase text-emerald-300">Your recipe comes first</div>${sg.recipes.map(r => `<div class="text-sm text-coffee-100"><span class="font-semibold">${esc(r.process)}</span> from ${esc(r.fromLot)} (${fmt(r.masl)} m): stop at pH ${fmt(r.phEnd, 2)}${r.fermentH ? `, took ${fmt(r.fermentH)} h at ${fmt(r.fermentTemp, 1)} °C` : ''}; dried ${fmt(r.dryDays, 1)} days to ${fmt(r.finalMoisture, 1)}%${r.cupScore != null ? `; cupped ${fmt(r.cupScore, 2)}` : ''}. <button type="button" onclick="useRecipe('${r.id}')" class="btn btn-ghost btn-sm ml-1">Use it</button><div class="src">The pH endpoint carries over, not the hours: this week's temperature sets the timing.</div></div>`).join('')}</div>`;
-      }
-      html += `<div class="space-y-2">${notesHtml(sg.general)}</div>`;
-      html += `<div class="space-y-2"><div class="text-xs font-mono uppercase text-coffee-400">Suggested processes, best first</div>${sg.ranked.map((r, i) => `
-        <div class="card !p-3 space-y-1.5 ${r.ok ? '' : 'opacity-80'}">
-          <div class="flex items-center justify-between gap-2"><div class="font-semibold text-white">${i + 1}. ${esc(r.id)} ${r.ok ? '' : '<span class="text-xs text-amber-300 font-normal">(risky now)</span>'}</div>
-          <button type="button" onclick="pickMethod('${esc(r.id)}')" class="btn ${d.method === r.id ? 'btn-primary' : 'btn-ghost'} btn-sm">${d.method === r.id ? 'Chosen' : 'Choose'}</button></div>
-          ${notesHtml(r.notes)}
-          ${refLotsHtml(methodOf(r.id).ref, 3)}
-        </div>`).join('')}</div>`;
-      return html;
-    }
-    function refLotsHtml(cat, max) {
-      const lots = ROASTER_LOTS.filter(x => x.p === cat);
-      if (!lots.length) return '';
-      const india = lots.filter(x => x.o === 'India' || x.o === 'Nepal');
-      const pick = (india.length ? india : lots).slice(0, max || 3);
-      return `<details class="text-xs"><summary class="cursor-pointer text-coffee-400">What roasters say others did (${lots.length})</summary><ul class="mt-1 space-y-1">${pick.map(x => `<li class="text-coffee-300"><a class="underline" href="${x.u}" target="_blank" rel="noopener">${esc(x.r)}</a>, ${esc(x.lot)}: ${esc(x.f)}. ${esc(x.d)}.</li>`).join('')}</ul><button type="button" onclick="state.refFilter='${cat}';setTab('recipes')" class="text-amber-300 underline mt-1">See all</button></details>`;
-    }
-
-    function renderBuy() {
-      const el = document.getElementById('view-buy');
-      if (!buyDraft) buyDraft = newDraft();
-      const d = buyDraft, S = state.settings;
-      const opt = (v, cur, label) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${label}</option>`;
-      el.innerHTML = `
-      <form id="buyForm" onsubmit="saveLot(event)" oninput="onBuyInput(event)" onchange="onBuyInput(event)" class="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-[auto_1fr] gap-5">
-        <div class="space-y-4">
-          <div class="card space-y-3">
-            <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="shopping-basket" class="w-4 h-4 text-amber-400"></i> 1. Buy cherry</h2>
-            <div class="grid grid-cols-2 gap-3">
-              <div><label class="lbl">Farmer</label><input name="farmer" value="${esc(d.farmer)}" class="field"></div>
-              <div><label class="lbl">Farm</label><input name="farm" value="${esc(d.farm)}" class="field"></div>
-              <div><label class="lbl">Farm altitude (m)</label><input name="masl" type="number" value="${d.masl ?? ''}" class="field" required></div>
-              <div><label class="lbl">Cultivar</label><input name="cultivar" list="cultivarList" value="${esc(d.cultivar)}" class="field" required><datalist id="cultivarList">${state.cultivars.map(c => `<option value="${esc(c.name)}">`).join('')}</datalist></div>
-              <div><label class="lbl">Cherry (kg)</label><input name="cherryKg" type="number" step="0.1" min="0" value="${d.cherryKg ?? ''}" class="field" required></div>
-              ${S.buying ? `<div><label class="lbl">Price paid (per kg)</label><input name="price" type="number" step="0.01" value="${d.price ?? ''}" class="field"></div>` : '<div></div>'}
-              <div><label class="lbl">Picked at</label><input name="pickedAt" type="datetime-local" value="${esc(d.pickedAt)}" class="field"></div>
-              <div><label class="lbl">Arrived at</label><input name="arrivedAt" type="datetime-local" value="${esc(d.arrivedAt)}" class="field"></div>
-              <div><label class="lbl">Came in</label><select name="container" class="field">${opt('baskets', d.container, 'Ventilated baskets')}${opt('sacks', d.container, 'Sacks')}${opt('other', d.container, 'Other')}</select></div>
-              <div class="flex flex-col justify-end gap-1"><label class="chk"><input name="crushed" type="checkbox" ${d.crushed ? 'checked' : ''}> Crushed or leaking</label><label class="chk"><input name="warm" type="checkbox" ${d.warm ? 'checked' : ''}> Warm to the touch</label></div>
-            </div>
-          </div>
-          <div class="card space-y-3">
-            <h3 class="font-semibold text-coffee-50">Ripeness</h3>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="col-span-2"><label class="lbl">By eye and hand</label><select name="ripeness" class="field">${opt('ripe', d.ripeness, 'Mostly ripe')}${opt('mixed', d.ripeness, 'Mixed')}${opt('early', d.ripeness, 'Early harvest (more green)')}${opt('late', d.ripeness, 'Late harvest (more overripe, dry)')}</select></div>
-              <div><label class="lbl">Green-ripe (of 100)</label><input name="green" type="number" min="0" max="100" value="${d.counts.green ?? ''}" class="field"></div>
-              <div><label class="lbl">Hard-ripe (of 100)</label><input name="hard" type="number" min="0" max="100" value="${d.counts.hard ?? ''}" class="field"></div>
-              <div><label class="lbl">Soft-ripe (of 100)</label><input name="soft" type="number" min="0" max="100" value="${d.counts.soft ?? ''}" class="field"></div>
-              <div><label class="lbl">Overripe (of 100)</label><input name="over" type="number" min="0" max="100" value="${d.counts.over ?? ''}" class="field"></div>
-              <div><label class="lbl">Floaters removed (kg)</label><input name="floatersKg" type="number" step="0.1" min="0" value="${d.floatersKg ?? ''}" class="field"></div>
-            </div>
-            <p class="src">Counts come from a 100-hole classifier board (Lucia Solis, Producer Toolkit #2). Green-ripe, hard-ripe and soft-ripe classes: ATI Philippines 2007. A ripe cherry is firm when pinched.</p>
-          </div>
-        </div>
-        <div class="space-y-3 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> 2. Suggestion</h2>
-          <div id="suggestOut" class="space-y-3"></div>
-        </div>
-        <div class="space-y-4 lg:col-start-1 lg:self-start">
-          <div class="card space-y-3">
-            <h3 class="font-semibold text-coffee-50">3. Process and culture</h3>
-            <div class="grid grid-cols-2 gap-3">
-              <div><label class="lbl">Process</label><select name="method" class="field">${METHODS.map(m => opt(m.id, d.method, m.id)).join('')}</select></div>
-              <div class="flex items-end"><label class="chk"><input name="experiment" type="checkbox" ${d.experiment ? 'checked' : ''}> Experiment (offer sealed methods)</label></div>
-              <div class="col-span-2"><label class="lbl">Culture</label><select name="culture" class="field">${CULTURES.map(c => opt(c.id, d.culture, esc(c.name))).join('')}</select></div>
-              <div><label class="lbl">Product</label><input name="product" value="${esc(d.product)}" class="field" placeholder="e.g. LAL CAFE INTENSO"></div>
-              <div><label class="lbl">Fermentation vessel</label><select name="container2" class="field">${opt('barrel', d.container2, 'Barrels (40–45 kg)')}${opt('tank', d.container2, 'Single tank')}</select></div>
-              <div><label class="lbl">Dose used (g/kg)</label><input name="dose" type="number" step="0.1" min="0" value="${d.dose ?? ''}" class="field"></div>
-              <div><label class="lbl">Label dose (g/kg)</label><input name="labelDose" type="number" step="0.1" min="0" value="${d.labelDose ?? ''}" class="field"></div>
-            </div>
-            <div id="planOut" class="text-sm"></div>
-            <fieldset class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
-              <legend class="text-xs font-mono uppercase text-amber-400 mb-1">Before you start</legend>
-              <label class="chk"><input name="chkWater" type="checkbox" ${d.checklist.water ? 'checked' : ''}> Water is not chlorinated</label>
-              <label class="chk"><input name="chkClean" type="checkbox" ${d.checklist.clean ? 'checked' : ''}> Tanks and tools cleaned</label>
-              <label class="chk"><input name="chkSoap" type="checkbox" ${d.checklist.soap ? 'checked' : ''}> No scented soap</label>
-              <label class="chk"><input name="chkCalib" type="checkbox" ${d.checklist.calib ? 'checked' : ''}> pH meter calibrated (4 &amp; 7)</label>
-              <label class="chk sm:col-span-2"><input name="chkSmell" type="checkbox" ${d.checklist.smell ? 'checked' : ''}> No smoke, fuel or kitchen smells near the coffee</label>
-            </fieldset>
-            <p class="src">Producer Toolkit #3 (cleaning, water, soap, meters) and #7 (coffee is a sponge).</p>
-            <div><label class="lbl">Notes</label><textarea name="notes" rows="2" class="field">${esc(d.notes)}</textarea></div>
-            <div class="flex justify-end gap-2"><button type="button" onclick="buyDraft=newDraft();renderBuy();icons()" class="btn btn-ghost">Clear</button><button class="btn btn-primary"><i data-lucide="save" class="w-4 h-4"></i> Save lot and start</button></div>
-          </div>
-        </div>
-      </form>`;
-      if (!d.method) { const sg = suggest(draftInput(d)); d.method = (sg.ranked[0] || { id: 'Washed' }).id; document.getElementById('buyForm').method.value = d.method; }
-      updateBuyOutputs();
-    }
-    function onBuyInput(e) {
-      draftFromForm();
-      if (e && e.target && e.target.name === 'culture') { const c = cultureOf(buyDraft.culture); if (c.needsDose && buyDraft.dose == null) { buyDraft.dose = V('doseGPerKg'); document.getElementById('buyForm').dose.value = buyDraft.dose; } }
-      updateBuyOutputs();
-    }
-    function updateBuyOutputs() {
-      const d = buyDraft;
-      document.getElementById('suggestOut').innerHTML = suggestionHtml(d);
-      const m = methodOf(d.method);
-      const plan = computePlan({ kg: d.cherryKg, yeast: d.culture, dose: d.dose, labelDose: d.labelDose, container: d.container2 });
-      document.getElementById('planOut').innerHTML = (m.tank || cultureOf(d.culture).needsDose) && d.cherryKg ? planHtml(plan) : '';
-      icons();
-    }
-    function pickMethod(id) { draftFromForm(); buyDraft.method = id; document.getElementById('buyForm').method.value = id; updateBuyOutputs(); }
-    function useRecipe(rid) {
-      const r = state.recipes.find(x => x.id === rid); if (!r) return;
-      draftFromForm();
-      Object.assign(buyDraft, { method: r.process, culture: r.culture || 'none', dose: r.dose ?? buyDraft.dose, product: r.product || '' , recipeId: r.id });
-      renderBuy(); icons();
-    }
-
     function computePlan(p) {
       const kg = p.kg || 0;
       const culture = cultureOf(p.yeast);
@@ -1159,235 +876,6 @@
       return html;
     }
 
-    function saveLot(e) {
-      e.preventDefault();
-      const d = draftFromForm();
-      const n = state.lots.filter(l => !l.sample).length + 1;
-      const now = new Date().toISOString();
-      const lot = {
-        id: uid('l'), code: `LOT-${new Date().getFullYear()}-${String(n).padStart(3, '0')}`, createdAt: now,
-        farmer: d.farmer, farm: d.farm, masl: d.masl, cultivar: d.cultivar, cherryKg: d.cherryKg, price: d.price,
-        pickedAt: d.pickedAt ? new Date(d.pickedAt).toISOString() : null, arrivedAt: d.arrivedAt ? new Date(d.arrivedAt).toISOString() : null,
-        container: d.container, crushed: d.crushed, warm: d.warm, ripeness: d.ripeness, counts: d.counts, floatersKg: d.floatersKg,
-        method: d.method, experiment: d.experiment, culture: d.culture, product: d.product, dose: cultureOf(d.culture).needsDose ? d.dose : null, labelDose: d.labelDose, vessel: d.container2,
-        checklist: d.checklist, notes: d.notes, recipeId: d.recipeId || null,
-        fermentStart: methodOf(d.method).tank ? now : null, readings: [], actions: [], drying: null, bag: null,
-      };
-      state.lots.push(lot);
-      state.selectedId = lot.id;
-      buyDraft = null;
-      save(); setTab('lots');
-    }
-
-    // ---------------------------------------------------------------
-    // LOTS
-    // ---------------------------------------------------------------
-    function lotButton(l) {
-      const st = lotStage(l);
-      const al = lotAlerts(l);
-      const red = al.filter(a => a.tone === 'red').length, amber = al.filter(a => a.tone === 'amber').length, green = al.filter(a => a.tone === 'green').length;
-      const active = l.id === state.selectedId && state.tab === 'lots';
-      return `<button onclick="selectLot('${l.id}')" class="w-full text-left p-3 rounded-xl border transition ${active ? 'bg-coffee-800/80 border-amber-500/40' : 'bg-coffee-900/60 border-coffee-800/80 hover:border-coffee-600'}">
-        <div class="flex items-center justify-between gap-2"><span class="font-mono text-sm text-white truncate">${esc(l.code)}</span><span class="text-[10px] px-1.5 py-0.5 rounded-full border ${STAGE_STYLE[st]}">${st}</span></div>
-        <div class="text-xs text-coffee-400 mt-1 truncate">${esc(l.method)} · ${esc(l.cultivar || '–')} · ${fmt(l.cherryKg)} kg${l.masl ? ` · ${fmt(l.masl)} m` : ''}</div>
-        <div class="flex gap-2 mt-1 text-[10px] font-mono">${l.sample ? '<span class="text-coffee-500">sample</span>' : ''}${red ? `<span class="text-rose-400">${red} alert${red > 1 ? 's' : ''}</span>` : ''}${amber ? `<span class="text-amber-400">${amber} warning${amber > 1 ? 's' : ''}</span>` : ''}${green ? `<span class="text-emerald-300">ready</span>` : ''}</div>
-      </button>`;
-    }
-    function renderLotList() {
-      const el = document.getElementById('lotList');
-      const ls = state.lots.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      el.innerHTML = ls.length ? ls.map(lotButton).join('') : `<div class="card text-sm text-coffee-300 space-y-2"><p>No lots yet.</p><button onclick="loadSamples()" class="btn btn-ghost w-full justify-center"><i data-lucide="sparkles" class="w-4 h-4"></i> Load sample lots</button></div>`;
-    }
-    function selectLot(id) {
-      state.selectedId = id; save();
-      if (state.tab !== 'lots') { setTab('lots'); return; }
-      renderLots();
-      if (window.innerWidth < 1024) window.scrollTo({ top: 0 });
-    }
-
-    function stagesHtml(l) {
-      const m = methodOf(l.method);
-      const st = lotStage(l);
-      const steps = [['Bought', true], ...(m.tank ? [['Fermenting', st !== 'fermenting', st === 'fermenting']] : []), ['Drying', st === 'resting', st === 'drying' || st === 'to dry'], ['Resting', false, st === 'resting']];
-      return `<div class="flex items-center gap-1 text-[11px] font-mono flex-wrap">${steps.map(([n, done, cur], i) => `${i ? '<span class="text-coffee-600">→</span>' : ''}<span class="px-2 py-0.5 rounded-full border ${cur ? 'border-amber-500/50 text-amber-300' : done ? 'border-emerald-500/40 text-emerald-300' : 'border-coffee-700 text-coffee-500'}">${n}</span>`).join('')}</div>`;
-    }
-
-    function renderLotDetail() {
-      const el = document.getElementById('lotDetail');
-      const l = lotById(state.selectedId);
-      if (!l) { el.innerHTML = `<div class="card text-center py-12 text-coffee-400"><i data-lucide="layers" class="w-8 h-8 mx-auto mb-3 text-coffee-600"></i><p class="text-sm">Select a lot, or buy cherry to start one.</p></div>`; return; }
-      const st = lotStage(l), m = methodOf(l.method), S = state.settings;
-      const alerts = lotAlerts(l);
-      const rems = lotReminders(l, 36);
-      let html = `
-        <button onclick="state.selectedId=null;save();renderLots()" class="lg:hidden btn btn-ghost btn-sm mb-3"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> All lots</button>
-        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
-          <div>
-            <div class="flex items-center gap-2 flex-wrap"><h2 class="text-2xl font-extrabold text-white font-mono">${esc(l.code)}</h2>${l.sample ? '<span class="text-xs px-2 py-0.5 rounded-full border border-coffee-700 text-coffee-400">sample data</span>' : ''}</div>
-            <p class="text-sm text-coffee-300 mt-1">${esc(l.method)} · ${esc(l.cultivar || 'cultivar –')} · ${fmt(l.cherryKg)} kg · ${esc([l.farmer, l.farm].filter(Boolean).join(', ') || 'farm –')}${l.masl ? ` (${fmt(l.masl)} m)` : ''}</p>
-            <div class="mt-2">${stagesHtml(l)}</div>
-          </div>
-          <button onclick="deleteLot('${l.id}')" class="btn btn-ghost text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</button>
-        </div>`;
-      if (alerts.length) html += `<div class="space-y-2 mb-4">${notesHtml(alerts)}</div>`;
-      if (rems.length) html += `<div class="card mb-4 space-y-2"><h3 class="font-semibold text-coffee-50 flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-amber-400"></i> Next for this lot</h3>${rems.slice(0, 6).map(r => reminderRow(r, false)).join('')}</div>`;
-      if (m.tank) html += fermentHtml(l);
-      if (st !== 'fermenting') html += dryingHtml(l);
-      if (st === 'drying' || st === 'resting') html += bagHtml(l);
-      html += `<div class="card mb-4"><h3 class="font-semibold text-coffee-50 mb-2">Cup score (optional, add later)</h3>
-        <form onsubmit="saveCup(event,'${l.id}')" class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-          <div><label class="lbl">Score</label><input name="cupScore" type="number" step="0.25" min="0" max="100" value="${l.cupScore ?? ''}" class="field"></div>
-          <div class="sm:col-span-2"><label class="lbl">Flavour notes</label><input name="flavor" value="${esc(l.flavor || '')}" class="field"></div>
-          <div class="flex items-end"><button class="btn btn-ghost w-full justify-center">Save</button></div>
-        </form><p class="src mt-1">Cupping comes weeks later, after resting, hulling and roasting, often by a buyer. Nothing waits for it.</p>
-        ${l.notes ? `<p class="text-xs text-coffee-300 mt-2 whitespace-pre-line">${esc(l.notes)}</p>` : ''}</div>`;
-      el.innerHTML = html;
-    }
-
-    function fermentHtml(l) {
-      const st = lotStage(l), S = state.settings;
-      const rs = readingsOf(l);
-      const fr = fermentReady(l);
-      const tMax = resolve('tempMax');
-      const x = r => fermentHours(l, r);
-      let html = `<div class="card mb-4">
-        <div class="flex items-center justify-between gap-2 mb-2"><h3 class="font-semibold text-coffee-50">Fermentation</h3><span class="text-xs text-coffee-400">${fmt(fermentHours(l), 1)} h${st === 'fermenting' ? ' so far' : ''}</span></div>`;
-      html += `<div class="grid grid-cols-1 ${S.thermometer ? 'md:grid-cols-2' : ''} gap-3 mb-3">
-        ${lineChart(rs.map(r => ({ x: x(r), y: r.ph })), { title: 'pH', color: '#F59E0B', dp: 1, lines: [{ y: fr.end.v, label: `endpoint ${fr.end.v}`, color: '#34D399' }] })}
-        ${S.thermometer ? lineChart(rs.map(r => ({ x: x(r), y: r.temp })), { title: 'Tank temperature (°C)', color: '#FB7185', dp: 0, lines: [{ y: tMax.v, label: `alert ${tMax.v} °C`, color: '#FB7185' }] }) : ''}
-      </div>`;
-      if (st === 'fermenting') {
-        html += `<div class="text-sm mb-3 space-y-1"><div class="text-xs font-mono uppercase text-coffee-400">Ready when</div>
-          <div class="${fr.ph ? 'text-emerald-300' : 'text-coffee-300'}">${fr.ph ? '✓' : '○'} pH at or below ${fr.end.v} <span class="src">(${esc(srcLabel(fr.end))})</span></div>
-          <div class="${fr.hand ? 'text-emerald-300' : 'text-coffee-300'}">${fr.hand ? '✓' : '○'} Hand test: parchment feels gritty, like pebbles, and grates when rubbed <span class="src">(Schwan & Fleet 2014, ch. 10)</span></div></div>
-        <form id="readingForm" onsubmit="addReading(event,'${l.id}')" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-          <div><label class="lbl">Time</label><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field" required></div>
-          <div><label class="lbl">pH</label><input name="ph" type="number" step="0.01" class="field"></div>
-          ${S.thermometer ? '<div><label class="lbl">Tank °C</label><input name="temp" type="number" step="0.1" class="field"></div>' : ''}
-          ${S.extraInstruments ? '<div><label class="lbl">Brix °Bx</label><input name="brix" type="number" step="0.1" class="field"></div><div><label class="lbl">Pressure PSI</label><input name="psi" type="number" step="0.1" class="field"></div>' : ''}
-          <div class="col-span-2"><label class="lbl">Smell / look</label><input name="smell" class="field" placeholder="fruity, sour, clean…"></div>
-          <div class="col-span-2 flex items-end"><label class="chk"><input name="hand" type="checkbox"> Hand test passed</label></div>
-          <div class="col-span-2 sm:col-span-4 flex justify-end"><button class="btn btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Add reading</button></div>
-        </form>`;
-      }
-      if (rs.length) html += `<div class="overflow-x-auto"><table class="data w-full text-sm"><thead><tr><th>h</th><th>pH</th>${S.thermometer ? '<th>°C</th>' : ''}${S.extraInstruments ? '<th>°Bx</th><th>PSI</th>' : ''}<th>Smell / look</th><th></th></tr></thead><tbody>${rs.map((r, i) => `<tr><td class="font-mono">${fmt(x(r), 1)}</td><td>${fmt(r.ph, 2)}</td>${S.thermometer ? `<td>${fmt(r.temp, 1)}</td>` : ''}${S.extraInstruments ? `<td>${fmt(r.brix, 1)}</td><td>${fmt(r.psi, 1)}</td>` : ''}<td class="max-w-[14rem] truncate">${r.hand ? '<span class="text-emerald-300">hand ✓</span> ' : ''}${esc(r.smell || r.notes || '')}</td><td><button onclick="deleteReading('${l.id}','${r.at}')" class="text-coffee-500 hover:text-rose-300" title="Delete"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td></tr>`).join('')}</tbody></table></div>`;
-      else if (st === 'fermenting') html += '<p class="text-xs text-coffee-400">No readings yet. Take pH at the start, at about 12 h and 24 h, then at least twice a day (Lucia Solis, Producer Toolkit #3).</p>';
-      if (st === 'fermenting') html += `<div class="flex justify-end mt-3"><button onclick="finishFermentation('${l.id}')" class="btn btn-ghost"><i data-lucide="droplets" class="w-4 h-4"></i> Fermentation done (washed / unloaded)</button></div>`;
-      return html + '</div>';
-    }
-
-    function dryingHtml(l) {
-      const S = state.settings, m = methodOf(l.method);
-      const d = l.drying;
-      if (!d || !d.startAt) {
-        const surfaces = surfaceOptions();
-        return `<div class="card mb-4"><h3 class="font-semibold text-coffee-50 mb-2">Start drying</h3>
-          <form onsubmit="startDrying(event,'${l.id}')" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <div><label class="lbl">Surface</label><select name="surface" class="field">${surfaces.map(s => `<option>${esc(s)}</option>`).join('')}</select></div>
-            <div><label class="lbl">Target %</label><input name="target" type="number" step="0.1" value="${V('moistureTarget')}" class="field"></div>
-            <div class="col-span-2 flex items-end"><button class="btn btn-primary w-full justify-center"><i data-lucide="sun" class="w-4 h-4"></i> Start drying now</button></div>
-          </form>
-          <p class="src mt-2">Wet coffee goes out in thin layers (about 10 cm) and is raked 8–10 times a day (Schwan & Fleet 2014, ch. 10).${S.setup.dryer ? ` With a mechanical dryer, Lucia's advice is to use it first and move to the patio at about ${V('dryerSwitch')}% (Producer Toolkit #2).` : ''}</p></div>`;
-      }
-      const di = dryingInfo(l);
-      const seed = seedLimitFor(m.drying);
-      const startT = new Date(d.startAt).getTime();
-      const days = t => (new Date(t).getTime() - startT) / DAY;
-      let html = `<div class="card mb-4">
-        <div class="flex items-center justify-between gap-2 mb-1"><h3 class="font-semibold text-coffee-50">Drying (${esc(d.surface || '–')})</h3><span class="text-xs text-coffee-400">day ${fmt(days(l.bag ? l.bag.at : new Date()) + 1)}</span></div>`;
-      html += `<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-center">
-        <div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-2"><div class="text-[10px] font-mono uppercase text-coffee-400">Target weight</div><div class="text-white font-semibold">${di.targetW ? fmt(di.targetW, 1) + ' kg' : '–'}</div><div class="src">${di.ref ? `at ${di.target}%, from ${fmt(di.ref.weight, 1)} kg at ${fmt(avg(di.ref.meter), 1)}%` : 'weigh once the meter reads steady'}</div></div>
-        <div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-2"><div class="text-[10px] font-mono uppercase text-coffee-400">Moisture now</div><div class="text-white font-semibold">${di.estNow != null ? fmt(di.estNow, 1) + '%' : '–'}</div><div class="src">from weight, confirm with the meter</div></div>
-        <div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-2"><div class="text-[10px] font-mono uppercase text-coffee-400">Expected ready</div><div class="text-white font-semibold">${di.eta ? esc(dayLabel(di.eta)) : '–'}</div><div class="src">${di.eta ? 'at the latest rate; below 20% drying slows (Producer Toolkit #2)' : 'needs two weighings'}</div></div>
-      </div>`;
-      if (!l.bag) {
-        html += `<div class="text-sm mb-3 space-y-1"><div class="text-xs font-mono uppercase text-coffee-400">Ready when</div>
-          <div class="${di.meterOk ? 'text-emerald-300' : 'text-coffee-300'}">${di.meterOk ? '✓' : '○'} Meter reads ${di.target}% or less in ${di.spots.v}+ spots <span class="src">(target: ${esc(srcLabel(resolve('moistureTarget')))}; spots: tool heuristic)</span></div>
-          <div class="${di.holdOk ? 'text-emerald-300' : 'text-coffee-300'}">${di.holdOk ? '✓' : '○'} The reading still holds ${di.hold.v} h later <span class="src">(tool heuristic)</span></div>
-          <div class="${di.brittle ? 'text-emerald-300' : 'text-coffee-300'}">${di.brittle ? '✓' : '○'} Feels hard and brittle <span class="src">(ATI Philippines 2007)</span></div></div>
-        <form id="weighForm" onsubmit="addWeighing(event,'${l.id}')" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-          <div><label class="lbl">Time</label><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field" required></div>
-          <div><label class="lbl">Weight kg</label><input name="weight" type="number" step="0.01" class="field" placeholder="whole lot or marked tray"></div>
-          <div class="col-span-2"><label class="lbl">Meter readings %</label><input name="meter" class="field" placeholder="e.g. 18.5, 19.2, 18.9"></div>
-          ${S.thermometer ? '<div><label class="lbl">Seed °C</label><input name="seedTemp" type="number" step="0.1" class="field"></div>' : ''}
-          <div class="flex items-end"><label class="chk"><input name="brittle" type="checkbox"> Hard &amp; brittle</label></div>
-          <div class="col-span-2"><label class="lbl">Notes</label><input name="notes" class="field"></div>
-          <div class="col-span-2 sm:col-span-4 flex justify-end"><button class="btn btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Add</button></div>
-        </form>`;
-      }
-      html += `<div class="grid grid-cols-1 ${S.thermometer ? 'md:grid-cols-2' : ''} gap-3 mb-3">
-        ${lineChart(di.pts.map(p => ({ x: days(p.at), y: p.m })), { title: 'Moisture from weight (%)', color: '#22D3EE', dp: 0, xUnit: 'd', lines: [{ y: di.target, label: `target ${di.target}%`, color: '#34D399' }] })}
-        ${S.thermometer ? lineChart(di.ws.filter(w => w.seedTemp != null).map(w => ({ x: days(w.at), y: w.seedTemp })), { title: 'Seed temperature (°C)', color: '#FB7185', dp: 0, xUnit: 'd', lines: [{ y: seed.v, label: `limit ${seed.v} °C`, color: '#FB7185' }] }) : ''}
-      </div>`;
-      if (di.ws.length) html += `<div class="overflow-x-auto"><table class="data w-full text-sm"><thead><tr><th>Day</th><th>kg</th><th>Meter</th><th>From weight</th>${S.thermometer ? '<th>Seed</th>' : ''}<th>Feel</th><th></th></tr></thead><tbody>${di.ws.map(w => { const p = di.pts.find(q => q.at === w.at); return `<tr><td class="font-mono">${fmt(days(w.at) + 1, 1)}</td><td>${fmt(w.weight, 2)}</td><td>${w.meter && w.meter.length ? esc(w.meter.map(v => fmt(v, 1)).join(', ')) : '–'}</td><td>${p ? fmt(p.m, 1) + '%' : '–'}</td>${S.thermometer ? `<td>${fmt(w.seedTemp, 1)}</td>` : ''}<td>${w.brittle ? 'brittle' : ''} ${esc(w.notes || '')}</td><td><button onclick="deleteWeighing('${l.id}','${w.at}')" class="text-coffee-500 hover:text-rose-300" title="Delete"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
-      const acts = (l.actions || []);
-      const count = k => acts.filter(a => a.kind === k).length;
-      if (acts.length) html += `<p class="text-xs text-coffee-400 mt-2">Logged: ${count('rake')} rakes, ${count('pile') + count('cover')} covers, ${count('shade-on')} shade-ons.</p>`;
-      return html + '</div>';
-    }
-    function surfaceOptions() {
-      const s = state.settings.setup;
-      const o = [];
-      if (s.beds) o.push('Raised beds'); if (s.patio) o.push('Patio'); if (s.polyhouse) o.push('Polyhouse'); if (s.covered) o.push('Covered area'); if (s.dryer) o.push('Mechanical dryer');
-      if (s.shade) o.push('Raised beds under shade cloth');
-      return o.length ? o : ['Patio'];
-    }
-
-    function bagHtml(l) {
-      if (l.bag) {
-        const days = (Date.now() - new Date(l.bag.at)) / DAY;
-        return `<div class="card mb-4"><h3 class="font-semibold text-coffee-50 mb-1">Resting</h3>
-          <p class="text-sm text-coffee-200">Bagged ${esc(dayLabel(l.bag.at))} in ${esc({ barrier: 'barrier bags', pe: 'plain polyethylene', jute: 'jute' }[l.bag.type])} at ${fmt(l.bag.moisture, 1)}%. Resting ${fmt(days)} days.</p>
-          <p class="src">After drying, lots rest for several weeks before hulling (Hackler & Särchen 2025). Keep them in barrier bags, away from smells (Producer Toolkit #7).</p>
-          ${l.recipeSaved ? '<p class="text-xs text-emerald-300 mt-2">Saved as a recipe.</p>' : ''}</div>`;
-      }
-      const di = dryingInfo(l);
-      return `<div class="card mb-4"><h3 class="font-semibold text-coffee-50 mb-2">Bag it</h3>
-        <form onsubmit="bagLot(event,'${l.id}')" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div><label class="lbl">Bag</label><select name="type" class="field"><option value="barrier">Barrier (PE + EVOH)</option><option value="pe">Plain polyethylene</option><option value="jute">Jute</option></select></div>
-          <div><label class="lbl">Final meter %</label><input name="moisture" type="number" step="0.1" value="${di.last && avg(di.last.meter) != null ? fmt(avg(di.last.meter), 1) : ''}" class="field" required></div>
-          <div><label class="lbl">Bags</label><input name="bags" type="number" min="0" class="field"></div>
-          <div class="flex items-end"><label class="chk"><input name="recipe" type="checkbox" checked> Save as recipe</label></div>
-          <div class="col-span-2 sm:col-span-3"><label class="lbl">Notes</label><input name="notes" class="field" placeholder="what worked, what you'd change"></div>
-          <div class="flex items-end"><button class="btn btn-primary w-full justify-center"><i data-lucide="package" class="w-4 h-4"></i> Bag</button></div>
-        </form>
-        ${di.ready ? '' : '<p class="text-xs text-amber-300 mt-2">Not all ready checks are ticked yet.</p>'}
-        <p class="src mt-1">Barrier bags stop moisture and oxygen. A 60 kg bag costs about $3 and can be reused about three times if washed and dried (Lucia Solis, Producer Toolkit #7).</p></div>`;
-    }
-
-    // ---------------------------------------------------------------
-    // LOT ACTIONS
-    // ---------------------------------------------------------------
-    function addReading(e, id) {
-      e.preventDefault();
-      const l = lotById(id), f = e.target;
-      const r = { at: new Date(f.at.value).toISOString(), ph: num(f.ph.value), temp: f.temp ? num(f.temp.value) : null, brix: f.brix ? num(f.brix.value) : null, psi: f.psi ? num(f.psi.value) : null, smell: f.smell.value.trim(), hand: f.hand.checked };
-      l.readings = (l.readings || []).filter(x => x.at !== r.at).concat([r]);
-      save(); renderAll();
-    }
-    function deleteReading(id, at) { const l = lotById(id); l.readings = l.readings.filter(r => r.at !== at); save(); renderAll(); }
-    function finishFermentation(id) { const l = lotById(id); l.washedAt = new Date().toISOString(); save(); renderAll(); }
-    function startDrying(e, id) {
-      e.preventDefault();
-      const l = lotById(id), f = e.target;
-      l.drying = { startAt: new Date().toISOString(), surface: f.surface.value, target: num(f.target.value), weighings: [] };
-      save(); renderAll();
-    }
-    function addWeighing(e, id) {
-      e.preventDefault();
-      const l = lotById(id), f = e.target;
-      const w = { at: new Date(f.at.value).toISOString(), weight: num(f.weight.value), meter: parseList(f.meter.value), seedTemp: f.seedTemp ? num(f.seedTemp.value) : null, brittle: f.brittle.checked, notes: f.notes.value.trim() };
-      l.drying.weighings = (l.drying.weighings || []).filter(x => x.at !== w.at).concat([w]);
-      save(); renderAll();
-    }
-    function deleteWeighing(id, at) { const l = lotById(id); l.drying.weighings = l.drying.weighings.filter(w => w.at !== at); save(); renderAll(); }
-    function bagLot(e, id) {
-      e.preventDefault();
-      const l = lotById(id), f = e.target;
-      l.bag = { at: new Date().toISOString(), type: f.type.value, moisture: num(f.moisture.value), bags: num(f.bags.value), notes: f.notes.value.trim() };
-      if (f.recipe.checked) { state.recipes.push(recipeFromLot(l)); l.recipeSaved = true; }
-      save(); renderAll();
-    }
     function recipeFromLot(l) {
       const rs = readingsOf(l);
       const lastPh = rs.filter(r => r.ph != null).pop();
@@ -1403,56 +891,6 @@
         notes: [l.bag && l.bag.notes].filter(Boolean).join(' '), cupScore: l.cupScore ?? null,
       };
     }
-    function saveCup(e, id) {
-      e.preventDefault();
-      const l = lotById(id), f = e.target;
-      l.cupScore = num(f.cupScore.value); l.flavor = f.flavor.value.trim();
-      state.recipes.filter(r => r.lotId === id).forEach(r => { r.cupScore = l.cupScore; });
-      save(); renderAll();
-    }
-    function deleteLot(id) {
-      const l = lotById(id);
-      if (!confirm(`Delete ${l.code} and all its readings?`)) return;
-      state.lots = state.lots.filter(x => x.id !== id);
-      if (state.selectedId === id) state.selectedId = null;
-      save(); renderAll();
-    }
-
-    // ---------------------------------------------------------------
-    // RECIPES & REFERENCES
-    // ---------------------------------------------------------------
-    function renderRecipes() {
-      const el = document.getElementById('view-recipes');
-      const cats = ['all', 'washed', 'natural', 'honey', 'anaerobic washed', 'anaerobic natural', 'carbonic maceration', 'other'];
-      const f = state.refFilter || 'all';
-      const refs = ROASTER_LOTS.filter(x => f === 'all' || x.p === f);
-      el.innerHTML = `
-        <div class="card">
-          <h2 class="font-bold text-coffee-50 mb-1 flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4 text-amber-400"></i> Your recipes</h2>
-          <p class="text-xs text-coffee-400 mb-3">Saved when a lot is bagged. When you buy the same cultivar from a similar altitude (within ${V('altitudeBand')} m), the recipe is offered first.</p>
-          ${state.recipes.length ? `<div class="overflow-x-auto"><table class="data wrap w-full text-sm"><thead><tr><th>Cultivar</th><th>m</th><th>Process</th><th>Culture</th><th>pH end</th><th>Ferment</th><th>Drying</th><th>Final</th><th>Cup</th><th>Notes</th><th></th></tr></thead><tbody>
-            ${state.recipes.map(r => `<tr><td>${esc(r.cultivar)}</td><td>${fmt(r.masl)}</td><td>${esc(r.process)}</td><td>${esc(r.product || cultureOf(r.culture).name)}</td><td>${fmt(r.phEnd, 2)}</td><td>${r.fermentH ? `${fmt(r.fermentH)} h${r.fermentTemp ? ` at ${fmt(r.fermentTemp, 1)} °C` : ''}` : '–'}</td><td>${fmt(r.dryDays, 1)} d, ${esc(r.surface || '')}, ${r.rakes} rakes</td><td>${fmt(r.finalMoisture, 1)}%</td><td>${fmt(r.cupScore, 2)}</td><td class="max-w-[16rem]">${esc(r.notes || '')} <span class="src">${esc(r.fromLot)}</span></td><td><button onclick="deleteRecipe('${r.id}')" class="text-coffee-500 hover:text-rose-300" title="Delete"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td></tr>`).join('')}
-          </tbody></table></div>` : '<p class="text-sm text-coffee-400">No recipes yet.</p>'}
-        </div>
-        <div class="card">
-          <h2 class="font-bold text-coffee-50 mb-1 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-amber-400"></i> What roasters say other mills did</h2>
-          <p class="text-xs text-coffee-400 mb-3">From roaster lot pages, only what each page states (read 29 Oct 2026). Examples, not targets: they never set defaults or alerts.</p>
-          <div class="flex flex-wrap gap-1 mb-3">${cats.map(c => `<button onclick="state.refFilter='${c}';renderRecipes();icons()" class="btn btn-sm ${f === c ? 'btn-primary' : 'btn-ghost'}">${c}</button>`).join('')}</div>
-          <div class="overflow-x-auto"><table class="data wrap w-full text-sm"><thead><tr><th>Origin</th><th>Roaster</th><th>Lot</th><th>Process</th><th>Fermentation</th><th>Drying</th></tr></thead><tbody>
-            ${refs.map(x => `<tr><td>${esc(x.o)}</td><td><a class="underline" href="${x.u}" target="_blank" rel="noopener">${esc(x.r)}</a></td><td>${esc(x.lot)}</td><td>${esc(x.p)}</td><td>${esc(x.f)}</td><td>${esc(x.d)}</td></tr>`).join('')}
-          </tbody></table></div>
-        </div>
-        <div class="card">
-          <h2 class="font-bold text-coffee-50 mb-1 flex items-center gap-2"><i data-lucide="microscope" class="w-4 h-4 text-amber-400"></i> Starter cultures and the flavours they push</h2>
-          <p class="text-xs text-coffee-400 mb-3">Research examples, not guarantees (Hackler & Särchen 2025, Tab. 6.1).</p>
-          <div class="overflow-x-auto"><table class="data wrap w-full text-sm"><thead><tr><th>Culture</th><th>Process</th><th>Flavour</th></tr></thead><tbody>${CULTURE_FLAVOURS.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-        </div>`;
-    }
-    function deleteRecipe(id) { if (!confirm('Delete this recipe?')) return; state.recipes = state.recipes.filter(r => r.id !== id); save(); renderAll(); }
-
-    // ---------------------------------------------------------------
-    // CALCULATORS
-    // ---------------------------------------------------------------
     function renderCalc() {
       const yeastSel = document.getElementById('c_yeast');
       if (!yeastSel.options.length) {
@@ -1476,80 +914,6 @@
       icons();
     }
 
-    // ---------------------------------------------------------------
-    // SETTINGS & DATA
-    // ---------------------------------------------------------------
-    function renderSettings() {
-      const el = document.getElementById('view-settings');
-      const S = state.settings, m = S.mill, su = S.setup;
-      const cb = (path, val, label) => `<label class="chk"><input type="checkbox" ${val ? 'checked' : ''} onchange="setSetting('${path}', this.checked)"> ${label}</label>`;
-      const cols = ['lucia', 'research', 'toolkit', 'tool'];
-      const rows = Object.entries(THRESHOLDS).map(([k, t]) => {
-        const r = resolve(k);
-        const ov = S.overrides[k];
-        return `<tr><td class="text-coffee-200 whitespace-normal min-w-[12rem]">${esc(t.label)}${t.unit ? ` <span class="text-coffee-500">(${t.unit})</span>` : ''}</td>${cols.map(c => {
-          if (!t[c]) return '<td class="text-coffee-600">–</td>';
-          const active = r.from === c;
-          return `<td class="${active ? 'text-amber-300 font-semibold' : 'text-coffee-300'}">${t[c][0]}<div class="src font-normal whitespace-normal max-w-[12rem]">${esc(t[c][1])}</div></td>`;
-        }).join('')}<td><input type="number" step="any" value="${ov ?? ''}" placeholder="${r.v}" class="field !w-20 !py-1" onchange="setOverride('${k}', this.value)"></td></tr>`;
-      }).join('');
-      el.innerHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div class="card space-y-3">
-            <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-amber-400"></i> Mill</h2>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="col-span-2"><label class="lbl">Name</label><input value="${esc(m.name)}" class="field" onchange="setSetting('mill.name', this.value)"></div>
-              <div><label class="lbl">Latitude</label><input type="number" step="any" value="${m.lat ?? ''}" class="field" onchange="setSetting('mill.lat', num(this.value))"></div>
-              <div><label class="lbl">Longitude</label><input type="number" step="any" value="${m.lon ?? ''}" class="field" onchange="setSetting('mill.lon', num(this.value))"></div>
-            </div>
-            <div class="flex flex-wrap gap-2"><button onclick="useMyLocation()" class="btn btn-ghost"><i data-lucide="locate" class="w-4 h-4"></i> Use my location</button><button onclick="fetchWeather()" class="btn btn-ghost"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Fetch forecast</button></div>
-            <p class="text-xs text-coffee-400">${esc(wxStatus)} Only this location is sent to the weather service. Everything else stays in this browser.</p>
-          </div>
-          <div class="card space-y-3">
-            <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-amber-400"></i> Drying setup and tools</h2>
-            <div class="grid grid-cols-2 gap-1.5">
-              ${cb('setup.patio', su.patio, 'Patio')}${cb('setup.beds', su.beds, 'Raised beds')}${cb('setup.shade', su.shade, 'Shade cloth')}${cb('setup.covered', su.covered, 'Covered area')}${cb('setup.polyhouse', su.polyhouse, 'Polyhouse')}${cb('setup.dryer', su.dryer, 'Mechanical dryer')}
-            </div>
-            <div><label class="lbl">Drying capacity (kg of cherry at once)</label><input type="number" value="${S.capacityKg ?? ''}" class="field max-w-[10rem]" onchange="setSetting('capacityKg', num(this.value))"></div>
-            <div class="text-xs font-mono uppercase text-amber-400 pt-2">Processes you run</div>
-            <div class="grid grid-cols-2 gap-1.5">${METHODS.filter(x => x.id !== 'Other').map(x => `<label class="chk"><input type="checkbox" ${S.processes.includes(x.id) ? 'checked' : ''} onchange="toggleProcess('${x.id}', this.checked)"> ${x.id}</label>`).join('')}</div>
-            <div class="text-xs font-mono uppercase text-amber-400 pt-2">Tools</div>
-            <div class="grid grid-cols-1 gap-1.5">
-              ${cb('thermometer', S.thermometer, 'I have a probe thermometer (tank and seed temperature)')}
-              ${cb('extraInstruments', S.extraInstruments, 'Show Brix and pressure fields')}
-              ${cb('buying', S.buying, 'Track prices paid')}
-            </div>
-            <p class="src">Lucia: "get a pH meter and a thermometer. They are going to be your eyes inside of the fermentation" (Producer Toolkit #3).</p>
-          </div>
-        </div>
-        <div class="card">
-          <h2 class="font-bold text-coffee-50 mb-1 flex items-center gap-2"><i data-lucide="sprout" class="w-4 h-4 text-amber-400"></i> Cultivars</h2>
-          <p class="text-xs text-coffee-400 mb-3">Enter each cultivar's optimal altitude from the <a class="underline" href="${WCR_URL}" target="_blank" rel="noopener">World Coffee Research catalog</a>. Flavour tendencies are from Gagné's analysis of roaster tasting notes (washed lots only).</p>
-          <div class="overflow-x-auto"><table class="data wrap w-full text-sm"><thead><tr><th>Cultivar</th><th>Optimal from (m)</th><th>to (m)</th><th>Flavour tendency</th><th></th></tr></thead><tbody>
-            ${state.cultivars.map((c, i) => `<tr><td><input value="${esc(c.name)}" class="field !py-1" onchange="setCultivar(${i},'name',this.value)"></td><td><input type="number" value="${c.optMin ?? ''}" class="field !py-1 !w-24" onchange="setCultivar(${i},'optMin',num(this.value))"></td><td><input type="number" value="${c.optMax ?? ''}" class="field !py-1 !w-24" onchange="setCultivar(${i},'optMax',num(this.value))"></td><td class="text-xs text-coffee-300 min-w-[12rem]">${esc(c.flavor || '')}${c.flavorRef ? ` <span class="src">(${esc(c.flavorRef)})</span>` : ''}</td><td><button onclick="removeCultivar(${i})" class="text-coffee-500 hover:text-rose-300" title="Remove"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td></tr>`).join('')}
-          </tbody></table></div>
-          <button onclick="addCultivar()" class="btn btn-ghost btn-sm mt-2"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add cultivar</button>
-        </div>
-        <div class="card">
-          <h2 class="font-bold text-coffee-50 mb-1 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-amber-400"></i> Where the numbers come from</h2>
-          <p class="text-xs text-coffee-400 mb-3">The highlighted value is in use. When the selected preset has no number, the next source fills the gap and is labelled. Tool heuristics are my starting values, not published rules: type your own in the last column.</p>
-          <div class="overflow-x-auto"><table class="data w-full text-sm"><thead><tr><th>Value</th>${cols.map(c => `<th>${SOURCE_NAMES[c]}</th>`).join('')}<th>Yours</th></tr></thead><tbody>${rows}</tbody></table></div>
-        </div>
-        <div class="card space-y-3">
-          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="hard-drive" class="w-4 h-4 text-amber-400"></i> Your data</h2>
-          <p class="text-xs text-coffee-400">Lots are saved in this browser only. Export a backup regularly.</p>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="exportCsv()" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> Export CSV</button>
-            <button onclick="exportJson()" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> Backup (JSON)</button>
-            <label class="btn btn-ghost cursor-pointer"><i data-lucide="upload" class="w-4 h-4"></i> Restore backup<input type="file" accept=".json,application/json" class="hidden" onchange="importJson(this)"></label>
-          </div>
-          <div class="flex flex-wrap gap-2 pt-2 border-t border-coffee-800/60">
-            <button onclick="loadSamples()" class="btn btn-ghost"><i data-lucide="sparkles" class="w-4 h-4"></i> Load sample lots</button>
-            <button onclick="removeSamples()" class="btn btn-ghost"><i data-lucide="eraser" class="w-4 h-4"></i> Remove samples</button>
-            <button onclick="clearAll()" class="btn btn-ghost text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete everything</button>
-          </div>
-        </div>`;
-    }
     function setSetting(path, val) {
       const parts = path.split('.');
       let o = state.settings;
@@ -1557,6 +921,7 @@
       o[parts[parts.length - 1]] = val;
       if (path.startsWith('mill.')) { state.weather = null; wxCache = null; }
       save(); renderHeader();
+      if (path.startsWith('setup.') || path === 'thermometer' || path === 'extraInstruments') renderAll();
       if (path === 'mill.lat' || path === 'mill.lon') { if (state.settings.mill.lat != null && state.settings.mill.lon != null) fetchWeather(); }
     }
     function toggleProcess(id, on) {
@@ -1667,7 +1032,6 @@
         if (code === 'BAT-2026-004') l.readings = SAMPLE_CURVE.map(([h, temp, ph, brix, psi, notes]) => ({ at: new Date(start.getTime() + h * HOUR).toISOString(), temp, ph, brix, psi, smell: notes, hand: h === 96 }));
         state.lots.push(l);
       });
-      state.selectedId = state.lots.find(l => l.code === 'BAT-2026-004').id;
       save(); setTab('lots');
     }
     function removeSamples(silent) {
@@ -1678,48 +1042,754 @@
     }
 
     // ---------------------------------------------------------------
-    // TABS & RENDER
+    // UI HELPERS
     // ---------------------------------------------------------------
-    const TABS = ['today', 'buy', 'lots', 'recipes', 'calc', 'settings'];
+    // Sources sit behind a small "why?" so the screen stays short
+    function why(ref) { return ref ? `<details class="why"><summary>why?</summary><p>${esc(ref)}</p></details>` : ''; }
+    function heading(text, extra) { return `<div class="flex items-center justify-between gap-2 mt-6 mb-2"><h2 class="text-xs font-semibold uppercase tracking-wider text-coffee-400">${text}</h2>${extra || ''}</div>`; }
+    function chip(label, on, onclick, sub) {
+      return `<button type="button" onclick="${onclick}" class="chip ${on ? 'chip-on' : ''} ${sub ? 'text-left' : ''}">${esc(label)}${sub ? `<span class="block text-xs ${on ? 'text-white/80' : 'text-coffee-400'} font-normal">${esc(sub)}</span>` : ''}</button>`;
+    }
+    function tick(ok, text, ref) {
+      return `<div class="flex gap-2.5 items-start py-1.5"><span class="mt-0.5 w-5 h-5 flex-shrink-0 rounded-full border flex items-center justify-center ${ok ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-coffee-600'}">${ok ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}</span><div class="text-[15px] ${ok ? 'text-emerald-200' : 'text-coffee-100'}">${text}${why(ref)}</div></div>`;
+    }
+    function firstBlock(hours, mode) {
+      const i = hours.findIndex(h => h.mode === mode);
+      if (i < 0) return null;
+      let j = i;
+      while (j + 1 < hours.length && hours[j + 1].mode === mode) j++;
+      return { start: hours[i].t, end: hours[j].t + HOUR };
+    }
+
+    // ---------------------------------------------------------------
+    // TODAY
+    // ---------------------------------------------------------------
+    function locationHtml() {
+      return `<div class="card space-y-3">
+        <div class="flex items-center gap-2 text-white font-semibold text-lg"><i data-lucide="map-pin" class="w-5 h-5 text-amber-400"></i> Where is the mill?</div>
+        <p class="text-[15px] text-coffee-300">The forecast needs the mill's location once. Do this at the mill.</p>
+        <button onclick="useMyLocation()" class="btn-big"><i data-lucide="locate" class="w-5 h-5"></i> Use my location</button>
+        <details><summary class="text-sm text-coffee-300 underline cursor-pointer">Type it in instead</summary>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <input id="latIn" type="number" step="any" inputmode="decimal" placeholder="Latitude" class="field-lg">
+            <input id="lonIn" type="number" step="any" inputmode="decimal" placeholder="Longitude" class="field-lg">
+          </div>
+          <button onclick="saveLatLon()" class="btn-big ghost mt-2">Save</button>
+        </details>
+        ${wxStatus ? `<p class="text-sm text-amber-300">${esc(wxStatus)}</p>` : ''}
+      </div>`;
+    }
+    function saveLatLon() {
+      const lat = num(document.getElementById('latIn').value), lon = num(document.getElementById('lonIn').value);
+      if (lat == null || lon == null) { wxStatus = 'Enter both numbers.'; renderAll(); return; }
+      state.settings.mill.lat = lat; state.settings.mill.lon = lon;
+      state.weather = null; wxCache = null; wxStatus = '';
+      save(); fetchWeather();
+    }
+
+    function weatherHtml() {
+      if (state.settings.mill.lat == null) return locationHtml();
+      const w = wx();
+      if (!w) {
+        return `<div class="card text-[15px] text-coffee-300 space-y-2"><p>${wxStatus === 'loading' ? 'Getting the forecast…' : 'No forecast yet.'}</p>
+          ${wxStatus.startsWith('error') ? '<p class="text-sm text-rose-300">Could not reach the weather service. Try again when there is signal.</p>' : ''}
+          ${wxStatus === 'loading' ? '' : '<button onclick="fetchWeather()" class="btn-big ghost">Try again</button>'}</div>`;
+      }
+      const now = Date.now();
+      const cur = w.hours.find(h => h.t <= now && h.t + HOUR > now) || w.hours[0];
+      const next24 = w.hours.filter(h => h.t + HOUR > now && h.t < now + 24 * HOUR);
+      const rain = firstBlock(next24, 'cover'), sun = firstBlock(next24, 'shade');
+      const sum = wxSummary(72);
+      const age = hoursBetween(state.weather.fetchedAt, new Date());
+      const lines = [];
+      lines.push(rain ? `<span class="text-sky-300 font-semibold">Rain likely ${esc(when(rain.start))}–${esc(hm(rain.end))}.</span> Pile and cover before it starts.` : 'No rain expected in the daytime over the next 24 hours.');
+      if (sun) lines.push(`Strong sun ${esc(when(sun.start))}–${esc(hm(sun.end))}${state.settings.setup.shade ? ': shade cloth on.' : '.'}`);
+      return `<div class="card space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl mode-${cur.mode} flex items-center justify-center text-white flex-shrink-0"><i data-lucide="${{ open: 'sun', shade: 'cloud-sun', slow: 'cloud', cover: 'cloud-rain', night: 'moon' }[cur.mode]}" class="w-6 h-6"></i></div>
+          <div class="min-w-0"><div class="text-lg font-bold text-white leading-tight">${cur.day ? 'Now: ' + MODE_LABEL[cur.mode].toLowerCase() : 'Night'}</div><div class="text-[15px] text-coffee-300">${esc(MODE_ACTION[cur.mode])}</div></div>
+          <div class="ml-auto text-right text-white font-semibold">${fmt(cur.temp)}°<div class="text-xs text-coffee-400 font-normal">${fmt(cur.rh)}% RH</div></div>
+        </div>
+        ${lines.map(t => `<p class="text-[15px] text-coffee-100">${t}</p>`).join('')}
+        <div>
+          <div class="flex gap-px rounded-md overflow-hidden">${next24.map(h => `<div class="flex-1 h-5 mode-${h.mode}" title="${esc(h.hh + ' ' + MODE_LABEL[h.mode])}"></div>`).join('')}</div>
+          <div class="flex justify-between text-[10px] font-mono text-coffee-400 mt-0.5"><span>now</span><span>+12 h</span><span>+24 h</span></div>
+          <div class="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[11px] text-coffee-300">${['open', 'shade', 'slow', 'cover', 'night'].map(k => `<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm mode-${k}"></span>${MODE_LABEL[k]}</span>`).join('')}</div>
+        </div>
+        <details>
+          <summary class="text-[15px] text-coffee-100 cursor-pointer">Next ${sum.n} days: <span class="text-emerald-300">${sum.good} good</span>, <span class="text-amber-300">${sum.fair} fair</span>, <span class="text-sky-300">${sum.poor} poor</span> for drying <span class="text-coffee-400 underline text-sm">show</span></summary>
+          <div class="grid grid-cols-4 sm:grid-cols-5 gap-1.5 mt-2">${sum.days.map(d => `<div class="rounded-lg border p-1.5 text-center ${d.outlook === 'good' ? 'border-emerald-500/40 bg-emerald-500/10' : d.outlook === 'fair' ? 'border-amber-500/40 bg-amber-500/10' : 'border-sky-500/40 bg-sky-500/10'}">
+            <div class="text-[11px] text-coffee-300">${esc(new Date(d.sunrise).toLocaleDateString([], { weekday: 'short' }) + ' ' + new Date(d.sunrise).getDate())}</div>
+            <div class="text-xs font-semibold ${d.outlook === 'good' ? 'text-emerald-300' : d.outlook === 'fair' ? 'text-amber-300' : 'text-sky-300'}">${d.outlook}</div>
+            <div class="text-[10px] text-coffee-400">${fmt(d.ppMax)}% rain</div></div>`).join('')}</div>
+          <p class="text-xs text-coffee-400 mt-2">Good: 6+ drying hours and at most 1 rain hour. Poor: under 3 drying hours or 4+ rain hours.${why('Tool heuristic. The hour thresholds can be changed under More, Where the numbers come from.')}</p>
+        </details>
+        <div class="flex items-center justify-between text-xs text-coffee-400"><span>Updated ${fmt(age, age < 1 ? 1 : 0)} h ago · <a class="underline" href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</span><button onclick="fetchWeather()" class="flex items-center gap-1 underline"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh</button></div>
+        ${wxStatus.startsWith('error') ? '<p class="text-xs text-rose-300">Could not refresh. Showing the last forecast.</p>' : ''}
+      </div>`;
+    }
+
+    function reminderCard(r, showLot) {
+      const now = Date.now();
+      const late = r.at < now - 15 * 60000;
+      const label = r.kind === 'ph' ? 'Log pH' : r.kind === 'moisture' ? 'Log it' : r.kind === 'drystart' ? 'Open' : 'Done';
+      return `<div class="flex items-center gap-3 p-3 rounded-xl border ${late ? 'border-amber-500/50 bg-amber-500/10' : 'border-coffee-800 bg-coffee-900/60'}">
+        <i data-lucide="${REM_ICON[r.kind] || 'bell'}" class="w-5 h-5 flex-shrink-0 ${late ? 'text-amber-300' : 'text-coffee-300'}"></i>
+        <div class="flex-1 min-w-0">
+          <div class="text-[15px] text-white leading-snug">${esc(r.text)}</div>
+          <div class="text-xs ${late ? 'text-amber-300' : 'text-coffee-400'}">${r.at <= now + 5 * 60000 ? (late ? 'was due ' + esc(hm(r.at)) : 'now') : esc(when(r.at))}${showLot ? ` · ${esc(r.lot.code)}` : ''}</div>
+          ${why(r.ref)}
+        </div>
+        <button onclick="doneReminder('${r.lot.id}','${r.kind}')" class="btn ${r.at <= now + 2 * HOUR ? 'btn-primary' : 'btn-ghost'} !px-3.5 !py-2 !text-sm flex-shrink-0">${label}</button>
+      </div>`;
+    }
+
+    function lotStatus(l) {
+      const st = lotStage(l);
+      if (st === 'fermenting') {
+        const fr = fermentReady(l);
+        if (fr.ph && fr.hand) return { text: 'Ready to wash', cls: 'text-emerald-300' };
+        return { text: `Fermenting ${fmt(fermentHours(l))} h · ${fr.last && fr.last.ph != null ? 'pH ' + fmt(fr.last.ph, 2) : 'no pH yet'}`, cls: 'text-amber-300' };
+      }
+      if (st === 'to dry') return { text: 'Washed, waiting to dry', cls: 'text-amber-300' };
+      if (st === 'drying') {
+        const di = dryingInfo(l);
+        if (di.ready) return { text: 'Dry: bag it', cls: 'text-emerald-300' };
+        const day = Math.floor((Date.now() - new Date(l.drying.startAt)) / DAY) + 1;
+        return { text: `Drying, day ${day}${di.estNow != null ? ` · about ${fmt(di.estNow)}%` : ''}`, cls: 'text-cyan-300' };
+      }
+      return { text: `Bagged, resting ${fmt((Date.now() - new Date(l.bag.at)) / DAY)} days`, cls: 'text-coffee-300' };
+    }
+    function lotRow(l) {
+      const s = lotStatus(l);
+      const bad = lotAlerts(l).some(a => a.tone === 'red');
+      return `<button onclick="openLot('${l.id}')" class="row-btn">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="font-semibold text-white">${esc(l.code)}</span>${bad ? '<span class="w-2 h-2 rounded-full bg-rose-500"></span>' : ''}${l.sample ? '<span class="text-[10px] text-coffee-500 border border-coffee-700 rounded px-1">sample</span>' : ''}</div>
+          <div class="text-sm text-coffee-300 truncate">${esc(l.method)} · ${esc(l.cultivar || '–')} · ${fmt(l.cherryKg)} kg</div>
+          <div class="text-sm ${s.cls}">${esc(s.text)}</div>
+        </div>
+        <i data-lucide="chevron-right" class="w-5 h-5 text-coffee-500"></i>
+      </button>`;
+    }
+
+    function renderToday() {
+      const rs = allReminders(36);
+      const now = Date.now();
+      const soon = rs.filter(r => r.at <= now + 2 * HOUR), later = rs.filter(r => r.at > now + 2 * HOUR);
+      const active = state.lots.filter(l => lotStage(l) !== 'resting' && !l.sample);
+      let html = weatherHtml();
+      if (!state.lots.length) {
+        html += `<div class="card mt-6 space-y-3 text-center">
+          <p class="text-lg text-white font-semibold">No lots yet</p>
+          <p class="text-[15px] text-coffee-300">When cherry comes in, tap New lot. The app asks a few questions, suggests a process, then reminds you what to do and tells you when it's ready.</p>
+          <button onclick="startWizard()" class="btn-big"><i data-lucide="plus" class="w-5 h-5"></i> New lot</button>
+          <button onclick="loadSamples()" class="text-sm text-coffee-300 underline">Or look around with sample lots</button>
+        </div>`;
+        return html;
+      }
+      html += heading('To do now');
+      html += soon.length ? `<div class="space-y-2">${soon.map(r => reminderCard(r, true)).join('')}</div>` : `<p class="text-[15px] text-coffee-300">Nothing right now.${later.length ? ` Next: ${esc(later[0].text.toLowerCase())}, ${esc(when(later[0].at))}.` : ''}</p>`;
+      if (later.length) html += `<details class="mt-3"><summary class="text-sm text-coffee-300 underline cursor-pointer">Later (${later.length})</summary><div class="space-y-2 mt-2">${later.map(r => reminderCard(r, true)).join('')}</div></details>`;
+      html += heading('Lots in progress', `<button onclick="setTab('lots')" class="text-sm text-coffee-300 underline">All lots</button>`);
+      html += active.length ? `<div class="space-y-2">${active.map(lotRow).join('')}</div>` : '<p class="text-[15px] text-coffee-300">None. Every lot is bagged.</p>';
+      html += `<button onclick="startWizard()" class="btn-big mt-4"><i data-lucide="plus" class="w-5 h-5"></i> New lot</button>`;
+      return html;
+    }
+
+    // ---------------------------------------------------------------
+    // NEW LOT: one question per screen
+    // ---------------------------------------------------------------
+    let wiz = null;
+    const WIZ_STEPS = ['Where is it from?', 'How much, and when was it picked?', 'How ripe is it?', 'Which process?', 'Ready to start'];
+    function newDraft() {
+      return {
+        farmer: '', masl: null, cultivar: '', cherryKg: null,
+        pickedAt: toLocalInput(new Date(Date.now() - 4 * HOUR)), arrivedAt: toLocalInput(new Date()),
+        container: 'baskets', crushed: false, warm: false, ripeness: 'ripe', counts: {}, experiment: false,
+        method: '', culture: 'none', dose: null, labelDose: null, product: '', vessel: 'barrel', surface: '', checklist: {}, notes: '', recipeId: null,
+      };
+    }
+    function draftInput(d) {
+      return Object.assign({}, d, { pickedAt: d.pickedAt ? new Date(d.pickedAt) : null, arrivedAt: new Date() });
+    }
+    function startWizard() { wiz = { step: 0, d: newDraft(), err: '' }; setTab('new'); }
+    // Typing doesn't re-render, so the keyboard stays open
+    function wset(k, v) { wiz.d[k] = v; }
+    function wpick(k, v) { wiz.d[k] = v; renderAll(); }
+    function wcheck(k, v) { wiz.d.checklist[k] = v; }
+    function pickCultivar(i) { wiz.d.cultivar = state.cultivars[i].name; renderAll(); }
+    function wnext() {
+      const d = wiz.d;
+      wiz.err = '';
+      if (wiz.step === 0 && (d.masl == null || !d.cultivar)) wiz.err = 'Enter the farm altitude and pick a cultivar.';
+      if (wiz.step === 1 && !d.cherryKg) wiz.err = 'Enter how many kg of cherry came in.';
+      if (!wiz.err) wiz.step++;
+      renderAll(); window.scrollTo({ top: 0 });
+    }
+    function chooseMethod(id) {
+      wiz.d.method = id; wiz.d.recipeId = null;
+      if (!wiz.d.surface) wiz.d.surface = surfaceOptions()[0];
+      wiz.step = 4; renderAll(); window.scrollTo({ top: 0 });
+    }
+    function useRecipe(rid) {
+      const r = state.recipes.find(x => x.id === rid); if (!r) return;
+      Object.assign(wiz.d, { method: r.process, culture: r.culture || 'none', dose: r.dose ?? null, product: r.product || '', recipeId: r.id, surface: r.surface || surfaceOptions()[0] });
+      wiz.step = 4; renderAll(); window.scrollTo({ top: 0 });
+    }
+    function wsetCulture(v) {
+      wiz.d.culture = v;
+      if (cultureOf(v).needsDose && wiz.d.dose == null) wiz.d.dose = V('doseGPerKg');
+      renderAll();
+    }
+
+    function renderWizard() {
+      if (!wiz) wiz = { step: 0, d: newDraft(), err: '' };
+      const d = wiz.d, s = wiz.step;
+      let html = `<div class="flex gap-1.5 mb-4">${WIZ_STEPS.map((_, i) => `<div class="h-1.5 flex-1 rounded-full ${i <= s ? 'bg-amber-500' : 'bg-coffee-800'}"></div>`).join('')}</div>
+        <div class="text-xs text-coffee-400 mb-1">Step ${s + 1} of ${WIZ_STEPS.length}</div>
+        <h2 class="text-2xl font-bold text-white mb-2">${WIZ_STEPS[s]}</h2>`;
+      const next = (label) => `${wiz.err ? `<p class="text-sm text-rose-300 mt-4">${esc(wiz.err)}</p>` : ''}<button onclick="wnext()" class="btn-big mt-6">${label || 'Next'} <i data-lucide="arrow-right" class="w-5 h-5"></i></button>`;
+
+      if (s === 0) {
+        const known = state.cultivars.some(c => c.name === d.cultivar);
+        html += `<label class="q">Farm altitude</label>
+          <div class="relative"><input type="number" inputmode="numeric" value="${d.masl ?? ''}" oninput="wset('masl', num(this.value))" placeholder="e.g. 1400" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">m</span></div>
+          <label class="q">Cultivar</label>
+          <div class="flex flex-wrap gap-2">${state.cultivars.map((c, i) => chip(c.name, d.cultivar === c.name, `pickCultivar(${i})`)).join('')}</div>
+          <input value="${known ? '' : esc(d.cultivar)}" oninput="wset('cultivar', this.value.trim())" placeholder="Or type another" class="field-lg mt-2">
+          <label class="q">Farmer or farm <span class="opt">(optional)</span></label>
+          <input value="${esc(d.farmer)}" oninput="wset('farmer', this.value.trim())" class="field-lg">
+          ${next()}`;
+      }
+      if (s === 1) {
+        html += `<label class="q">Cherry</label>
+          <div class="relative"><input type="number" inputmode="decimal" step="0.1" value="${d.cherryKg ?? ''}" oninput="wset('cherryKg', num(this.value))" placeholder="e.g. 300" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">kg</span></div>
+          <label class="q">Picked at</label>
+          <input type="datetime-local" value="${esc(d.pickedAt)}" oninput="wset('pickedAt', this.value)" class="field-lg">
+          <label class="q">How did it come in?</label>
+          <div class="flex flex-wrap gap-2">${chip('Baskets', d.container === 'baskets', "wpick('container','baskets')")}${chip('Sacks', d.container === 'sacks', "wpick('container','sacks')")}${chip('Other', d.container === 'other', "wpick('container','other')")}</div>
+          <div class="space-y-2 mt-3">
+            <label class="chk-lg"><input type="checkbox" ${d.crushed ? 'checked' : ''} onchange="wset('crushed', this.checked)"> Some cherry is crushed or leaking</label>
+            <label class="chk-lg"><input type="checkbox" ${d.warm ? 'checked' : ''} onchange="wset('warm', this.checked)"> It feels warm</label>
+          </div>
+          ${next()}`;
+      }
+      if (s === 2) {
+        const opts = [['ripe', 'Mostly ripe', 'Red, and firm when pinched'], ['mixed', 'Mixed', 'Some green or overripe'], ['early', 'Early picking', 'More green cherry'], ['late', 'Late picking', 'More overripe and dried cherry']];
+        html += `<div class="grid grid-cols-1 gap-2 mt-3">${opts.map(([v, l, sub]) => chip(l, d.ripeness === v, `wpick('ripeness','${v}')`, sub)).join('')}</div>
+          <details class="mt-4 card"><summary class="text-[15px] text-coffee-100 cursor-pointer">Count 100 cherries on the board <span class="opt">(optional)</span></summary>
+            <div class="grid grid-cols-2 gap-2 mt-3">
+              ${[['green', 'Green'], ['hard', 'Hard-ripe'], ['soft', 'Soft-ripe'], ['over', 'Overripe']].map(([k, l]) => `<div><div class="text-sm text-coffee-300 mb-1">${l}</div><input type="number" inputmode="numeric" min="0" max="100" value="${d.counts[k] ?? ''}" oninput="wiz.d.counts['${k}']=num(this.value)" class="field-lg"></div>`).join('')}
+            </div>
+            <p class="text-xs text-coffee-400 mt-2">The aim is about 80% ripe.${why('Lucia Solis, Producer Toolkit #2 (100-hole classifier board, aim for 80% red ripe). Ripeness classes: ATI Philippines 2007.')}</p>
+          </details>
+          ${next('See the suggestion')}`;
+      }
+      if (s === 3) {
+        const sg = suggest(draftInput(d));
+        if (sg.recipes.length) {
+          html += `<div class="card border-emerald-500/50 space-y-2 mt-3"><div class="text-sm font-semibold text-emerald-300">You've done this before</div>
+            ${sg.recipes.map(r => `<div class="text-[15px] text-coffee-100">${esc(r.process)} from ${esc(r.fromLot)} (${fmt(r.masl)} m): stopped at pH ${fmt(r.phEnd, 2)}, dried ${fmt(r.dryDays)} days to ${fmt(r.finalMoisture, 1)}%.
+              <button onclick="useRecipe('${r.id}')" class="btn-big ghost mt-2">Use this recipe</button></div>`).join('')}
+            <p class="text-xs text-coffee-400">The pH endpoint carries over, not the hours. This week's temperature sets the timing.</p></div>`;
+        }
+        const warn = sg.general.filter(n => n.tone === 'amber' || n.tone === 'red');
+        if (warn.length) html += `<div class="space-y-2 mt-3">${notesHtml(warn)}</div>`;
+        html += `<p class="text-[15px] text-coffee-300 mt-4 mb-2">Tap the process you'll use.</p><div class="space-y-2">`;
+        sg.ranked.forEach((r, i) => {
+          const main = r.notes.find(n => n.tone === 'amber' || n.tone === 'red') || r.notes[0];
+          const rest = r.notes.filter(n => n !== main);
+          html += `<div class="card !p-0 overflow-hidden ${i === 0 ? 'border-amber-500/60' : ''}">
+            <button onclick="chooseMethod('${esc(r.id)}')" class="w-full text-left p-4">
+              <div class="flex items-center justify-between gap-2"><span class="text-lg font-bold text-white">${esc(r.id)}</span>${i === 0 ? '<span class="text-xs font-semibold bg-amber-500 text-white rounded-full px-2 py-0.5">Suggested</span>' : !r.ok ? '<span class="text-xs text-amber-300">risky now</span>' : ''}</div>
+              ${main ? `<div class="text-[15px] mt-1 ${main.tone === 'amber' || main.tone === 'red' ? 'text-amber-200' : 'text-coffee-200'}">${esc(main.text)}</div>` : ''}
+            </button>
+            ${main || rest.length ? `<div class="px-4 pb-3 -mt-2">${rest.length ? `<details class="why"><summary>more</summary>${rest.map(n => `<p class="!text-[13px] !font-sans !text-coffee-200 mt-1">${esc(n.text)} <span class="font-mono text-[11px] text-coffee-400">${esc(n.ref || '')}</span></p>`).join('')}${main ? `<p>${esc(main.ref || '')}</p>` : ''}</details>` : why(main.ref)}</div>` : ''}
+          </div>`;
+        });
+        html += `</div>
+          <button onclick="wpick('experiment', ${!d.experiment})" class="text-sm text-coffee-300 underline mt-4">${d.experiment ? 'Hide' : 'Show'} sealed and anaerobic options</button>`;
+        if (sg.cultivar && (sg.cultivar.flavor || sg.cultivar.optMin != null)) {
+          html += `<details class="mt-3"><summary class="text-sm text-coffee-300 underline cursor-pointer">About ${esc(sg.cultivar.name)}</summary>
+            <div class="text-sm text-coffee-200 mt-2 space-y-1">${sg.cultivar.optMin != null ? `<p>Best from ${fmt(sg.cultivar.optMin)}${sg.cultivar.optMax ? '–' + fmt(sg.cultivar.optMax) : '+'} m (your entry from World Coffee Research).</p>` : ''}${sg.cultivar.flavor ? `<p>${esc(sg.cultivar.flavor)}.${why(sg.cultivar.flavorRef)}</p>` : ''}</div></details>`;
+        }
+      }
+      if (s === 4) {
+        const m = methodOf(d.method), c = cultureOf(d.culture);
+        html += `<p class="text-[15px] text-coffee-300">${esc(d.method)} · ${esc(d.cultivar)} · ${fmt(d.cherryKg)} kg · ${fmt(d.masl)} m <button onclick="wiz.step=3;renderAll()" class="underline ml-1">change</button></p>`;
+        if (m.tank) {
+          const plan = computePlan({ kg: d.cherryKg, yeast: d.culture, dose: d.dose, container: d.vessel });
+          html += `<label class="q">Starter culture</label>
+            <select onchange="wsetCulture(this.value)" class="field-lg">${CULTURES.map(x => `<option value="${x.id}" ${d.culture === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+            ${c.needsDose ? `<label class="q">Dose</label><div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div><div class="text-sm mt-3">${planHtml(plan)}</div>` : ''}
+            ${c.warn ? `<div class="mt-3">${notesHtml([note('red', "Baker's and beer yeast tend to give cheesy or sulphur notes in coffee.", 'Lucia Solis: Producer Toolkit #3')])}</div>` : ''}
+            <label class="q">Before you start</label>
+            <div class="space-y-2">
+              ${[['water', 'Water is not chlorinated'], ['clean', 'Tanks and tools are clean'], ['soap', 'No scented soap'], ['calib', 'pH meter calibrated (4 and 7)'], ['smell', 'No smoke, fuel or kitchen smells nearby']].map(([k, t]) => `<label class="chk-lg"><input type="checkbox" ${d.checklist[k] ? 'checked' : ''} onchange="wcheck('${k}', this.checked)"> ${t}</label>`).join('')}
+            </div>
+            <p class="text-xs text-coffee-400 mt-1">${why('Lucia Solis: Producer Toolkit #3 (cleaning, water, soap, meters) and #7 (coffee is a sponge).')}</p>
+            <label class="q">Notes <span class="opt">(optional)</span></label><input value="${esc(d.notes)}" oninput="wset('notes', this.value)" class="field-lg">
+            <button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="play" class="w-5 h-5"></i> Start fermenting now</button>`;
+        } else {
+          html += `<label class="q">Where will it dry?</label>
+            <div class="flex flex-wrap gap-2">${surfaceOptions().map(x => chip(x, d.surface === x, `wpick('surface', ${esc(JSON.stringify(x))})`)).join('')}</div>
+            <label class="q">Notes <span class="opt">(optional)</span></label><input value="${esc(d.notes)}" oninput="wset('notes', this.value)" class="field-lg">
+            <button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="sun" class="w-5 h-5"></i> Start drying now</button>`;
+        }
+      }
+      return html;
+    }
+
+    function saveLot() {
+      const d = wiz.d;
+      const n = state.lots.filter(l => !l.sample).length + 1;
+      const now = new Date().toISOString();
+      const m = methodOf(d.method);
+      const lot = {
+        id: uid('l'), code: `LOT-${new Date().getFullYear()}-${String(n).padStart(3, '0')}`, createdAt: now,
+        farmer: d.farmer, farm: '', masl: d.masl, cultivar: d.cultivar, cherryKg: d.cherryKg,
+        pickedAt: d.pickedAt ? new Date(d.pickedAt).toISOString() : null, arrivedAt: now,
+        container: d.container, crushed: d.crushed, warm: d.warm, ripeness: d.ripeness, counts: d.counts,
+        method: d.method, experiment: d.experiment, culture: m.tank ? d.culture : 'none', product: d.product, dose: m.tank && cultureOf(d.culture).needsDose ? d.dose : null, vessel: d.vessel,
+        checklist: d.checklist, notes: d.notes, recipeId: d.recipeId || null,
+        fermentStart: m.tank ? now : null, readings: [], actions: [], bag: null,
+        drying: m.tank ? null : { startAt: now, surface: d.surface || surfaceOptions()[0], target: V('moistureTarget'), weighings: [] },
+      };
+      state.lots.push(lot);
+      wiz = null;
+      openLot(lot.id);
+    }
+
+    // ---------------------------------------------------------------
+    // LOTS
+    // ---------------------------------------------------------------
+    function openLot(id) { state.selectedId = id; state.openForm = null; save(); setTab('lot'); }
+    function toggleForm(k) { state.openForm = state.openForm === k ? null : k; renderAll(); }
+
+    function renderLots() {
+      const real = state.lots.filter(l => !l.sample).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const samples = state.lots.filter(l => l.sample);
+      const going = real.filter(l => lotStage(l) !== 'resting'), done = real.filter(l => lotStage(l) === 'resting');
+      let html = `<button onclick="startWizard()" class="btn-big"><i data-lucide="plus" class="w-5 h-5"></i> New lot</button>`;
+      if (!state.lots.length) html += `<p class="text-[15px] text-coffee-300 mt-4">No lots yet. <button onclick="loadSamples()" class="underline">Look around with sample lots</button></p>`;
+      if (going.length) html += heading('In progress') + `<div class="space-y-2">${going.map(lotRow).join('')}</div>`;
+      if (done.length) html += heading('Bagged') + `<div class="space-y-2">${done.map(lotRow).join('')}</div>`;
+      if (samples.length) html += heading('Sample lots', '<button onclick="removeSamples()" class="text-sm text-coffee-300 underline">Remove</button>') + `<div class="space-y-2">${samples.map(lotRow).join('')}</div>`;
+      return html;
+    }
+
+    function stepsHtml(l) {
+      const m = methodOf(l.method), st = lotStage(l);
+      const steps = [...(m.tank ? [['Ferment', st !== 'fermenting', st === 'fermenting']] : []), ['Dry', st === 'resting', st === 'drying' || st === 'to dry'], ['Bag', false, st === 'resting']];
+      return `<div class="flex items-center gap-1.5 text-sm mt-3">${steps.map(([n, done, cur], i) => `${i ? '<span class="h-px w-4 bg-coffee-700"></span>' : ''}<span class="px-2.5 py-1 rounded-full border ${cur ? 'border-amber-500 text-amber-300 bg-amber-500/10' : done ? 'border-emerald-600 text-emerald-300' : 'border-coffee-700 text-coffee-500'}">${done ? '✓ ' : ''}${n}</span>`).join('')}</div>`;
+    }
+
+    function renderLot() {
+      const l = lotById(state.selectedId);
+      if (!l) return renderLots();
+      const st = lotStage(l), m = methodOf(l.method);
+      const alerts = lotAlerts(l).filter(a => a.tone !== 'green');
+      const urgent = alerts.filter(a => a.tone === 'red'), watch = alerts.filter(a => a.tone !== 'red');
+      let html = `<div>
+        <div class="flex items-center gap-2"><h2 class="text-2xl font-bold text-white">${esc(l.code)}</h2>${l.sample ? '<span class="text-xs text-coffee-400 border border-coffee-700 rounded px-1.5">sample</span>' : ''}</div>
+        <p class="text-[15px] text-coffee-300">${esc(l.method)} · ${esc(l.cultivar || '–')} · ${fmt(l.cherryKg)} kg${l.masl ? ` · ${fmt(l.masl)} m` : ''}${l.farmer || l.farm ? ` · ${esc(l.farmer || l.farm)}` : ''}</p>
+        ${stepsHtml(l)}
+      </div>`;
+      if (urgent.length) html += `<div class="space-y-2 mt-4">${notesHtml(urgent)}</div>`;
+      if (st === 'fermenting') html += fermentCard(l);
+      if (st === 'to dry') html += startDryCard(l);
+      if (st === 'drying') html += dryCard(l);
+      if (st === 'resting') html += restCard(l);
+      if (watch.length) html += heading('Watch out') + `<div class="space-y-2">${notesHtml(watch)}</div>`;
+      const rems = lotReminders(l, 36).filter(r => r.kind !== 'ph' && r.kind !== 'moisture');
+      if (rems.length) html += heading('Coming up') + `<div class="space-y-2">${rems.slice(0, 5).map(r => reminderCard(r, false)).join('')}</div>`;
+      html += historyHtml(l);
+      html += `<details class="mt-4"><summary class="text-sm text-coffee-300 underline cursor-pointer">More</summary><div class="card mt-2 space-y-3">
+        <form onsubmit="saveCup(event,'${l.id}')" class="space-y-2">
+          <div class="text-[15px] text-white font-semibold">Cup score <span class="opt">(optional, weeks later)</span></div>
+          <div class="grid grid-cols-3 gap-2"><input name="cupScore" type="number" step="0.25" min="0" max="100" value="${l.cupScore ?? ''}" placeholder="Score" class="field-lg"><input name="flavor" value="${esc(l.flavor || '')}" placeholder="Flavour notes" class="field-lg col-span-2"></div>
+          <button class="btn-big ghost">Save cup score</button>
+        </form>
+        ${l.notes ? `<p class="text-sm text-coffee-300 whitespace-pre-line">${esc(l.notes)}</p>` : ''}
+        <button onclick="deleteLot('${l.id}')" class="text-sm text-rose-300 underline">Delete this lot</button>
+      </div></details>`;
+      return html;
+    }
+
+    function fermentCard(l) {
+      const S = state.settings;
+      const fr = fermentReady(l);
+      const rs = readingsOf(l);
+      const ready = fr.ph && fr.hand;
+      const open = state.openForm === 'ph';
+      let html = heading(`Fermenting · ${fmt(fermentHours(l))} h`);
+      html += `<div class="card space-y-3">`;
+      if (ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">Ready. Wash it now.</div>`;
+      html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
+        ${tick(fr.ph, `pH is ${fr.end.v} or lower${fr.last && fr.last.ph != null ? ` <span class="text-coffee-400">(last: ${fmt(fr.last.ph, 2)})</span>` : ''}`, srcLabel(fr.end))}
+        ${tick(fr.hand, 'Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10')}</div>`;
+      html += open ? `<form onsubmit="addReading(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
+          <div class="grid grid-cols-2 gap-2"><div><div class="text-sm text-coffee-300 mb-1">pH</div><input name="ph" type="number" step="0.01" inputmode="decimal" class="field-lg" autofocus></div>
+          ${S.thermometer ? '<div><div class="text-sm text-coffee-300 mb-1">Tank °C</div><input name="temp" type="number" step="0.1" inputmode="decimal" class="field-lg"></div>' : ''}</div>
+          ${S.extraInstruments ? '<div class="grid grid-cols-2 gap-2"><input name="brix" type="number" step="0.1" placeholder="Brix °Bx" class="field-lg"><input name="psi" type="number" step="0.1" placeholder="Pressure PSI" class="field-lg"></div>' : ''}
+          <input name="smell" placeholder="How does it smell? (optional)" class="field-lg">
+          <label class="chk-lg"><input name="hand" type="checkbox"> Hand test passed: gritty, like pebbles</label>
+          <details><summary class="text-sm text-coffee-400 underline cursor-pointer">Different time?</summary><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field-lg mt-2"></details>
+          <div class="grid grid-cols-2 gap-2"><button type="button" onclick="toggleForm('ph')" class="btn-big ghost">Cancel</button><button class="btn-big">Save</button></div>
+        </form>` : `<button onclick="toggleForm('ph')" class="btn-big ${ready ? 'ghost' : ''}"><i data-lucide="test-tube" class="w-5 h-5"></i> Log pH</button>`;
+      html += `<button onclick="finishFermentation('${l.id}')" class="btn-big ${ready ? '' : 'ghost'}"><i data-lucide="droplets" class="w-5 h-5"></i> Washed. Start drying</button>`;
+      if (rs.length >= 2) html += lineChart(rs.map(r => ({ x: fermentHours(l, r), y: r.ph })), { title: 'pH', color: '#F59E0B', dp: 1, lines: [{ y: fr.end.v, label: `ready at ${fr.end.v}`, color: '#34D399' }] });
+      const next = lotReminders(l, 48).find(r => r.kind === 'ph');
+      if (next && !open) html += `<p class="text-sm text-coffee-400">Next pH check: ${esc(when(next.at))}.${why(next.ref)}</p>`;
+      return html + '</div>';
+    }
+
+    function surfaceOptions() {
+      const s = state.settings.setup, o = [];
+      if (s.beds) o.push('Raised beds'); if (s.patio) o.push('Patio'); if (s.polyhouse) o.push('Polyhouse'); if (s.covered) o.push('Covered area'); if (s.dryer) o.push('Mechanical dryer');
+      if (s.shade) o.push('Raised beds under shade cloth');
+      return o.length ? o : ['Patio'];
+    }
+    function startDryCard(l) {
+      return heading('Start drying') + `<div class="card space-y-3">
+        <form onsubmit="startDrying(event,'${l.id}')" class="space-y-3">
+          <div class="text-[15px] text-coffee-100">Where will it dry?</div>
+          <select name="surface" class="field-lg">${surfaceOptions().map(s => `<option>${esc(s)}</option>`).join('')}</select>
+          <button class="btn-big"><i data-lucide="sun" class="w-5 h-5"></i> Start drying now</button>
+        </form>
+        <p class="text-sm text-coffee-400">Spread in thin layers, about 10 cm, and rake 8–10 times a day.${why('Schwan & Fleet 2014, ch. 10')}</p>
+      </div>`;
+    }
+
+    function dryCard(l) {
+      const S = state.settings;
+      const di = dryingInfo(l);
+      const day = Math.floor((Date.now() - new Date(l.drying.startAt)) / DAY) + 1;
+      const open = state.openForm === 'weigh';
+      let html = heading(`Drying · day ${day} · ${esc(l.drying.surface || '')}`);
+      html += `<div class="card space-y-3">`;
+      if (di.ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">Dry. Bag it.</div>`;
+      const facts = [];
+      if (di.estNow != null) facts.push(`About <b class="text-white">${fmt(di.estNow, 1)}%</b> now${di.pts.length ? ' (from weight)' : ''}`);
+      if (di.targetW) facts.push(`Ready at about <b class="text-white">${fmt(di.targetW, 1)} kg</b>`);
+      if (di.eta) facts.push(`Expected around <b class="text-white">${esc(dayLabel(di.eta))}</b>`);
+      html += facts.length ? `<p class="text-[15px] text-coffee-200">${facts.join(' · ')}${di.eta ? why('At the latest drying rate. Below about 20% drying slows down (Lucia Solis, Producer Toolkit #2), so the real date is likely later.') : ''}</p>` : `<p class="text-[15px] text-coffee-300">Weigh it and take a meter reading. After two weighings the app can estimate the ready date.</p>`;
+      html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
+        ${tick(di.meterOk, `Meter reads ${di.target}% or less in ${di.spots.v} spots`, `Target: ${srcLabel(resolve('moistureTarget'))}. Number of spots: ${srcLabel(di.spots)}.`)}
+        ${tick(di.holdOk, `The reading still holds ${di.hold.v} h later`, srcLabel(di.hold))}
+        ${tick(di.brittle, 'The beans feel hard and brittle', 'ATI Philippines 2007')}</div>`;
+      if (!open) html += `<button onclick="toggleForm('weigh')" class="btn-big ${di.ready ? 'ghost' : ''}"><i data-lucide="scale" class="w-5 h-5"></i> Weigh and take readings</button>`;
+      else html += `<form onsubmit="addWeighing(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
+          <div><div class="text-sm text-coffee-300 mb-1">Weight (whole lot or a marked tray)</div><div class="relative"><input name="weight" type="number" step="0.01" inputmode="decimal" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">kg</span></div></div>
+          <div><div class="text-sm text-coffee-300 mb-1">Meter readings, % (one per spot)</div><input name="meter" inputmode="decimal" placeholder="e.g. 18.5, 19.2, 18.9" class="field-lg"></div>
+          ${S.thermometer ? '<div><div class="text-sm text-coffee-300 mb-1">Seed temperature °C</div><input name="seedTemp" type="number" step="0.1" inputmode="decimal" class="field-lg"></div>' : ''}
+          <label class="chk-lg"><input name="brittle" type="checkbox"> Feels hard and brittle</label>
+          <input name="notes" placeholder="Notes (optional)" class="field-lg">
+          <details><summary class="text-sm text-coffee-400 underline cursor-pointer">Different time?</summary><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field-lg mt-2"></details>
+          <div class="grid grid-cols-2 gap-2"><button type="button" onclick="toggleForm('weigh')" class="btn-big ghost">Cancel</button><button class="btn-big">Save</button></div>
+        </form>`;
+      const nextW = lotReminders(l, 48).find(r => r.kind === 'moisture');
+      if (nextW && !open && !di.ready) html += `<p class="text-sm text-coffee-400">Next weighing: ${esc(when(nextW.at))}.${why(nextW.ref)}</p>`;
+      if (di.pts.length >= 2) html += lineChart(di.pts.map(p => ({ x: (new Date(p.at) - new Date(l.drying.startAt)) / DAY, y: p.m })), { title: 'Moisture from weight (%)', color: '#22D3EE', dp: 0, xUnit: 'd', lines: [{ y: di.target, label: `target ${di.target}%`, color: '#34D399' }] });
+      html += di.ready || state.openForm === 'bag' ? bagForm(l, di) : `<button onclick="toggleForm('bag')" class="text-sm text-coffee-400 underline">Bag it anyway</button>`;
+      return html + '</div>';
+    }
+
+    function bagForm(l, di) {
+      const m = di.last && avg(di.last.meter);
+      return `<form onsubmit="bagLot(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
+        <div class="text-lg font-semibold text-white">Bag it</div>
+        <div><div class="text-sm text-coffee-300 mb-1">Bags</div><select name="type" class="field-lg"><option value="barrier">Barrier bags (PE + EVOH)</option><option value="pe">Plain plastic (polyethylene)</option><option value="jute">Jute</option></select></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><div class="text-sm text-coffee-300 mb-1">Final meter %</div><input name="moisture" type="number" step="0.1" inputmode="decimal" value="${m != null ? fmt(m, 1) : ''}" required class="field-lg"></div>
+          <div><div class="text-sm text-coffee-300 mb-1">Number of bags</div><input name="bags" type="number" min="0" inputmode="numeric" class="field-lg"></div>
+        </div>
+        <input name="notes" placeholder="What worked? What would you change?" class="field-lg">
+        <label class="chk-lg"><input name="recipe" type="checkbox" checked> Save as a recipe for next time</label>
+        <button class="btn-big"><i data-lucide="package" class="w-5 h-5"></i> Bag it</button>
+        <p class="text-sm text-coffee-400">Barrier bags keep out moisture and air.${why('Lucia Solis: Producer Toolkit #7. A 60 kg barrier bag costs about $3 and can be reused about three times if washed and dried.')}</p>
+      </form>`;
+    }
+
+    function restCard(l) {
+      const days = (Date.now() - new Date(l.bag.at)) / DAY;
+      return heading('Bagged') + `<div class="card space-y-2">
+        <p class="text-[15px] text-coffee-100">Bagged ${esc(dayLabel(l.bag.at))} at ${fmt(l.bag.moisture, 1)}% in ${esc({ barrier: 'barrier bags', pe: 'plain plastic', jute: 'jute' }[l.bag.type] || 'bags')}. Resting for ${fmt(days)} days.</p>
+        <p class="text-sm text-coffee-400">Lots rest for several weeks before hulling. Keep the bags away from smells.${why('Rest: Hackler & Särchen 2025. Smells: Lucia Solis, Producer Toolkit #7.')}</p>
+        ${l.recipeSaved ? '<p class="text-sm text-emerald-300">Saved as a recipe.</p>' : ''}
+      </div>`;
+    }
+
+    function historyHtml(l) {
+      const rs = readingsOf(l);
+      const ws = l.drying ? dryingInfo(l).ws : [];
+      const acts = l.actions || [];
+      if (!rs.length && !ws.length && !acts.length) return '';
+      const count = k => acts.filter(a => a.kind === k).length;
+      let html = `<details class="mt-6"><summary class="text-sm text-coffee-300 underline cursor-pointer">History</summary><div class="card mt-2 space-y-3 text-sm">`;
+      if (rs.length) html += `<div><div class="text-coffee-400 mb-1">pH readings</div><table class="data w-full"><tbody>${rs.map(r => `<tr><td class="text-coffee-400">${fmt(fermentHours(l, r), 1)} h</td><td class="text-white">${fmt(r.ph, 2)}</td><td class="whitespace-normal">${r.hand ? '<span class="text-emerald-300">hand test ✓</span> ' : ''}${esc(r.smell || '')}</td><td><button onclick="deleteReading('${l.id}','${r.at}')" class="text-coffee-500" title="Delete"><i data-lucide="x" class="w-4 h-4"></i></button></td></tr>`).join('')}</tbody></table></div>`;
+      if (ws.length) html += `<div><div class="text-coffee-400 mb-1">Weighings</div><table class="data w-full"><tbody>${ws.map(w => `<tr><td class="text-coffee-400">${esc(dayLabel(w.at))}</td><td class="text-white">${fmt(w.weight, 1)} kg</td><td>${w.meter && w.meter.length ? esc(w.meter.map(v => fmt(v, 1)).join(', ')) + '%' : ''}</td><td>${w.brittle ? 'brittle' : ''}</td><td><button onclick="deleteWeighing('${l.id}','${w.at}')" class="text-coffee-500" title="Delete"><i data-lucide="x" class="w-4 h-4"></i></button></td></tr>`).join('')}</tbody></table></div>`;
+      if (acts.length) html += `<p class="text-coffee-300">Logged: ${count('rake')} rakes, ${count('pile') + count('cover')} times piled or covered, ${count('spread') + count('uncover')} times spread.</p>`;
+      return html + '</div></details>';
+    }
+
+    // ---------------------------------------------------------------
+    // LOT ACTIONS
+    // ---------------------------------------------------------------
+    function formTime(f) { return f.at && f.at.value ? new Date(f.at.value).toISOString() : new Date().toISOString(); }
+    function addReading(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      const r = { at: formTime(f), ph: num(f.ph.value), temp: f.temp ? num(f.temp.value) : null, brix: f.brix ? num(f.brix.value) : null, psi: f.psi ? num(f.psi.value) : null, smell: f.smell.value.trim(), hand: f.hand.checked };
+      l.readings = (l.readings || []).filter(x => x.at !== r.at).concat([r]);
+      state.openForm = null; save(); renderAll();
+    }
+    function deleteReading(id, at) { const l = lotById(id); l.readings = l.readings.filter(r => r.at !== at); save(); renderAll(); }
+    function finishFermentation(id) {
+      const l = lotById(id);
+      if (!fermentReady(l).ph && !confirm('The pH has not reached the endpoint yet. Mark it as washed anyway?')) return;
+      l.washedAt = new Date().toISOString(); save(); renderAll();
+    }
+    function startDrying(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      l.drying = { startAt: new Date().toISOString(), surface: f.surface.value, target: V('moistureTarget'), weighings: [] };
+      save(); renderAll();
+    }
+    function addWeighing(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      const w = { at: formTime(f), weight: num(f.weight.value), meter: parseList(f.meter.value), seedTemp: f.seedTemp ? num(f.seedTemp.value) : null, brittle: f.brittle.checked, notes: f.notes.value.trim() };
+      l.drying.weighings = (l.drying.weighings || []).filter(x => x.at !== w.at).concat([w]);
+      state.openForm = null; save(); renderAll();
+    }
+    function deleteWeighing(id, at) { const l = lotById(id); l.drying.weighings = l.drying.weighings.filter(w => w.at !== at); save(); renderAll(); }
+    function bagLot(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      l.bag = { at: new Date().toISOString(), type: f.type.value, moisture: num(f.moisture.value), bags: num(f.bags.value), notes: f.notes.value.trim() };
+      if (f.recipe.checked) { state.recipes.push(recipeFromLot(l)); l.recipeSaved = true; }
+      state.openForm = null; save(); renderAll(); window.scrollTo({ top: 0 });
+    }
+    function saveCup(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      l.cupScore = num(f.cupScore.value); l.flavor = f.flavor.value.trim();
+      state.recipes.filter(r => r.lotId === id).forEach(r => { r.cupScore = l.cupScore; });
+      save(); renderAll();
+    }
+    function deleteLot(id) {
+      const l = lotById(id);
+      if (!confirm(`Delete ${l.code} and all its readings?`)) return;
+      state.lots = state.lots.filter(x => x.id !== id);
+      state.selectedId = null;
+      save(); setTab('lots');
+    }
+
+    // ---------------------------------------------------------------
+    // MORE
+    // ---------------------------------------------------------------
+    function moreRow(tab, icon, title, sub) {
+      return `<button onclick="setTab('${tab}')" class="row-btn"><i data-lucide="${icon}" class="w-5 h-5 text-amber-400 flex-shrink-0"></i><div class="flex-1 min-w-0"><div class="text-white font-semibold">${title}</div><div class="text-sm text-coffee-400">${sub}</div></div><i data-lucide="chevron-right" class="w-5 h-5 text-coffee-500"></i></button>`;
+    }
+    function renderMore() {
+      return `<div class="space-y-2">
+        ${moreRow('recipes', 'book-marked', `Your recipes (${state.recipes.length})`, 'Saved each time you bag a lot')}
+        ${moreRow('refs', 'globe', 'What other mills did', 'Lots that roasters in India, Nepal and elsewhere describe')}
+        ${moreRow('settings', 'warehouse', 'Mill and setup', 'Location, drying setup, processes, cultivars')}
+        ${moreRow('alerts', 'bell-ring', 'Reminders on your phone', 'Calendar file and alerts')}
+        ${moreRow('sources', 'book-open', 'Where the numbers come from', 'Lucia Solis or research papers, and your own values')}
+        ${moreRow('calc', 'calculator', 'Calculators', 'Yeast dose and target weight')}
+        ${moreRow('data', 'hard-drive', 'Backup and sample data', 'Export, restore, sample lots')}
+      </div>`;
+    }
+
+    function renderRecipesPage() {
+      if (!state.recipes.length) return '<p class="text-[15px] text-coffee-300">No recipes yet. A recipe is saved when you bag a lot. Next time you buy the same cultivar from a similar altitude, it is offered first.</p>';
+      return `<p class="text-sm text-coffee-400 mb-3">Offered first when you buy the same cultivar within ${V('altitudeBand')} m of altitude.</p><div class="space-y-2">${state.recipes.map(r => `<div class="card space-y-1">
+        <div class="flex items-start justify-between gap-2"><div><div class="text-white font-semibold">${esc(r.cultivar || '–')} · ${esc(r.process)}</div><div class="text-sm text-coffee-400">${fmt(r.masl)} m · from ${esc(r.fromLot)}</div></div><button onclick="deleteRecipe('${r.id}')" class="text-coffee-500" title="Delete"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+        ${r.fermentH ? `<p class="text-[15px] text-coffee-200">Fermented ${fmt(r.fermentH)} h${r.fermentTemp ? ` at ${fmt(r.fermentTemp, 1)} °C` : ''}, stopped at pH ${fmt(r.phEnd, 2)}${r.culture && r.culture !== 'none' ? ` with ${esc(r.product || cultureOf(r.culture).name)}` : ''}.</p>` : ''}
+        <p class="text-[15px] text-coffee-200">Dried ${fmt(r.dryDays)} days${r.surface ? ` on ${esc(r.surface.toLowerCase())}` : ''} to ${fmt(r.finalMoisture, 1)}%${r.rakes ? `, raked ${r.rakes} times` : ''}.</p>
+        ${r.notes ? `<p class="text-sm text-coffee-300">${esc(r.notes)}</p>` : ''}
+        ${r.cupScore != null ? `<p class="text-sm text-coffee-300">Cupped ${fmt(r.cupScore, 2)}</p>` : ''}
+      </div>`).join('')}</div>`;
+    }
+    function deleteRecipe(id) { if (!confirm('Delete this recipe?')) return; state.recipes = state.recipes.filter(r => r.id !== id); save(); renderAll(); }
+
+    function renderRefs() {
+      const cats = ['all', 'washed', 'natural', 'honey', 'anaerobic washed', 'anaerobic natural', 'carbonic maceration', 'other'];
+      const f = state.refFilter || 'all';
+      const refs = ROASTER_LOTS.filter(x => f === 'all' || x.p === f);
+      return `<p class="text-sm text-coffee-400 mb-3">Only what each roaster's page says. These are examples, not targets, and they never change the app's advice.</p>
+        <div class="flex flex-wrap gap-2 mb-3">${cats.map(c => chip(c, f === c, `state.refFilter='${c}';renderAll()`)).join('')}</div>
+        <div class="space-y-2">${refs.map(x => `<div class="card space-y-1">
+          <div class="text-white font-semibold">${esc(x.lot)}</div>
+          <div class="text-sm text-coffee-400">${esc(x.o)} · ${esc(x.p)} · <a class="underline" href="${x.u}" target="_blank" rel="noopener">${esc(x.r)}</a></div>
+          <p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Fermentation:</span> ${esc(x.f)}</p>
+          <p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Drying:</span> ${esc(x.d)}</p>
+        </div>`).join('')}</div>
+        ${heading('Starter cultures and the flavours they push')}
+        <div class="card space-y-2">${CULTURE_FLAVOURS.map(r => `<p class="text-[15px] text-coffee-200"><span class="text-white">${esc(r[0])}</span> · ${esc(r[1])}: ${esc(r[2])}</p>`).join('')}<p class="text-xs text-coffee-400">Research examples, not guarantees.${why('Hackler & Särchen 2025, Tab. 6.1')}</p></div>`;
+    }
+
+    function renderSettingsPage() {
+      const S = state.settings, m = S.mill, su = S.setup;
+      const cb = (path, val, label) => `<label class="chk-lg"><input type="checkbox" ${val ? 'checked' : ''} onchange="setSetting('${path}', this.checked)"> ${label}</label>`;
+      return `${heading('Mill')}
+        <div class="card space-y-3">
+          <input value="${esc(m.name)}" placeholder="Mill name" class="field-lg" onchange="setSetting('mill.name', this.value)">
+          <div class="grid grid-cols-2 gap-2"><input type="number" step="any" inputmode="decimal" value="${m.lat ?? ''}" placeholder="Latitude" class="field-lg" onchange="setSetting('mill.lat', num(this.value))"><input type="number" step="any" inputmode="decimal" value="${m.lon ?? ''}" placeholder="Longitude" class="field-lg" onchange="setSetting('mill.lon', num(this.value))"></div>
+          <button onclick="useMyLocation()" class="btn-big ghost"><i data-lucide="locate" class="w-5 h-5"></i> Use my location</button>
+          <p class="text-sm text-coffee-400">${esc(wxStatus.startsWith('error') ? 'Could not reach the weather service.' : '')} Only the location is sent to the weather service. Everything else stays on this phone.</p>
+        </div>
+        ${heading('How you dry')}
+        <div class="card space-y-2">${cb('setup.patio', su.patio, 'Patio')}${cb('setup.beds', su.beds, 'Raised beds')}${cb('setup.shade', su.shade, 'Shade cloth')}${cb('setup.covered', su.covered, 'Covered area')}${cb('setup.polyhouse', su.polyhouse, 'Polyhouse')}${cb('setup.dryer', su.dryer, 'Mechanical dryer')}</div>
+        ${heading('Processes you run')}
+        <div class="card space-y-2">${METHODS.filter(x => x.id !== 'Other').map(x => `<label class="chk-lg"><input type="checkbox" ${S.processes.includes(x.id) ? 'checked' : ''} onchange="toggleProcess('${x.id}', this.checked)"> ${x.id}</label>`).join('')}</div>
+        ${heading('Tools')}
+        <div class="card space-y-2">${cb('thermometer', S.thermometer, 'I have a probe thermometer')}${cb('extraInstruments', S.extraInstruments, 'I measure Brix and tank pressure')}</div>
+        ${heading('Cultivars')}
+        <p class="text-sm text-coffee-400 mb-2">Add the best altitude for each from the <a class="underline" href="${WCR_URL}" target="_blank" rel="noopener">World Coffee Research catalog</a>. The app warns when a farm is lower.</p>
+        <div class="space-y-2">${state.cultivars.map((c, i) => `<div class="card !p-3 space-y-2">
+          <div class="flex gap-2"><input value="${esc(c.name)}" class="field-lg" onchange="setCultivar(${i},'name',this.value)"><button onclick="removeCultivar(${i})" class="text-coffee-500 px-2" title="Remove"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+          <div class="grid grid-cols-2 gap-2"><input type="number" inputmode="numeric" value="${c.optMin ?? ''}" placeholder="Best from (m)" class="field-lg" onchange="setCultivar(${i},'optMin',num(this.value))"><input type="number" inputmode="numeric" value="${c.optMax ?? ''}" placeholder="to (m)" class="field-lg" onchange="setCultivar(${i},'optMax',num(this.value))"></div>
+          ${c.flavor ? `<p class="text-sm text-coffee-300">${esc(c.flavor)}.${why(c.flavorRef)}</p>` : ''}
+        </div>`).join('')}</div>
+        <button onclick="addCultivar()" class="btn-big ghost mt-2"><i data-lucide="plus" class="w-5 h-5"></i> Add cultivar</button>`;
+    }
+
+    function renderSources() {
+      const S = state.settings;
+      const cols = ['lucia', 'research', 'toolkit', 'tool'];
+      const rows = Object.entries(THRESHOLDS).map(([k, t]) => {
+        const r = resolve(k);
+        return `<div class="card !p-3 space-y-1">
+          <div class="flex items-center justify-between gap-3"><div class="text-[15px] text-white">${esc(t.label)}</div><div class="flex items-center gap-1"><input type="number" step="any" value="${S.overrides[k] ?? ''}" placeholder="${r.v}" class="field !w-20 text-right" onchange="setOverride('${k}', this.value)"><span class="text-sm text-coffee-400 w-10">${esc(t.unit)}</span></div></div>
+          <div class="text-xs text-coffee-400">${cols.filter(c => t[c]).map(c => `<span class="${r.from === c ? 'text-amber-300' : ''}">${SOURCE_NAMES[c]}: ${t[c][0]}${t[c][1] ? ` (${esc(t[c][1])})` : ''}</span>`).join(' · ')}${r.from === 'you' ? ' · <span class="text-amber-300">Yours</span>' : ''}</div>
+        </div>`;
+      }).join('');
+      return `<div class="card space-y-2">
+          <div class="text-white font-semibold">Whose numbers to use</div>
+          <select onchange="setPreset(this.value)" class="field-lg"><option value="lucia" ${S.preset === 'lucia' ? 'selected' : ''}>Lucia Solis (default)</option><option value="research" ${S.preset === 'research' ? 'selected' : ''}>Research papers</option></select>
+          <p class="text-sm text-coffee-400">When a source has no number for something, the next one fills the gap. "Tool heuristic" values are my starting points, not published rules. Type your own value in the box to override any of them.</p>
+        </div>
+        <div class="space-y-2 mt-3">${rows}</div>`;
+    }
+
+    function renderAlertsPage() {
+      const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+      return `<div class="card space-y-3">
+          <div class="text-white font-semibold">Phone calendar</div>
+          <p class="text-[15px] text-coffee-300">Adds the next 48 hours of reminders to your calendar, so your phone rings even when this page is closed. Add it again when the weather changes.</p>
+          <button onclick="exportIcs()" class="btn-big"><i data-lucide="calendar-plus" class="w-5 h-5"></i> Add to calendar</button>
+        </div>
+        <div class="card space-y-3 mt-3">
+          <div class="text-white font-semibold">Alerts while the page is open</div>
+          <p class="text-[15px] text-coffee-300">${perm === 'granted' ? 'On.' : perm === 'denied' ? 'Blocked in the browser settings.' : perm === 'unsupported' ? 'This browser does not support alerts.' : 'Off.'}</p>
+          ${perm === 'default' ? '<button onclick="enableNotifications()" class="btn-big ghost">Turn on alerts</button>' : ''}
+        </div>`;
+    }
+
+    function renderDataPage() {
+      return `<div class="card space-y-3">
+          <p class="text-[15px] text-coffee-300">Lots are saved on this phone only. Make a backup now and then.</p>
+          <button onclick="exportJson()" class="btn-big ghost"><i data-lucide="download" class="w-5 h-5"></i> Back up</button>
+          <label class="btn-big ghost cursor-pointer"><i data-lucide="upload" class="w-5 h-5"></i> Restore a backup<input type="file" accept=".json,application/json" class="hidden" onchange="importJson(this)"></label>
+          <button onclick="exportCsv()" class="btn-big ghost"><i data-lucide="sheet" class="w-5 h-5"></i> Export for a spreadsheet (CSV)</button>
+        </div>
+        <div class="card space-y-3 mt-3">
+          <p class="text-[15px] text-coffee-300">Sample lots come from the batch tracker spreadsheet. They show how lots look at each stage.</p>
+          <button onclick="loadSamples()" class="btn-big ghost"><i data-lucide="sparkles" class="w-5 h-5"></i> Add sample lots</button>
+          <button onclick="removeSamples()" class="btn-big ghost"><i data-lucide="eraser" class="w-5 h-5"></i> Remove sample lots</button>
+          <button onclick="clearAll()" class="text-sm text-rose-300 underline">Delete everything</button>
+        </div>`;
+    }
+
+    const CALC_HTML = `<div class="space-y-4">
+        <div class="card space-y-3">
+          <div class="text-white font-semibold">Yeast dose</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><div class="text-sm text-coffee-300 mb-1">Coffee into tank (kg)</div><input id="c_kg" type="number" min="0" value="500" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Dose (g/kg)</div><input id="c_dose" type="number" min="0" step="0.1" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Culture</div><select id="c_yeast" class="field-lg" onchange="renderCalc()"></select></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Container</div><select id="c_container" class="field-lg" onchange="renderCalc()"><option value="barrel">Barrels (40–45 kg)</option><option value="tank">One tank</option></select></div>
+          </div>
+          <div id="calcDoseOut" class="text-sm space-y-2"></div>
+        </div>
+        <div class="card space-y-3">
+          <div class="text-white font-semibold">Target weight</div>
+          <p class="text-sm text-coffee-400">Dry matter stays the same while coffee dries. Once the meter gives a steady reading, one weighing tells you what the lot will weigh at the target.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div><div class="text-sm text-coffee-300 mb-1">Weight now (kg)</div><input id="m_w0" type="number" step="0.01" value="100" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Meter now (%)</div><input id="m_m0" type="number" step="0.1" value="20" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Later weight (kg)</div><input id="m_w1" type="number" step="0.01" value="95" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Target (%)</div><input id="m_target" type="number" step="0.1" class="field-lg" oninput="renderCalc()"></div>
+          </div>
+          <div id="calcMoistOut" class="text-sm space-y-2"></div>
+        </div>
+      </div>`;
+
+    // ---------------------------------------------------------------
+    // NAVIGATION & RENDER
+    // ---------------------------------------------------------------
+    const PAGES = {
+      today: { title: 'Today', nav: 'today' },
+      new: { title: 'New lot', nav: 'new', back: 'wizard' },
+      lots: { title: 'Lots', nav: 'lots' },
+      lot: { title: 'Lot', nav: 'lots', back: 'lots' },
+      more: { title: 'More', nav: 'more' },
+      recipes: { title: 'Your recipes', nav: 'more', back: 'more' },
+      refs: { title: 'What other mills did', nav: 'more', back: 'more' },
+      settings: { title: 'Mill and setup', nav: 'more', back: 'more' },
+      alerts: { title: 'Reminders on your phone', nav: 'more', back: 'more' },
+      sources: { title: 'Where the numbers come from', nav: 'more', back: 'more' },
+      calc: { title: 'Calculators', nav: 'more', back: 'more' },
+      data: { title: 'Backup and sample data', nav: 'more', back: 'more' },
+    };
     function setPreset(v) { state.settings.preset = v; wxCache = null; save(); renderAll(); }
     function setTab(tab) {
-      state.tab = tab; save();
-      TABS.forEach(t => document.getElementById('view-' + t).classList.toggle('hidden', t !== tab));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        const on = btn.dataset.tab === tab;
-        btn.classList.toggle('bg-coffee-700', on); btn.classList.toggle('text-white', on); btn.classList.toggle('font-medium', on);
-        btn.classList.toggle('text-coffee-400', !on);
-      });
-      renderAll();
-      window.scrollTo({ top: 0 });
+      if (tab === 'new' && !wiz) wiz = { step: 0, d: newDraft(), err: '' };
+      state.tab = PAGES[tab] ? tab : 'today';
+      save(); renderAll(); window.scrollTo({ top: 0 });
+    }
+    function goBack() {
+      const p = PAGES[state.tab];
+      if (p.back === 'wizard') { if (wiz && wiz.step > 0) { wiz.step--; wiz.err = ''; renderAll(); window.scrollTo({ top: 0 }); } else { wiz = null; setTab('today'); } return; }
+      setTab(p.back || 'today');
     }
     function renderHeader() {
-      document.getElementById('presetSelect').value = state.settings.preset;
+      const p = PAGES[state.tab];
       const m = state.settings.mill;
-      document.getElementById('millName').textContent = m.name || (m.lat != null ? `${m.lat}, ${m.lon}` : 'Buy, ferment, dry, rest');
-    }
-    // On phones, show either the list or one lot
-    function renderLots() {
-      document.getElementById('lotAside').classList.toggle('max-lg:hidden', !!lotById(state.selectedId));
-      document.getElementById('lotDetail').classList.toggle('max-lg:hidden', !lotById(state.selectedId));
-      renderLotList(); renderLotDetail(); icons();
+      const l = state.tab === 'lot' ? lotById(state.selectedId) : null;
+      document.getElementById('pageTitle').textContent = p.title;
+      document.getElementById('millName').textContent = state.tab === 'today' ? (m.name || 'Mill Assistant') : '';
+      document.getElementById('millName').classList.toggle('hidden', state.tab !== 'today');
+      document.getElementById('backBtn').classList.toggle('hidden', !p.back);
+      document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('on', b.dataset.nav === p.nav));
     }
     function renderAll() {
+      const t = state.tab;
+      if (t === 'lot' && !lotById(state.selectedId)) state.tab = 'lots';
       renderHeader();
-      if (state.tab === 'today') renderToday();
-      if (state.tab === 'buy') renderBuy();
-      if (state.tab === 'lots') renderLots();
-      if (state.tab === 'recipes') renderRecipes();
+      const el = document.getElementById('view');
+      const pages = { today: renderToday, new: renderWizard, lots: renderLots, lot: renderLot, more: renderMore, recipes: renderRecipesPage, refs: renderRefs, settings: renderSettingsPage, alerts: renderAlertsPage, sources: renderSources, calc: () => CALC_HTML, data: renderDataPage };
+      el.innerHTML = pages[state.tab]();
       if (state.tab === 'calc') renderCalc();
-      if (state.tab === 'settings') renderSettings();
       icons();
     }
 
     load();
-    setTab(TABS.includes(state.tab) ? state.tab : 'today');
+    if (!PAGES[state.tab] || state.tab === 'new') state.tab = 'today';
+    renderAll();
     // Refresh the forecast when it's older than 3 hours and there is signal
     if (state.settings.mill.lat != null && (!state.weather || hoursBetween(state.weather.fetchedAt, new Date()) > 3)) fetchWeather();
-    setInterval(() => { tickNotifications(); if (state.tab === 'today') { renderToday(); icons(); } }, 60000);
+    // Keep Today current, but never while someone is typing
+    setInterval(() => {
+      tickNotifications();
+      const a = document.activeElement;
+      if (state.tab === 'today' && !(a && /INPUT|SELECT|TEXTAREA/.test(a.tagName))) renderAll();
+    }, 60000);
   </script>
 </body>
 </html>
