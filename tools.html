@@ -132,8 +132,8 @@
         research: [3.5, 'Schwan & Fleet 2014, ch. 11 (working range 3.5–5.5)'], toolkit: [4.0, 'Toolkit doc §2.1'] },
       tempMax:          { label: 'Fermentation temperature alert', unit: '°C',
         lucia: [30, 'Producer Toolkit #2 (Manuel Mata alert)'], research: [25, 'Schwan & Fleet 2014, ch. 11 (20–25 °C)'], toolkit: [25, 'Toolkit doc §2.3'] },
-      readingIntervalH: { label: 'pH check interval', unit: 'h',
-        lucia: [12, 'Producer Toolkit #3 (at least twice a day)'], toolkit: [1, 'Toolkit doc §5 (hourly)'] },
+      phChecksPerDay:   { label: 'pH checks a day', unit: '',
+        lucia: [2, 'Producer Toolkit #3 (at least twice a day; she checks morning, midday and end of day)'], toolkit: [24, 'Toolkit doc §5 (hourly)'] },
       stallPh:          { label: 'Stall: pH change under this over 12 h', unit: '',
         tool: [0.05, ''] },
       maxHoursOpen:     { label: 'Overdue: open tank fermentation', unit: 'h',
@@ -717,9 +717,9 @@
       if (st === 'fermenting') {
         const rs = readingsOf(l);
         const base = rs.length ? new Date(rs[rs.length - 1].at).getTime() : new Date(l.fermentStart || l.createdAt).getTime();
-        const iv = resolve('readingIntervalH');
-        const at = Math.max(rs.length ? base + iv.v * HOUR : base, now - 6 * HOUR);
-        out.push({ lot: l, kind: 'ph', at, text: rs.length ? `Check pH${S.thermometer ? ' and tank temperature' : ''}, smell, and do the hand test` : `Take the first pH reading${S.thermometer ? ' and tank temperature' : ''}, and note the smell`, ref: srcLabel(iv) });
+        const iv = resolve('phChecksPerDay');
+        const at = Math.max(nextPhCheck(base + 3 * HOUR, iv.v), now - 6 * HOUR);
+        out.push({ lot: l, kind: 'ph', at, text: `Check pH${S.thermometer ? ' and tank temperature' : ''}${methodOf(l.method).drying === 'parchment' ? ', and do the hand test' : ''}`, ref: srcLabel(iv) });
       }
       if (st === 'to dry' && l.washedAt) {
         const wd = resolve('washToDryMaxH');
@@ -782,6 +782,18 @@
         add('recheck', at, 'Re-check moisture in storage', 'Tool heuristic (monthly)');
       }
       return out.filter(r => r.at <= end).sort((a, c) => a.at - c.at);
+    }
+    // pH check times: morning and end of day (plus midday for 3 a day), or evenly spaced for more
+    function nextPhCheck(after, perDay) {
+      for (let k = 0; k < 3; k++) {
+        const st = sunTimes(after + k * DAY);
+        const mid = (st.sunrise + st.sunset) / 2;
+        const slots = perDay >= 4 ? Array.from({ length: Math.round(perDay) }, (_, i) => st.sunrise - 6 * HOUR + i * DAY / Math.round(perDay))
+          : perDay >= 3 ? [st.sunrise + HOUR, mid, st.sunset - HOUR] : perDay >= 2 ? [st.sunrise + HOUR, st.sunset - HOUR] : [st.sunrise + HOUR];
+        const t = slots.find(x => x >= after);
+        if (t) return t;
+      }
+      return after;
     }
     function allReminders(h) {
       return state.lots.flatMap(l => lotReminders(l, h)).sort((a, c) => a.at - c.at);
@@ -1202,10 +1214,10 @@
     }
 
     // ---------------------------------------------------------------
-    // NEW LOT: one question per screen
+    // NEW LOT: cultivar, process, timeline
     // ---------------------------------------------------------------
     let wiz = null;
-    const WIZ_STEPS = ['Where is it from?', 'How much, and when was it picked?', 'How ripe is it?', 'Which process?', 'Set up', 'Your roadmap'];
+    const WIZ_STEPS = ['Cultivar and farm', 'Process', 'Your timeline'];
     function newDraft() {
       return {
         farmer: '', masl: null, cultivar: '', cherryKg: null,
@@ -1227,19 +1239,18 @@
       const d = wiz.d;
       wiz.err = '';
       if (wiz.step === 0 && (d.masl == null || !d.cultivar)) wiz.err = 'Enter the farm altitude and pick a cultivar.';
-      if (wiz.step === 1 && !d.cherryKg) wiz.err = 'Enter how many kg of cherry came in.';
-      if (!wiz.err) wiz.step++;
+      if (!wiz.err) {
+        wiz.step++;
+        if (wiz.step === 1 && !d.method) { const sg = suggest(draftInput(d)); d.method = (sg.ranked[0] || { id: 'Washed' }).id; }
+        if (!d.surface) d.surface = surfaceOptions()[0];
+      }
       renderAll(); window.scrollTo({ top: 0 });
     }
-    function chooseMethod(id) {
-      wiz.d.method = id; wiz.d.recipeId = null;
-      if (!wiz.d.surface) wiz.d.surface = surfaceOptions()[0];
-      wiz.step = 4; renderAll(); window.scrollTo({ top: 0 });
-    }
+    function pickProcess(id) { wiz.d.method = id; wiz.d.recipeId = null; renderAll(); }
     function useRecipe(rid) {
       const r = state.recipes.find(x => x.id === rid); if (!r) return;
       Object.assign(wiz.d, { method: r.process, culture: r.culture || 'none', dose: r.dose ?? null, product: r.product || '', recipeId: r.id, surface: r.surface || surfaceOptions()[0] });
-      wiz.step = 4; renderAll(); window.scrollTo({ top: 0 });
+      wiz.step = 2; renderAll(); window.scrollTo({ top: 0 });
     }
     function wsetCulture(v) {
       wiz.d.culture = v;
@@ -1257,98 +1268,85 @@
 
       if (s === 0) {
         const known = state.cultivars.some(c => c.name === d.cultivar);
-        html += `<label class="q">Farm altitude</label>
-          <div class="relative"><input type="number" inputmode="numeric" value="${d.masl ?? ''}" oninput="wset('masl', num(this.value))" placeholder="e.g. 1400" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">m</span></div>
-          <label class="q">Cultivar</label>
+        const ripe = [['ripe', 'Mostly ripe'], ['mixed', 'Mixed'], ['early', 'Early picking'], ['late', 'Late picking']];
+        html += `<label class="q">Cultivar</label>
           <div class="flex flex-wrap gap-2">${state.cultivars.map((c, i) => chip(c.name, d.cultivar === c.name, `pickCultivar(${i})`)).join('')}</div>
           <input value="${known ? '' : esc(d.cultivar)}" oninput="wset('cultivar', this.value.trim())" placeholder="Or type another" class="field-lg mt-2">
-          <label class="q">Farmer or farm <span class="opt">(optional)</span></label>
-          <input value="${esc(d.farmer)}" oninput="wset('farmer', this.value.trim())" class="field-lg">
+          <label class="q">Farm altitude</label>
+          <div class="relative"><input type="number" inputmode="numeric" value="${d.masl ?? ''}" oninput="wset('masl', num(this.value))" placeholder="e.g. 1400" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">m</span></div>
+          <label class="q">Cherry <span class="opt">(optional, for the yeast dose)</span></label>
+          <div class="relative"><input type="number" inputmode="decimal" step="0.1" value="${d.cherryKg ?? ''}" oninput="wset('cherryKg', num(this.value))" placeholder="e.g. 300" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">kg</span></div>
+          <details class="mt-4 card"><summary class="text-[15px] text-coffee-100 cursor-pointer">More about this cherry <span class="opt">(optional)</span></summary>
+            <div class="space-y-1">
+              <label class="q">Farmer or farm</label><input value="${esc(d.farmer)}" oninput="wset('farmer', this.value.trim())" class="field-lg">
+              <label class="q">Picked at</label><input type="datetime-local" value="${esc(d.pickedAt)}" oninput="wset('pickedAt', this.value)" class="field-lg">
+              <label class="q">Came in</label>
+              <div class="flex flex-wrap gap-2">${chip('Baskets', d.container === 'baskets', "wpick('container','baskets')")}${chip('Sacks', d.container === 'sacks', "wpick('container','sacks')")}${chip('Other', d.container === 'other', "wpick('container','other')")}</div>
+              <div class="space-y-2 pt-2">
+                <label class="chk-lg"><input type="checkbox" ${d.crushed ? 'checked' : ''} onchange="wset('crushed', this.checked)"> Some cherry is crushed or leaking</label>
+                <label class="chk-lg"><input type="checkbox" ${d.warm ? 'checked' : ''} onchange="wset('warm', this.checked)"> It feels warm</label>
+              </div>
+              <label class="q">Ripeness</label>
+              <div class="flex flex-wrap gap-2">${ripe.map(([v, l]) => chip(l, d.ripeness === v, `wpick('ripeness','${v}')`)).join('')}</div>
+            </div>
+          </details>
           ${next()}`;
       }
       if (s === 1) {
-        html += `<label class="q">Cherry</label>
-          <div class="relative"><input type="number" inputmode="decimal" step="0.1" value="${d.cherryKg ?? ''}" oninput="wset('cherryKg', num(this.value))" placeholder="e.g. 300" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">kg</span></div>
-          <label class="q">Picked at</label>
-          <input type="datetime-local" value="${esc(d.pickedAt)}" oninput="wset('pickedAt', this.value)" class="field-lg">
-          <label class="q">How did it come in?</label>
-          <div class="flex flex-wrap gap-2">${chip('Baskets', d.container === 'baskets', "wpick('container','baskets')")}${chip('Sacks', d.container === 'sacks', "wpick('container','sacks')")}${chip('Other', d.container === 'other', "wpick('container','other')")}</div>
-          <div class="space-y-2 mt-3">
-            <label class="chk-lg"><input type="checkbox" ${d.crushed ? 'checked' : ''} onchange="wset('crushed', this.checked)"> Some cherry is crushed or leaking</label>
-            <label class="chk-lg"><input type="checkbox" ${d.warm ? 'checked' : ''} onchange="wset('warm', this.checked)"> It feels warm</label>
-          </div>
-          ${next()}`;
-      }
-      if (s === 2) {
-        const opts = [['ripe', 'Mostly ripe', 'Red, and firm when pinched'], ['mixed', 'Mixed', 'Some green or overripe'], ['early', 'Early picking', 'More green cherry'], ['late', 'Late picking', 'More overripe and dried cherry']];
-        html += `<div class="grid grid-cols-1 gap-2 mt-3">${opts.map(([v, l, sub]) => chip(l, d.ripeness === v, `wpick('ripeness','${v}')`, sub)).join('')}</div>
-          <details class="mt-4 card"><summary class="text-[15px] text-coffee-100 cursor-pointer">Count 100 cherries on the board <span class="opt">(optional)</span></summary>
-            <div class="grid grid-cols-2 gap-2 mt-3">
-              ${[['green', 'Green'], ['hard', 'Hard-ripe'], ['soft', 'Soft-ripe'], ['over', 'Overripe']].map(([k, l]) => `<div><div class="text-sm text-coffee-300 mb-1">${l}</div><input type="number" inputmode="numeric" min="0" max="100" value="${d.counts[k] ?? ''}" oninput="wiz.d.counts['${k}']=num(this.value)" class="field-lg"></div>`).join('')}
-            </div>
-            <p class="text-xs text-coffee-400 mt-2">The aim is about 80% ripe.${why('Lucia Solis, Producer Toolkit #2 (100-hole classifier board, aim for 80% red ripe). Ripeness classes: ATI Philippines 2007.')}</p>
-          </details>
-          ${next('See the suggestion')}`;
-      }
-      if (s === 3) {
         const sg = suggest(draftInput(d));
+        const c = cultureOf(d.culture);
         if (sg.recipes.length) {
           html += `<div class="card border-emerald-500/50 space-y-2 mt-3"><div class="text-sm font-semibold text-emerald-300">You've done this before</div>
             ${sg.recipes.map(r => `<div class="text-[15px] text-coffee-100">${esc(r.process)} from ${esc(r.fromLot)} (${fmt(r.masl)} m): stopped at pH ${fmt(r.phEnd, 2)}, dried ${fmt(r.dryDays)} days to ${fmt(r.finalMoisture, 1)}%.
-              <button onclick="useRecipe('${r.id}')" class="btn-big ghost mt-2">Use this recipe</button></div>`).join('')}
-            <p class="text-xs text-coffee-400">The pH endpoint carries over, not the hours. This week's temperature sets the timing.</p></div>`;
+              <button onclick="useRecipe('${r.id}')" class="btn-big ghost mt-2">Use this recipe</button></div>`).join('')}</div>`;
         }
         const warn = sg.general.filter(n => n.tone === 'amber' || n.tone === 'red');
         if (warn.length) html += `<div class="space-y-2 mt-3">${notesHtml(warn)}</div>`;
-        html += `<p class="text-[15px] text-coffee-300 mt-4 mb-2">Tap the process you'll use.</p><div class="space-y-2">`;
+        html += `<div class="space-y-2 mt-3">`;
         sg.ranked.forEach((r, i) => {
+          const on = d.method === r.id;
           const main = r.notes.find(n => n.tone === 'amber' || n.tone === 'red') || r.notes[0];
-          const rest = r.notes.filter(n => n !== main);
-          html += `<div class="card !p-0 overflow-hidden ${i === 0 ? 'border-amber-500/60' : ''}">
-            <button onclick="chooseMethod('${esc(r.id)}')" class="w-full text-left p-4">
-              <div class="flex items-center justify-between gap-2"><span class="text-lg font-bold text-white">${esc(r.id)}</span>${i === 0 ? '<span class="text-xs font-semibold bg-amber-500 text-white rounded-full px-2 py-0.5">Suggested</span>' : !r.ok ? '<span class="text-xs text-amber-300">risky now</span>' : ''}</div>
-              ${main ? `<div class="text-[15px] mt-1 ${main.tone === 'amber' || main.tone === 'red' ? 'text-amber-200' : 'text-coffee-200'}">${esc(main.text)}</div>` : ''}
-            </button>
-            ${main || rest.length ? `<div class="px-4 pb-3 -mt-2">${rest.length ? `<details class="why"><summary>more</summary>${rest.map(n => `<p class="!text-[13px] !font-sans !text-coffee-200 mt-1">${esc(n.text)} <span class="font-mono text-[11px] text-coffee-400">${esc(n.ref || '')}</span></p>`).join('')}${main ? `<p>${esc(main.ref || '')}</p>` : ''}</details>` : why(main.ref)}</div>` : ''}
-          </div>`;
+          html += `<button onclick="pickProcess('${esc(r.id)}')" class="w-full text-left rounded-xl border p-4 ${on ? 'border-amber-500 bg-amber-500/10' : 'border-coffee-800 bg-coffee-900/60'}">
+            <div class="flex items-center gap-3"><span class="w-5 h-5 rounded-full border-2 flex-shrink-0 ${on ? 'border-amber-500 bg-amber-500' : 'border-coffee-600'}"></span><span class="text-lg font-bold text-white flex-1">${esc(r.id)}</span>${i === 0 ? '<span class="text-xs font-semibold bg-amber-500 text-white rounded-full px-2 py-0.5">Suggested</span>' : !r.ok ? '<span class="text-xs text-amber-300">risky now</span>' : ''}</div>
+            ${main ? `<div class="text-sm mt-1 ml-8 ${main.tone === 'amber' || main.tone === 'red' ? 'text-amber-200' : 'text-coffee-300'}">${esc(main.text)}</div>` : ''}
+          </button>`;
         });
-        html += `</div>
-          <button onclick="wpick('experiment', ${!d.experiment})" class="text-sm text-coffee-300 underline mt-4">${d.experiment ? 'Hide' : 'Show'} sealed and anaerobic options</button>`;
+        html += `</div><button onclick="wpick('experiment', ${!d.experiment})" class="text-sm text-coffee-300 underline mt-3">${d.experiment ? 'Hide' : 'Show'} sealed and anaerobic options</button>`;
+        html += `<label class="q">Starter or wild?</label>
+          <div class="grid grid-cols-2 gap-2">${chip('Wild', !c.needsDose && !c.warn, "wsetCulture('none')", 'No culture added')}${chip('Starter culture', c.needsDose || !!c.warn, "wsetCulture('rehydrate')", 'Yeast or bacteria')}</div>`;
+        if (d.culture !== 'none') {
+          const plan = computePlan({ kg: d.cherryKg, yeast: d.culture, dose: d.dose, container: d.vessel });
+          html += `<div class="card mt-3 space-y-3">
+            <select onchange="wsetCulture(this.value)" class="field-lg">${CULTURES.filter(x => x.id !== 'none').map(x => `<option value="${x.id}" ${d.culture === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+            <input value="${esc(d.product)}" oninput="wset('product', this.value)" placeholder="Product name (optional)" class="field-lg">
+            ${c.needsDose ? `<div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div>
+              ${d.cherryKg ? `<div class="text-sm">${planHtml(plan)}</div>` : '<p class="text-sm text-coffee-400">Enter the kg on the first screen to get grams and mixing steps.</p>'}
+              <p class="text-sm text-coffee-400">Check the dose on your product's label.${why(srcLabel(resolve('doseGPerKg')))}</p>` : ''}
+            ${c.warn ? notesHtml([note('red', "Baker's and beer yeast tend to give cheesy or sulphur notes in coffee.", 'Lucia Solis: Producer Toolkit #3')]) : ''}
+          </div>`;
+        }
+        html += `<label class="q">Dries on</label>
+          <div class="flex flex-wrap gap-2">${surfaceOptions().map(x => chip(x, d.surface === x, `wpick('surface', ${esc(JSON.stringify(x))})`)).join('')}</div>`;
         if (sg.cultivar && (sg.cultivar.flavor || sg.cultivar.optMin != null)) {
-          html += `<details class="mt-3"><summary class="text-sm text-coffee-300 underline cursor-pointer">About ${esc(sg.cultivar.name)}</summary>
+          html += `<details class="mt-4"><summary class="text-sm text-coffee-300 underline cursor-pointer">About ${esc(sg.cultivar.name)}</summary>
             <div class="text-sm text-coffee-200 mt-2 space-y-1">${sg.cultivar.optMin != null ? `<p>Best from ${fmt(sg.cultivar.optMin)}${sg.cultivar.optMax ? '–' + fmt(sg.cultivar.optMax) : '+'} m (your entry from World Coffee Research).</p>` : ''}${sg.cultivar.flavor ? `<p>${esc(sg.cultivar.flavor)}.${why(sg.cultivar.flavorRef)}</p>` : ''}</div></details>`;
         }
+        html += next('See the timeline');
       }
-      if (s === 4) {
-        const m = methodOf(d.method), c = cultureOf(d.culture);
-        html += `<p class="text-[15px] text-coffee-300">${esc(d.method)} · ${esc(d.cultivar)} · ${fmt(d.cherryKg)} kg · ${fmt(d.masl)} m <button onclick="wiz.step=3;renderAll()" class="underline ml-1">change</button></p>`;
-        if (m.tank) {
-          const plan = computePlan({ kg: d.cherryKg, yeast: d.culture, dose: d.dose, container: d.vessel });
-          html += `<label class="q">Starter culture</label>
-            <select onchange="wsetCulture(this.value)" class="field-lg">${CULTURES.map(x => `<option value="${x.id}" ${d.culture === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
-            ${c.needsDose ? `<label class="q">Dose</label><div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div><div class="text-sm mt-3">${planHtml(plan)}</div>` : ''}
-            ${c.warn ? `<div class="mt-3">${notesHtml([note('red', "Baker's and beer yeast tend to give cheesy or sulphur notes in coffee.", 'Lucia Solis: Producer Toolkit #3')])}</div>` : ''}
-            <label class="q">Before you start</label>
-            <div class="space-y-2">
-              ${[['water', 'Water is not chlorinated'], ['clean', 'Tanks and tools are clean'], ['soap', 'No scented soap'], ['calib', 'pH meter calibrated (4 and 7)'], ['smell', 'No smoke, fuel or kitchen smells nearby']].map(([k, t]) => `<label class="chk-lg"><input type="checkbox" ${d.checklist[k] ? 'checked' : ''} onchange="wcheck('${k}', this.checked)"> ${t}</label>`).join('')}
-            </div>
-            <p class="text-xs text-coffee-400 mt-1">${why('Lucia Solis: Producer Toolkit #3 (cleaning, water, soap, meters) and #7 (coffee is a sponge).')}</p>
-            <label class="q">Notes <span class="opt">(optional)</span></label><input value="${esc(d.notes)}" oninput="wset('notes', this.value)" class="field-lg">
-            ${wiz.err ? `<p class="text-sm text-rose-300 mt-4">${esc(wiz.err)}</p>` : ''}<button onclick="wnext()" class="btn-big mt-6">See the roadmap <i data-lucide="arrow-right" class="w-5 h-5"></i></button>`;
-        } else {
-          html += `<label class="q">Where will it dry?</label>
-            <div class="flex flex-wrap gap-2">${surfaceOptions().map(x => chip(x, d.surface === x, `wpick('surface', ${esc(JSON.stringify(x))})`)).join('')}</div>
-            <label class="q">Notes <span class="opt">(optional)</span></label><input value="${esc(d.notes)}" oninput="wset('notes', this.value)" class="field-lg">
-            <button onclick="wnext()" class="btn-big mt-6">See the roadmap <i data-lucide="arrow-right" class="w-5 h-5"></i></button>`;
-        }
-      }
-      if (s === 5) {
+      if (s === 2) {
         const m = methodOf(d.method);
         const recipe = d.recipeId ? state.recipes.find(r => r.id === d.recipeId) : null;
-        html += `<p class="text-[15px] text-coffee-300">${esc(d.method)} · ${esc(d.cultivar)} · ${fmt(d.cherryKg)} kg · ${fmt(d.masl)} m <button onclick="wiz.step=3;renderAll()" class="underline ml-1">change</button></p>`;
-        html += roadmapHtml(roadmap({ method: d.method, culture: d.culture, dose: d.dose, kg: d.cherryKg, surface: m.tank ? '' : d.surface, start: Date.now(), recipe }), null);
-        html += `<button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="${m.tank ? 'play' : 'sun'}" class="w-5 h-5"></i> ${m.tank ? 'Start fermenting now' : 'Start drying now'}</button>
-          <p class="text-sm text-coffee-400 mt-2">The app follows this roadmap, reminds you at each step and ticks off the checks as you log them.</p>`;
+        const c = cultureOf(d.culture);
+        html += `<p class="text-[15px] text-coffee-300">${esc(d.cultivar)} · ${fmt(d.masl)} m · ${esc(d.method)} · ${c.id === 'none' ? 'wild' : esc(d.product || 'starter culture')} <button onclick="wiz.step=1;renderAll()" class="underline ml-1">change</button></p>`;
+        html += roadmapHtml(roadmap({ method: d.method, culture: d.culture, product: d.product, dose: d.dose, kg: d.cherryKg, surface: d.surface, start: Date.now(), recipe }), null);
+        if (m.tank) {
+          html += `<details class="card mt-6"><summary class="text-[15px] text-coffee-100 cursor-pointer">Before you start: tank checklist</summary>
+            <div class="space-y-2 mt-3">${[['water', 'Water is not chlorinated'], ['clean', 'Tanks and tools are clean'], ['soap', 'No scented soap'], ['calib', 'pH meter calibrated (4 and 7)'], ['smell', 'No smoke, fuel or kitchen smells nearby']].map(([k, t]) => `<label class="chk-lg"><input type="checkbox" ${d.checklist[k] ? 'checked' : ''} onchange="wcheck('${k}', this.checked)"> ${t}</label>`).join('')}</div>
+            <p class="text-xs text-coffee-400 mt-1">${why('Lucia Solis: Producer Toolkit #3 (cleaning, water, soap, meters) and #7 (coffee is a sponge).')}</p>
+          </details>`;
+        }
+        html += `<button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="play" class="w-5 h-5"></i> Start this lot</button>
+          <p class="text-sm text-coffee-400 mt-2">Starting saves the lot, so the app can remind you at each step. Logging readings is optional.</p>`;
       }
       return html;
     }
@@ -1363,8 +1361,8 @@
         farmer: d.farmer, farm: '', masl: d.masl, cultivar: d.cultivar, cherryKg: d.cherryKg,
         pickedAt: d.pickedAt ? new Date(d.pickedAt).toISOString() : null, arrivedAt: now,
         container: d.container, crushed: d.crushed, warm: d.warm, ripeness: d.ripeness, counts: d.counts,
-        method: d.method, experiment: d.experiment, culture: m.tank ? d.culture : 'none', product: d.product, dose: m.tank && cultureOf(d.culture).needsDose ? d.dose : null, vessel: d.vessel,
-        checklist: d.checklist, notes: d.notes, recipeId: d.recipeId || null,
+        method: d.method, experiment: d.experiment, culture: d.culture, product: d.product, dose: cultureOf(d.culture).needsDose ? d.dose : null, vessel: d.vessel,
+        checklist: d.checklist, notes: d.notes, recipeId: d.recipeId || null, surface: d.surface,
         fermentStart: m.tank ? now : null, readings: [], actions: [], bag: null,
         drying: m.tank ? null : { startAt: now, surface: d.surface || surfaceOptions()[0], target: V('moistureTarget'), weighings: [] },
       };
@@ -1451,49 +1449,87 @@
     // ROADMAP: every step from sorting to bagging, with what to do,
     // how you know it's done, and dates where the forecast allows
     // ---------------------------------------------------------------
-    // p: { method, culture, dose, kg, surface, start (ms), lot (optional), recipe (optional) }
+    // Sourced planning ranges. A saved recipe replaces them.
+    function fermentRange(m, recipe) {
+      if (recipe && recipe.fermentH) return { lo: recipe.fermentH, hi: recipe.fermentH, ref: `Your recipe from ${recipe.fromLot}` };
+      if (m.sealed) return { lo: 36, hi: V('maxHoursSealed'), ref: `Shortest sealed lot in the roaster notes: 36 h (Seven Seeds). Upper end: ${srcLabel(resolve('maxHoursSealed'))}` };
+      return { lo: 6, hi: 72, ref: 'Schwan & Fleet 2014, ch. 10 (6–72 h, depending on temperature)' };
+    }
+    function dryRange(m, surface, recipe) {
+      if (recipe && recipe.dryDays) { const d = Math.round(recipe.dryDays); return { lo: d, hi: d, ref: `Your recipe from ${recipe.fromLot}` }; }
+      if (m.drying === 'parchment') return /raised|bed/i.test(surface || '') ? { lo: 5, hi: 10, ref: 'Schwan & Fleet 2014, ch. 10 (parchment: 5–10 days on raised racks)' } : { lo: 7, hi: 15, ref: 'Schwan & Fleet 2014, ch. 10 (parchment: 7–15 days on patios)' };
+      return { lo: 12, hi: 21, ref: `Schwan & Fleet 2014, ch. 10 (cherry: 12–21 days on patios). Lucia's shaded naturals dried in about 15 days (Making Coffee #71).${m.drying === 'honey' ? ' Honey can dry even slower than a natural (Producer Toolkit #2).' : ''}` };
+    }
+    // What roasters say other mills did for this process, India and Nepal first
+    function otherMills(method, field, max) {
+      const cat = methodOf(method).ref;
+      const lots = ROASTER_LOTS.filter(x => x.p === cat && x[field] !== 'Not stated');
+      const near = lots.filter(x => x.o === 'India' || x.o === 'Nepal');
+      return near.concat(lots.filter(x => !near.includes(x))).slice(0, max || 3).map(x => [`${x.r}, ${x.o}: ${x[field]}`, x.u]);
+    }
+    function shortDate(t) { const d = new Date(t); return `${d.toLocaleDateString([], { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString([], { month: 'short' })}`; }
+
+    // p: { method, culture, product, dose, kg, surface, start (ms), lot (optional), recipe (optional) }
     function roadmap(p) {
-      const S = state.settings, m = methodOf(p.method), l = p.lot;
+      const S = state.settings, m = methodOf(p.method), l = p.lot, c = cultureOf(p.culture);
       const parchment = m.drying === 'parchment';
-      const t0 = p.start;
-      const stages = [];
       const R = k => resolve(k);
+      const now = Date.now();
+      const t0 = p.start;
+      const d0 = new Date(t0); d0.setHours(0, 0, 0, 0);
+      const dayN = t => Math.floor((t - d0.getTime()) / DAY);
+      const span = (a, b) => { const x = dayN(a), y = dayN(b); return { days: x === y ? `Day ${x}` : `Day ${x}–${y}`, dates: x === y ? shortDate(a) : `${shortDate(a)} – ${shortDate(b)}` }; };
+      const starter = c.id === 'none' ? '' : p.product || { rehydrate: 'dry yeast', activate: 'dry yeast', direct: 'direct-pitch culture', lab: 'lactic bacteria', baker: "baker's yeast" }[c.id];
+      const doseText = c.needsDose ? (p.kg ? `${fmt((p.dose ?? V('doseGPerKg')) * p.kg)} g (${fmt(p.dose ?? V('doseGPerKg'), 2)} g/kg)` : `${fmt(p.dose ?? V('doseGPerKg'), 2)} g/kg`) : '';
+      const stages = [];
+
+      // Times: real ones from the lot where they exist, sourced ranges otherwise
+      const fr = fermentRange(m, p.recipe), dr = dryRange(m, p.surface || (l && l.drying && l.drying.surface), p.recipe);
+      const fStart = l ? new Date(l.fermentStart || l.createdAt).getTime() : t0;
+      let fe = null;
+      if (m.tank) {
+        if (l && l.washedAt) fe = [new Date(l.washedAt).getTime(), new Date(l.washedAt).getTime()];
+        else fe = [Math.max(fStart + fr.lo * HOUR, l ? now : 0), Math.max(fStart + fr.hi * HOUR, l ? now : 0)];
+      }
+      const ds = l && l.drying ? [new Date(l.drying.startAt).getTime(), new Date(l.drying.startAt).getTime()] : m.tank ? fe : [t0, t0];
+      let de, deFromWeights = false;
+      if (l && l.bag) de = [new Date(l.bag.at).getTime(), new Date(l.bag.at).getTime()];
+      else {
+        const di = l && l.drying ? dryingInfo(l) : null;
+        if (di && di.eta) { de = [di.eta.getTime(), di.eta.getTime()]; deFromWeights = true; }
+        else de = [ds[0] + dr.lo * DAY, ds[1] + dr.hi * DAY];
+        if (l && l.drying) de = [Math.max(de[0], now), Math.max(de[1], now)];
+      }
 
       // 1. Sort
-      const sort = { key: 'sort', title: m.drying === 'cherry' ? 'Sort the cherry' : 'Sort and pulp', icon: 'filter', todo: [], done: [] };
-      sort.when = l ? `Done ${dayLabel(l.createdAt)}` : `Now, within ${R('pickToProcessH').v} h of picking`;
+      const sort = { key: 'sort', title: m.drying === 'cherry' ? 'Sort the cherry' : 'Sort and pulp', ...span(t0, t0), todo: [], done: [] };
       sort.todo.push([`Start within ${R('pickToProcessH').v} h of picking`, srcLabel(R('pickToProcessH'))]);
       sort.todo.push(['Float the cherry and remove the floaters', 'Lucia Solis: Producer Toolkit #2 and #3']);
       sort.todo.push(m.drying === 'cherry' ? ['Pick out overripe cherry before a natural', 'Lucia Solis: Making Coffee #71'] : ['Pick out green and overripe cherry', 'Lucia Solis: Producer Toolkit #2 and #3']);
       if (m.drying !== 'cherry') sort.todo.push([`Pulp it. Quality drops if pulping waits past ${R('pickMaxH').v} h from picking`, srcLabel(R('pickMaxH'))]);
       if (m.drying === 'honey') sort.todo.push(['Leave the mucilage on the parchment', 'Lucia Solis: Producer Toolkit #2']);
+      if (!m.tank && c.needsDose) sort.todo.push([`Apply the starter (${starter}) to the coffee: ${doseText}`, c.ref]);
       stages.push(sort);
 
-      // 2. Ferment (tank methods only)
-      let fermentEnd = null;
+      // 2. Ferment and wash
       if (m.tank) {
-        const f = { key: 'ferment', title: m.sealed ? 'Ferment, sealed' : 'Ferment in the tank', icon: 'flask-conical', todo: [], done: [] };
-        const range = m.sealed ? `up to about ${R('maxHoursSealed').v} h` : 'usually 6–72 h, depending on temperature';
-        const rangeRef = m.sealed ? srcLabel(R('maxHoursSealed')) : 'Schwan & Fleet 2014, ch. 10';
-        if (l && l.washedAt) f.when = `Done after ${fmt(fermentHours(l))} h`;
-        else if (l) f.when = `Started ${when(l.fermentStart || l.createdAt)} · ${range}`;
-        else f.when = p.recipe && p.recipe.fermentH ? `Starts now · your recipe took ${fmt(p.recipe.fermentH)} h` : `Starts now · ${range}`;
-        f.whenRef = rangeRef;
-        if (l && l.washedAt) fermentEnd = new Date(l.washedAt).getTime();
-        const c = cultureOf(p.culture);
-        if (c.needsDose && p.kg) {
-          const plan = computePlan({ kg: p.kg, yeast: p.culture, dose: p.dose, container: 'barrel' });
-          f.todo.push([`Add ${fmt(plan.grams)} g of ${c.name.split(' (')[0].toLowerCase()}: ${plan.steps.join(' ')}`, c.ref]);
+        const f = { key: 'ferment', title: `${m.sealed ? 'Ferment sealed' : 'Ferment'}, ${starter ? 'with ' + starter : 'wild'}`, ...span(fStart, fe[1]), todo: [], done: [] };
+        f.expect = [l && l.washedAt ? `Took ${fmt(fermentHours(l))} h` : `Usually ${fr.lo === fr.hi ? fmt(fr.lo) : fmt(fr.lo) + '–' + fmt(fr.hi)} h. The pH tells you when it's done, not the clock.`, fr.ref];
+        if (c.needsDose) {
+          const plan = p.kg ? computePlan({ kg: p.kg, yeast: p.culture, dose: p.dose, container: 'barrel' }) : null;
+          f.todo.push([`Add ${doseText} of ${starter}.${plan ? ' ' + plan.steps.join(' ') : ''}`, c.ref]);
+          f.todo.push(["Starters can shorten or lengthen it: a fast commercial microbe cut one cold mill's fermentations from 100 h to 24 h, and at Shira a yeast let them go from 12 h to 48 h for more flavour", 'Lucia Solis: Producer Toolkit #3']);
         }
-        f.todo.push(['Check pH at the start, at about 12 h and 24 h, then at least twice a day', 'Lucia Solis: Producer Toolkit #3']);
-        if (S.thermometer) f.todo.push([`Check the tank temperature with each pH reading. Alert above ${R('tempMax').v} °C`, srcLabel(R('tempMax'))]);
+        f.todo.push(['Check pH twice a day, in the morning and at the end of the day', 'Lucia Solis: Producer Toolkit #3 (at least twice a day; she checks morning, midday and end of day)']);
+        if (S.thermometer) f.todo.push([`Check the tank temperature at the same time. Alert above ${R('tempMax').v} °C`, srcLabel(R('tempMax'))]);
         if (m.sealed && S.extraInstruments) f.todo.push([`Vent if the pressure passes ${R('pressureMax').v} PSI`, srcLabel(R('pressureMax'))]);
         f.done.push([`pH is ${R('phEndpoint').v} or lower`, srcLabel(R('phEndpoint'))]);
         if (parchment) f.done.push(['Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10']);
+        f.others = otherMills(p.method, 'f');
         stages.push(f);
         if (parchment) {
-          const w = { key: 'wash', title: 'Wash', icon: 'droplets', todo: [], done: [] };
-          w.when = l && l.washedAt ? `Done ${when(l.washedAt)}` : 'As soon as the fermentation is ready';
+          const w = { key: 'wash', title: 'Wash', ...span(fe[0], fe[1]), todo: [], done: [] };
+          w.expect = [l && l.washedAt ? `Done ${when(l.washedAt)}` : 'As soon as the fermentation is ready', ''];
           w.todo.push(['Wash off the fermented mucilage', '']);
           w.todo.push([`Start drying within ${R('washToDryMaxH').v} h of washing`, srcLabel(R('washToDryMaxH'))]);
           stages.push(w);
@@ -1501,58 +1537,48 @@
       }
 
       // 3. Dry
-      const need = R(parchment ? 'dryDaysWashed' : 'dryDaysNatural');
-      const d = { key: 'dry', title: `Dry${p.surface || (l && l.drying && l.drying.surface) ? ' on ' + (p.surface || l.drying.surface).toLowerCase() : ''}`, icon: 'sun', todo: [], done: [] };
-      let dryStart = l && l.drying ? new Date(l.drying.startAt).getTime() : (m.tank ? fermentEnd : t0);
-      let dryEnd = null, endFromWeights = false;
-      if (l && l.drying) { const di = dryingInfo(l); if (di.eta) { dryEnd = di.eta.getTime(); endFromWeights = true; } }
-      if (!dryEnd && dryStart) dryEnd = dryStart + need.v * DAY;
-      if (l && l.bag) d.when = `Done in ${fmt((new Date(l.bag.at) - new Date(l.drying.startAt)) / DAY)} days`;
-      else if (dryStart && !endFromWeights && dryEnd < Date.now()) d.when = `${dryLabel(dryStart)} → expected around ${dayLabel(dryEnd)}. Check if it's dry`;
-      else if (dryStart) d.when = `${dryLabel(dryStart)} → ${endFromWeights ? 'about ' + dayLabel(dryEnd) + ' from your weighings' : 'around ' + dayLabel(dryEnd) + ` (about ${need.v} days)`}`;
-      else d.when = `After washing · about ${need.v} days`;
-      d.whenRef = endFromWeights ? 'At the latest drying rate. Below about 20% drying slows down (Lucia Solis, Producer Toolkit #2).' : srcLabel(need);
-      // Forecast inside the drying window
+      const surf = p.surface || (l && l.drying && l.drying.surface);
+      const d = { key: 'dry', title: `Dry${surf ? ' on ' + surf.toLowerCase() : ''}`, ...span(ds[0], de[1]), todo: [], done: [] };
+      d.expect = l && l.bag ? [`Took ${fmt((new Date(l.bag.at) - new Date(l.drying.startAt)) / DAY)} days`, '']
+        : deFromWeights ? [`Ready about ${dayLabel(de[0])}, from your weighings`, 'At the latest drying rate. Below about 20% drying slows down (Lucia Solis, Producer Toolkit #2).']
+        : [`Usually ${dr.lo === dr.hi ? dr.lo : dr.lo + '–' + dr.hi} days`, dr.ref];
       const sum = wxSummary(72);
       if (sum && !(l && l.bag)) {
-        const from = dryStart || t0, to = (dryEnd || (t0 + (need.v + 3) * DAY));
-        const poor = sum.days.filter(x => x.sunset >= from && x.sunrise <= to && x.outlook === 'poor');
+        const poor = sum.days.filter(x => x.sunset >= ds[0] && x.sunrise <= de[1] && x.outlook === 'poor');
         const last = sum.days[sum.days.length - 1];
-        d.forecast = poor.length ? `Poor drying days in the forecast: ${poor.map(x => new Date(x.sunrise).toLocaleDateString([], { weekday: 'short' }) + ' ' + new Date(x.sunrise).getDate()).join(', ')}. The app reminds you to cover.` : 'No poor drying days in the forecast for this window.';
-        if (last && to > last.sunset) d.forecast += ` The forecast only runs to ${dayLabel(last.sunrise)}.`;
+        d.forecast = poor.length ? `Poor drying days in the forecast: ${poor.map(x => shortDate(x.sunrise).replace(/ \S+$/, '')).join(', ')}. The app reminds you to cover.` : 'No poor drying days in the forecast for these dates.';
+        if (last && de[1] > last.sunset) d.forecast += ` The forecast only runs to ${shortDate(last.sunrise)}.`;
       }
       const seed = seedLimitFor(m.drying);
-      d.todo.push(['Spread it out at sunrise in thin layers, about 10 cm', 'ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
-      d.todo.push(['Rake 8–10 times a day', 'Schwan & Fleet 2014, ch. 10']);
-      d.todo.push(['Pile and cover before sunset', 'ATI Philippines 2007; Hackler & Särchen 2025']);
-      d.todo.push(['Pile and cover before rain. The app reminds you from the forecast', 'Forecast: Open-Meteo']);
+      d.todo.push(['Every morning: spread it out in thin layers, about 10 cm', 'ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Through the day: rake 8–10 times', 'Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Every evening: pile and cover before sunset', 'ATI Philippines 2007; Hackler & Särchen 2025']);
+      d.todo.push(['Before rain: pile and cover. The app reminds you from the forecast', 'Forecast: Open-Meteo']);
       d.todo.push([`Keep the seed at or below ${seed.v} °C${S.setup.shade ? '. Shade cloth on in strong sun' : ''}`, srcLabel(seed)]);
       if (m.drying === 'cherry') d.todo.push(["Light shade helps: Lucia's shaded lots dried in about 15 days under roughly 30–40% shade", 'Lucia Solis: Making Coffee #71']);
       if (S.setup.dryer) d.todo.push([`With the dryer: use it first, then move to the patio at about ${R('dryerSwitch').v}%`, srcLabel(R('dryerSwitch'))]);
-      d.todo.push(['Weigh and take meter readings once a day, twice a day near the target', srcLabel(R('moistureCheckH'))]);
+      d.todo.push(['From the last few days: weigh it and take meter readings to see when it is ready', 'Tool heuristic']);
       d.done.push([`Meter reads ${R('moistureTarget').v}% or less in ${R('meterSpots').v} spots`, srcLabel(R('moistureTarget'))]);
       d.done.push([`The reading still holds ${R('holdHours').v} h later`, srcLabel(R('holdHours'))]);
       d.done.push(['The beans feel hard and brittle', 'ATI Philippines 2007']);
+      d.others = otherMills(p.method, 'd');
       stages.push(d);
 
       // 4. Bag and rest
-      const b = { key: 'bag', title: 'Bag and rest', icon: 'package', todo: [], done: [] };
-      b.when = l && l.bag ? `Bagged ${dayLabel(l.bag.at)}` : dryEnd && !endFromWeights ? `Around ${dayLabel(dryEnd)}` : dryEnd ? `About ${dayLabel(dryEnd)}` : 'When the drying checks pass';
+      const b = { key: 'bag', title: 'Bag and rest', ...span(de[0], de[1]), todo: [], done: [] };
+      b.expect = [l && l.bag ? `Bagged ${dayLabel(l.bag.at)}` : `Then rest several weeks before hulling`, l && l.bag ? '' : 'Hackler & Särchen 2025'];
       b.todo.push(['Use barrier bags (polyethylene plus EVOH)', 'Lucia Solis: Producer Toolkit #7']);
       b.todo.push(['Store away from smoke, fuel and kitchen smells', 'Lucia Solis: Producer Toolkit #7']);
-      b.todo.push(['Rest it for several weeks before hulling', 'Hackler & Särchen 2025']);
       b.todo.push(['Re-check the moisture once a month', 'Tool heuristic']);
-      b.todo.push(['The app saves the lot as a recipe for next time', '']);
+      b.todo.push(['The app saves the lot as a recipe, so next time the timeline uses your own hours and days', '']);
       stages.push(b);
       return stages;
     }
-    function dryLabel(t) { return t <= Date.now() + 12 * HOUR && new Date(t).toDateString() === new Date().toDateString() ? 'Today' : dayLabel(t); }
 
     function currentStage(l) {
       const st = lotStage(l);
       if (st === 'fermenting') return 'ferment';
-      if (st === 'to dry') return 'dry';
-      if (st === 'drying') return 'dry';
+      if (st === 'to dry' || st === 'drying') return 'dry';
       return 'bag';
     }
 
@@ -1561,17 +1587,21 @@
       const order = stages.map(s => s.key);
       const cur = l ? currentStage(l) : null;
       const ci = cur ? order.indexOf(cur) : -1;
-      return `<ol class="mt-2">${stages.map((s, i) => {
+      const total = stages[stages.length - 1].days.replace(/^Day /, '');
+      let html = l ? '' : `<div class="card !p-3 mt-3 text-[15px] text-coffee-100">Roughly <b class="text-white">${total} days</b> from today to bagged coffee, then several weeks of rest.</div>`;
+      return html + `<ol class="mt-4">${stages.map((s, i) => {
         const done = l ? (i < ci || (l.bag && s.key === 'bag')) : false;
-        const now = l ? i === ci && !(l.bag && s.key === 'bag') : i === 0;
+        const now = l ? i === ci && !(l.bag && s.key === 'bag') : false;
         const last = i === stages.length - 1;
-        const dot = done ? 'bg-emerald-500 border-emerald-500 text-white' : now ? 'bg-amber-500 border-amber-500 text-white' : 'border-coffee-600 text-coffee-400 bg-coffee-950';
-        let body = `<div class="flex items-baseline justify-between gap-2"><div class="text-lg font-bold ${done ? 'text-emerald-200' : now ? 'text-white' : 'text-coffee-200'}">${esc(s.title)}</div>${now && l ? '<span class="text-xs font-semibold text-amber-300 flex-shrink-0">NOW</span>' : ''}</div>
-          <div class="inline-why text-sm ${now ? 'text-amber-200' : 'text-coffee-400'}">${esc(s.when || '')}${why(s.whenRef)}</div>`;
-        const list = (items, cls) => items.map(([t, r]) => `<li class="flex gap-2 ${cls}"><span class="text-coffee-500">•</span><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('');
-        const plan = `${s.todo.length ? `<ul class="space-y-1.5 mt-2 text-[15px]">${list(s.todo, 'text-coffee-100')}</ul>` : ''}
+        const dot = done ? 'bg-emerald-500 border-emerald-500 text-white' : now ? 'bg-amber-500 border-amber-500 text-white' : 'border-coffee-600 text-coffee-300 bg-coffee-950';
+        const list = items => items.map(([t, r]) => `<li class="flex gap-2 text-coffee-100"><span class="text-coffee-500">•</span><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('');
+        let body = `<div class="flex items-start justify-between gap-2"><div class="text-lg font-bold leading-tight ${done ? 'text-emerald-200' : 'text-white'}">${esc(s.title)}</div><span class="text-xs font-semibold rounded-full px-2 py-0.5 flex-shrink-0 ${now ? 'bg-amber-500 text-white' : done ? 'bg-emerald-600/30 text-emerald-200' : 'bg-coffee-800 text-coffee-200'}">${done ? 'Done' : now ? 'Now' : s.days}</span></div>
+          <div class="text-sm text-coffee-400">${esc(s.dates)}</div>
+          ${s.expect && s.expect[0] ? `<div class="inline-why text-[15px] ${now ? 'text-amber-200' : 'text-coffee-200'} mt-1">${esc(s.expect[0])}${why(s.expect[1])}</div>` : ''}`;
+        const plan = `${s.todo.length ? `<ul class="space-y-1.5 mt-2 text-[15px]">${list(s.todo)}</ul>` : ''}
           ${s.done.length ? `<div class="mt-3 text-sm text-coffee-400">Done when</div><ul class="space-y-1.5 mt-1 text-[15px]">${s.done.map(([t, r]) => `<li class="flex gap-2 text-emerald-100"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0"></i><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('')}</ul>` : ''}
-          ${s.forecast ? `<p class="text-sm text-sky-200 mt-2">${esc(s.forecast)}</p>` : ''}`;
+          ${s.forecast ? `<p class="text-sm text-sky-200 mt-2">${esc(s.forecast)}</p>` : ''}
+          ${s.others && s.others.length ? `<details class="mt-2"><summary class="text-sm text-coffee-300 underline cursor-pointer">What other mills did</summary><ul class="space-y-1 mt-1 text-sm text-coffee-300">${s.others.map(([t, u]) => `<li>${esc(t)} <a class="underline text-coffee-400" href="${u}" target="_blank" rel="noopener">source</a></li>`).join('')}</ul></details>` : ''}`;
         if (l && now) body += `<div class="mt-3">${actionCard(l)}</div><details class="mt-2"><summary class="text-sm text-coffee-300 underline cursor-pointer">Everything to do in this step</summary>${plan}</details>`;
         else if (l && !done) body += `<details class="mt-1"><summary class="text-sm text-coffee-300 underline cursor-pointer">What you'll do</summary>${plan}</details>`;
         else if (!l) body += plan;
@@ -1591,7 +1621,7 @@
     }
     function lotRoadmap(l) {
       const recipe = l.recipeId ? state.recipes.find(r => r.id === l.recipeId) : null;
-      return roadmap({ method: l.method, culture: l.culture, dose: l.dose, kg: l.cherryKg, surface: l.drying && l.drying.surface, start: new Date(l.createdAt).getTime(), lot: l, recipe });
+      return roadmap({ method: l.method, culture: l.culture, product: l.product, dose: l.dose, kg: l.cherryKg, surface: l.drying ? l.drying.surface : l.surface, start: new Date(l.createdAt).getTime(), lot: l, recipe });
     }
 
     function surfaceOptions() {
@@ -1604,7 +1634,7 @@
       return (bare ? '' : heading('Start drying')) + `<div class="card space-y-3">
         <form onsubmit="startDrying(event,'${l.id}')" class="space-y-3">
           <div class="text-[15px] text-coffee-100">Where will it dry?</div>
-          <select name="surface" class="field-lg">${surfaceOptions().map(s => `<option>${esc(s)}</option>`).join('')}</select>
+          <select name="surface" class="field-lg">${surfaceOptions().map(s => `<option ${s === l.surface ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
           <button class="btn-big"><i data-lucide="sun" class="w-5 h-5"></i> Start drying now</button>
         </form>
         <p class="text-sm text-coffee-400">Spread in thin layers, about 10 cm, and rake 8–10 times a day.${why('Schwan & Fleet 2014, ch. 10')}</p>
