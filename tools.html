@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mill Assistant</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFBF7',
+              100: '#F7F2EA',
+              200: '#E9DEC9',
+              300: '#D5C3A5',
+              400: '#BBA27E',
+              500: '#9E8057',
+              600: '#81633F',
+              700: '#654B2E',
+              800: '#4B3520',
+              900: '#322214',
+              950: '#1C120A',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1C120A; }
+    ::-webkit-scrollbar-thumb { background: #4B3520; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #81633F; }
+    .field { width: 100%; background: #1C120A; border: 1px solid #4B3520; border-radius: 0.5rem; padding: 0.375rem 0.625rem; font-size: 16px; color: #E9DEC9; }
+    @media (min-width: 640px) { .field { font-size: 0.8125rem; } }
+    .field:focus { outline: none; border-color: rgba(245, 158, 11, 0.5); }
+    .lbl { display: block; font-size: 0.6875rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #BBA27E; margin-bottom: 0.25rem; }
+    .card { background: rgba(50, 34, 20, 0.6); border: 1px solid rgba(75, 53, 32, 0.8); border-radius: 0.75rem; padding: 1rem; }
+    .btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.4rem 0.75rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; transition: background 0.15s; }
+    .btn-primary { background: #D97706; color: #fff; }
+    .btn-primary:hover { background: #B45309; }
+    .btn-ghost { background: #322214; color: #D5C3A5; border: 1px solid #4B3520; }
+    .btn-ghost:hover { background: #4B3520; color: #fff; }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+    .src { font-size: 0.625rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; }
+    .chk { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; color: #E9DEC9; }
+    table.data td, table.data th { padding: 0.375rem 0.5rem; text-align: left; white-space: nowrap; }
+    table.data th { font-size: 0.6875rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; color: #BBA27E; font-weight: 500; }
+    table.data tbody tr { border-top: 1px solid rgba(75, 53, 32, 0.6); }
+    table.wrap td { white-space: normal; vertical-align: top; }
+    .mode-open { background: #F59E0B; } .mode-shade { background: #A855F7; } .mode-slow { background: #64748B; }
+    .mode-cover { background: #0EA5E9; } .mode-night { background: #1E293B; }
+    .field-lg { width: 100%; background: #1C120A; border: 1px solid #4B3520; border-radius: 0.75rem; padding: 0.75rem 0.875rem; font-size: 17px; color: #F7F2EA; }
+    .field-lg:focus { outline: none; border-color: rgba(245, 158, 11, 0.6); }
+    .q { display: block; font-size: 1rem; font-weight: 600; color: #F7F2EA; margin: 1.25rem 0 0.5rem; }
+    .opt { font-weight: 400; color: #9E8057; font-size: 0.85rem; }
+    .chip { padding: 0.6rem 0.95rem; border-radius: 0.75rem; border: 1px solid #4B3520; background: #322214; color: #E9DEC9; font-size: 0.95rem; font-weight: 500; }
+    .chip-on { background: #D97706; border-color: #D97706; color: #fff; }
+    .chk-lg { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.875rem; border: 1px solid #4B3520; border-radius: 0.75rem; background: rgba(28, 18, 10, 0.6); font-size: 15px; color: #F7F2EA; }
+    .chk-lg input { width: 1.25rem; height: 1.25rem; accent-color: #D97706; flex-shrink: 0; }
+    .btn-big { display: flex; width: 100%; justify-content: center; align-items: center; gap: 0.5rem; padding: 0.9rem 1rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 600; background: #D97706; color: #fff; }
+    .btn-big:active { background: #B45309; }
+    .btn-big.ghost { background: #322214; color: #E9DEC9; border: 1px solid #4B3520; }
+    .row-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(50, 34, 20, 0.6); border: 1px solid rgba(75, 53, 32, 0.8); }
+    details.why { margin-top: 0.125rem; }
+    .inline-why details.why { display: inline; margin-left: 0.375rem; }
+    .inline-why details.why[open] { display: block; margin-left: 0; }
+    details.why > summary { display: inline; cursor: pointer; font-size: 0.75rem; color: #BBA27E; text-decoration: underline; list-style: none; }
+    details.why > summary::-webkit-details-marker { display: none; }
+    details.why .why-body { margin-top: 0.375rem; padding: 0.5rem 0.625rem; border-left: 2px solid #8A6A3F; background: rgba(138, 106, 63, 0.12); border-radius: 0 0.5rem 0.5rem 0; }
+    details.why .why-r { font-size: 0.875rem; line-height: 1.4; color: #E8DCC8; }
+    details.why .why-s { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; margin-top: 0.25rem; }
+    .navbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0.55rem 0 0.45rem; font-size: 0.72rem; color: #9E8057; }
+    .navbtn.on { color: #F59E0B; }
+  </style>
+</head>
+<body class="bg-coffee-950 text-coffee-100 font-sans min-h-screen antialiased selection:bg-coffee-500 selection:text-white">
+  <header class="sticky top-0 z-40 bg-coffee-950/95 backdrop-blur-md border-b border-coffee-800/60">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2">
+      <button id="backBtn" onclick="goBack()" class="hidden p-2 -ml-2 rounded-lg text-coffee-200" aria-label="Back"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+      <div class="min-w-0 flex-1">
+        <h1 id="pageTitle" class="text-lg font-bold text-white truncate leading-tight">Today</h1>
+        <p id="millName" class="text-xs text-coffee-400 truncate"></p>
+      </div>
+      <a href="index.html" class="p-2 text-amber-400" title="Back to the Processing Matrix"><i data-lucide="flask-conical" class="w-5 h-5"></i></a>
+    </div>
+  </header>
+
+  <main id="view" class="max-w-2xl mx-auto px-4 pt-4 pb-28"></main>
+
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-coffee-950/95 backdrop-blur-md border-t border-coffee-800" style="padding-bottom: env(safe-area-inset-bottom)">
+    <div class="max-w-2xl mx-auto grid grid-cols-4">
+      <button data-nav="today" onclick="setTab('today')" class="navbtn"><i data-lucide="sun" class="w-6 h-6"></i>Today</button>
+      <button data-nav="new" onclick="startWizard()" class="navbtn"><i data-lucide="plus-circle" class="w-6 h-6"></i>New lot</button>
+      <button data-nav="lots" onclick="setTab('lots')" class="navbtn"><i data-lucide="layers" class="w-6 h-6"></i>Lots</button>
+      <button data-nav="more" onclick="setTab('more')" class="navbtn"><i data-lucide="menu" class="w-6 h-6"></i>More</button>
+    </div>
+  </nav>
+
+  <script>
+    // ---------------------------------------------------------------
+    // SOURCES & THRESHOLDS
+    // Each value carries its source. resolve() uses your own setting
+    // first, then the selected preset, the other preset, the toolkit
+    // doc and finally tool heuristics.
+    // ---------------------------------------------------------------
+    const SOURCE_NAMES = {
+      you: 'Your setting',
+      lucia: 'Lucia Solis',
+      research: 'Research & references',
+      toolkit: 'Toolkit doc (unsourced)',
+      tool: 'Tool heuristic'
+    };
+
+    const THRESHOLDS = {
+      phEndpoint:       { label: 'pH endpoint (wash / unload)', unit: '',
+        lucia: [3.5, 'Making Coffee #66', 'Lucia puts a typical fermentation end near pH 3.5, starting from about 5.5–6.'], research: [4.3, 'SLACAN 2025, Arabica fermentation profile', 'In a 2025 trial, submerged washed fermentations reached pH 4.3–4.4 after 72 h (4.7–4.8 when fermented dry).'], toolkit: [4.2, 'Toolkit doc §2.1 (4.2–4.5)', 'The toolkit doc stops washed coffee at pH 4.2–4.5. It cites no source.'] },
+      phFloor:          { label: 'pH low warning', unit: '',
+        research: [3.5, 'Schwan & Fleet 2014, ch. 11 (working range 3.5–5.5)', 'Coffee fermentations run at about pH 3.5–5.5, so lower than 3.5 is past the normal range.'], toolkit: [4.0, 'Toolkit doc §2.1', 'The toolkit doc treats washed coffee below pH 4.0 as a defect risk. It cites no source.'] },
+      tempMax:          { label: 'Fermentation temperature alert', unit: '°C',
+        lucia: [30, 'Producer Toolkit #2 (Manuel Mata alert)', 'Manuel Mata gets a phone alert when a barrel in the sun climbs toward 30 °C. In the episode: "It\'s too hot."'], research: [25, 'Schwan & Fleet 2014, ch. 11 (20–25 °C)', 'Washed coffee is usually fermented under water at 20–25 °C. Higher temperatures speed fermentation up (ch. 10).'], toolkit: [25, 'Toolkit doc §2.3', 'The toolkit doc warns when sealed tanks pass 25 °C, because yeast make heat. It cites no source.'] },
+      phChecksPerDay:   { label: 'pH checks a day', unit: '',
+        lucia: [2, 'Producer Toolkit #3', 'Lucia checks pH at least twice a day (morning, midday and end of day). The pH meter and thermometer are "your eyes inside the fermentation".'], toolkit: [24, 'Toolkit doc §5 (hourly)', 'The toolkit doc asks for hourly readings. It cites no source.'] },
+      stallPh:          { label: 'Stall: pH change under this over 12 h', unit: '',
+        tool: [0.05, '', 'If pH has barely moved in 12 h, the fermentation may have stalled, and slow ferments risk butyric and propionic off-notes (Schwan & Fleet ch. 10). The 0.05 cut-off is my choice.'] },
+      maxHoursOpen:     { label: 'Overdue: open tank fermentation', unit: 'h',
+        lucia: [48, 'Producer Toolkit #3 (Shira 48 h trial)', 'At Shira, a washed lot went from 12 h wild to 48 h with a coffee yeast and tasted more intense. That is the longest open fermentation in her examples.'], research: [72, 'Schwan & Fleet 2014, ch. 10 (6–72 h)', 'Open fermentations take 6–72 h depending on temperature. Past 72 h is outside that range.'], toolkit: [36, 'Toolkit doc §2.1', 'The toolkit doc limit for open tanks. It cites no source.'] },
+      maxHoursSealed:   { label: 'Overdue: sealed fermentation', unit: 'h',
+        research: [120, 'Cenicafé SIAF study', 'In sealed tanks, over 80% of seeds were still alive at 120 h. In open tanks, about 25% were alive by 192 h. Cup scores changed little.'], toolkit: [120, 'Toolkit doc §2.3 (48–120 h)', 'The toolkit doc gives 48–120 h for sealed tanks. It cites no source.'] },
+      washToDryMaxH:    { label: 'Wash to drying start limit', unit: 'h',
+        research: [6, 'Schwan & Fleet 2014, ch. 10', 'Wet parchment that waits more than 6 h between washing and drying risks butyric fermentation.'] },
+      pickToProcessH:   { label: 'Start processing within (from picking)', unit: 'h',
+        research: [12, 'ATI Philippines 2007', 'The guide says to start processing within 12 h of harvest.'] },
+      pickMaxH:         { label: 'Quality drops if pulped later than (from picking)', unit: 'h',
+        research: [48, 'ATI Philippines 2007', 'Pulping delayed more than 48 h deteriorates the beans.'] },
+      ripeTargetPct:    { label: 'Ripe cherry target', unit: '%',
+        lucia: [80, 'Producer Toolkit #2', 'Aim for 80% red ripe, not 100%. Chasing the last 20% costs a lot and throws away good cherry.'] },
+      seedMaxParchment: { label: 'Seed temperature limit: parchment', unit: '°C',
+        lucia: [40, 'Producer Toolkit #2 (after Borém)', 'Lucia follows Flávio Borém: above 40 °C for long, the seed structure bursts and the coffee fades early, as if pre-aged.'], research: [40, 'Schwan & Fleet 2014, ch. 10', 'Parchment should not exceed 40 °C. Sun drying can overshoot this if the coffee is not turned or covered at midday.'] },
+      seedMaxHoney:     { label: 'Seed temperature limit: honey', unit: '°C',
+        lucia: [36, 'Producer Toolkit #2', 'Honeys have a lower limit than washed coffee: Lucia keeps them at or below 36 °C.'] },
+      seedMaxCherry:    { label: 'Seed temperature limit: cherry', unit: '°C',
+        research: [45, 'Schwan & Fleet 2014, ch. 10', 'Cherries (naturals) should not exceed 45 °C.'] },
+      moistureTarget:   { label: 'Drying moisture target', unit: '%',
+        lucia: [11, 'Producer Toolkit #2 (buyer spec)', 'The buyer in the episode only accepts coffee at 11%. One producer arrived at 12–12.5% and spent three days drying it at the buying station.'], research: [12, 'Schwan & Fleet 2014, ch. 10', 'About 12% keeps coffee safe in storage. In humid areas, 10–11% buys more time. Above 12% risks quality and weight loss.'], toolkit: [11, 'Toolkit doc §3 (10.5–11.5%)', 'The toolkit doc target band. It cites no source.'] },
+      dryerSwitch:      { label: 'Dryer first, move to patio at', unit: '%',
+        lucia: [16, 'Producer Toolkit #2', 'Use the dryer first, while the water comes off easily. Below about 20% the water is bound tightly, and heating brittle coffee makes it fade, so finish slowly on the patio from about 16%.'] },
+      dryDaysNatural:   { label: 'Drying days needed: natural', unit: 'days',
+        lucia: [15, 'Making Coffee #71', 'Lucia\'s shaded naturals dried in about 15 days.'], research: [12, 'Schwan & Fleet 2014, ch. 10', 'Cherries take 12–21 days on patios, depending on the climate.'] },
+      dryDaysWashed:    { label: 'Drying days needed: washed', unit: 'days',
+        research: [7, 'Schwan & Fleet 2014, ch. 10', 'Parchment takes 7–15 days on patios and 5–10 days on raised racks.'] },
+      doseGPerKg:       { label: 'Yeast dose', unit: 'g/kg',
+        lucia: [1, 'Producer Toolkit #3', 'Victor Chara uses 500 g of coffee yeast for every 500 kg of pulped coffee.'], research: [1, 'Fermentis SafCoffee data sheet', 'The label rate is 100 g per 100 kg of cherry or pulped coffee. Underdosing lets wild microbes compete.'] },
+      pressureMax:      { label: 'Tank pressure limit', unit: 'PSI',
+        toolkit: [15, 'Toolkit doc §2.3 (5–15 PSI)', 'The toolkit doc keeps sealed tanks at 5–15 PSI. It cites no source. Always use an airlock or valve.'] },
+      // Weather and timing heuristics: starting values, editable in Settings
+      rainProbPct:      { label: 'Cover when rain chance reaches', unit: '%', tool: [60, ''] },
+      rainMmH:          { label: 'Cover when rain per hour reaches', unit: 'mm', tool: [0.5, ''] },
+      shadeSunWm2:      { label: 'Shade when sun reaches', unit: 'W/m²', tool: [700, ''] },
+      shadeAirC:        { label: 'Shade when air reaches', unit: '°C', tool: [30, ''] },
+      vpdOpenKpa:       { label: 'Good open-sun drying above VPD', unit: 'kPa', tool: [0.5, ''] },
+      poorShareMax:     { label: 'Natural/honey risky above this share of poor days', unit: '%', tool: [25, ''] },
+      coldMillC:        { label: 'Cold mill below (72 h mean air)', unit: '°C', tool: [15, ''] },
+      coverLeadMin:     { label: 'Cover reminder lead time', unit: 'min', tool: [30, ''] },
+      moistureCheckH:   { label: 'Moisture check interval while drying', unit: 'h', tool: [24, ''] },
+      holdHours:        { label: 'Dry reading must still hold after', unit: 'h', tool: [18, 'a "next day" check', 'Moisture evens out inside the bean as it rests (SICC), so a reading that still holds the next day is more trustworthy. 18 h is my choice.'] },
+      meterSpots:       { label: 'Meter readings needed per check', unit: 'spots', tool: [3, '"several spots"', 'An average can hide uneven drying, so sample several parts of the lot (SICC). Three spots is my choice.'] },
+      altitudeBand:     { label: 'Recipe matches farms within', unit: 'm', tool: [200, ''] },
+    };
+
+    function resolve(key, preset) {
+      preset = preset || state.settings.preset;
+      const t = THRESHOLDS[key];
+      const ov = state.settings.overrides && state.settings.overrides[key];
+      if (ov != null && ov !== '') return { v: Number(ov), ref: 'edited in Settings', why: 'You changed this value in Settings.', from: 'you', fallback: false };
+      const order = [preset, preset === 'lucia' ? 'research' : 'lucia', 'toolkit', 'tool'];
+      for (const s of order) {
+        if (t[s]) return { v: t[s][0], ref: t[s][1], why: t[s][2] || '', from: s, fallback: s !== preset };
+      }
+      return null;
+    }
+    function srcLabel(r) {
+      if (!r) return '';
+      if (!r.ref) return SOURCE_NAMES[r.from];
+      return r.from === 'tool' ? `${SOURCE_NAMES[r.from]} (${r.ref})` : `${SOURCE_NAMES[r.from]}: ${r.ref}`;
+    }
+    const V = key => resolve(key).v;
+    // The reasoning behind a value, then its source, for why()
+    function explainR(r) { return !r ? '' : r.why || (r.from === 'tool' ? 'A starting value I chose, not from a source. Change it in Settings if it doesn\'t fit your mill.' : ''); }
+    function explain(r) { return r ? `${explainR(r)} ¦ ${srcLabel(r)}` : ''; }
+
+    // ---------------------------------------------------------------
+    // PROCESSES, CULTURES, CULTIVARS, REFERENCE LOTS
+    // ---------------------------------------------------------------
+    const METHODS = [
+      { id: 'Washed', tank: true, drying: 'parchment', main: true, ref: 'washed', gloss: [3, 'The mucilage comes off before drying, by fermentation or by machine. Everything else can vary, including time.'] },
+      { id: 'Natural', tank: false, drying: 'cherry', main: true, ref: 'natural', gloss: [2, 'The coffee dries with its skin and pulp on. "Natural" usually means no extra fermentation steps before drying.'] },
+      { id: 'Honey', tank: false, drying: 'honey', main: true, ref: 'honey', gloss: [4, 'The skin comes off, then the coffee dries with its mucilage still attached. Feran treats honey and pulped natural as the same method.'] },
+      { id: 'Anaerobic washed', tank: true, sealed: true, drying: 'parchment', ref: 'anaerobic washed', gloss: [6, 'Named for fermenting with little oxygen in a closed container. Fully oxygen-free is hard to reach, so "anoxic" is often more accurate.'] },
+      { id: 'Anaerobic natural', tank: true, sealed: true, drying: 'cherry', ref: 'anaerobic natural', gloss: [6, 'Named for fermenting with little oxygen in a closed container. Fully oxygen-free is hard to reach, so "anoxic" is often more accurate.'] },
+      { id: 'Carbonic maceration', tank: true, sealed: true, drying: 'cherry', ref: 'carbonic maceration', gloss: [5, 'Named after the Beaujolais winemaking practice: whole cherry sealed in a vessel flushed with CO₂, so the first fermentation happens inside the cherry.'] },
+      { id: 'Other', tank: true, drying: 'parchment', ref: 'other' },
+    ];
+    const methodOf = id => METHODS.find(m => m.id === id) || METHODS[METHODS.length - 1];
+
+    const BARREL_KG = 42.5; // 40–45 kg per barrel, Producer Toolkit #3
+
+    const CULTURES = [
+      { id: 'none', name: 'None (wild)', prep: () => [] },
+      { id: 'rehydrate', name: 'Dry yeast, rehydrate first (e.g. SafCoffee)', needsDose: true,
+        prep: (g) => [
+          `Rehydrate ${fmt(g)} g of yeast in ${fmt(g * 10 / 1000, 1)} L of clean, unchlorinated water at 10–25 °C (10× its weight).`,
+          'Stir gently, then rest 15–30 min.',
+          'Add the starter while mixing the tank.'
+        ], ref: 'The maker says to rehydrate dry yeast in 10× its weight of clean water at 10–25 °C for 15–30 min before adding it. ¦ Fermentis SafCoffee data sheet' },
+      { id: 'lalcafe', name: 'LalCafé yeast (Lallemand)', needsDose: true,
+        prep: (g) => [
+          `Rehydrate ${fmt(g)} g of yeast in ${fmt(g * 10 / 1000, 1)} L of drinking water at 15–37 °C (10× its weight). Stir gently to break up clumps.`,
+          'Wait at least 10 min, stir again, then wait 10–20 min more.',
+          'After 20–30 min in all, add it while the tank fills, spread evenly.'
+        ], ref: 'Lallemand says to rehydrate in 10× its weight of drinking water at 15–37 °C for 20–30 min, then add it while the tank fills so it spreads evenly. ¦ Scott Labs: LalCafé BSC and Briosa data sheets' },
+      { id: 'activate', name: 'Dry yeast, warm activation (Victor Chara)', needsDose: true,
+        prep: (g, kg, barrels) => [
+          `Heat ${fmt(kg * 14 / 500, 1)} L of water to about 30 °C (14 L per 500 kg).`,
+          `Mix in ${fmt(g)} g of yeast and let it activate for about 10 min.`,
+          barrels > 1 ? `Split the solution evenly: about ${fmt(kg * 14 / 500 / barrels, 2)} L per barrel.` : 'Add all the solution to the tank and mix.'
+        ], ref: 'This is Victor Chara\'s protocol in Huila: warm activation, then one litre of solution per 40–45 kg barrel. ¦ Lucia Solis: Producer Toolkit #3' },
+      { id: 'direct', name: 'Direct-pitch culture (e.g. Novonesis Pichia)', needsDose: true,
+        prep: (g) => [`Apply ${fmt(g)} g straight to the cherry or pulped coffee. No rehydration or waiting needed.`],
+        ref: 'Some coffee cultures are made to go straight onto the coffee, with no rehydration or waiting. ¦ Lucia Solis: Producer Toolkit #3' },
+      { id: 'lab', name: 'Lactic bacteria culture', needsDose: true,
+        prep: (g) => [`Prepare ${fmt(g)} g following the supplier's sheet.`], ref: 'Each bacteria culture has its own preparation, so follow its sheet. ¦ Supplier data sheet' },
+      { id: 'baker', name: "Baker's or beer yeast", warn: true, prep: () => [], ref: 'Bred for dough or grain, these get stressed in an acidic coffee tank and give cheesy or sulphur notes. ¦ Lucia Solis: Producer Toolkit #3' },
+    ];
+    const cultureOf = id => CULTURES.find(c => c.id === id) || CULTURES[0];
+
+    // LalCafé range: [name, maker's claim, source]. All are the maker's or its distributors' words.
+    const LALCAFE = [
+      ['Oro', 'For mill efficiency, or for cup quality with longer fermentations. Robust at low temperatures, so it suits cool and warm climates.', 'LalCafé by Lallemand: Oro product page'],
+      ['Cima', 'Brightness and citrus notes, and more mid-palate mouthfeel. Needs at least 15 °C inside the coffee mass.', 'LalCafé by Lallemand: Cima product page'],
+      ['Intenso', 'Mouthfeel, floral aromas and tropical fruit notes. Builds complexity.', 'LalCafé by Lallemand: Intenso product page'],
+      ['Briosa', 'Balance and mouthfeel while keeping the varietal character. Best at 18–25 °C, for 18–72 h.', 'Scott Labs: LalCafé Briosa data sheet'],
+      ['BSC', 'A clean fermentation with no added flavour, to guard against spoilage. Best at 20–24 °C, at least 15 °C, for 18–48 h.', 'Scott Labs: LalCafé BSC data sheet'],
+      ['Inicio', 'A reliable fermentation in any process, with a touch of fruitiness.', 'Simalem Coffee: LalCafé product list'],
+      ['LDP', 'Made for the dry (natural) process.', 'Simalem Coffee: LalCafé product list'],
+      ['Bacti-Fresh', 'Lactic bacteria (Lactobacillus helveticus), alone or with a LalCafé yeast. Fresh, clean, balanced acidity. Follow its own sheet: the steps here are for the yeasts.', 'Simalem Coffee: LalCafé product list'],
+    ];
+    const LALCAFE_TRIAL = note('amber', "These are the maker's claims. In one 2018 trial in Ethiopia, the coffee with no yeast cupped 89, above Cima (86), Intenso (84) and Oro (83.25).", 'One farm and one season: 2 kg buckets, one roast profile, two cuppers, no statistics. Treat it as a reason to run your own side-by-side, not as a verdict. ¦ The Coffee Blog: Abana trial, Gera, Ethiopia, Dec 2018');
+
+    // Starter cultures and the flavours they push (Hackler & Särchen 2025, Tab. 6.1)
+    const CULTURE_FLAVOURS = [
+      ['Pichia fermentans (yeast)', 'Washed', 'Intense vanilla and floral'],
+      ['Torulaspora delbrueckii (yeast)', 'Anaerobic natural', 'Sweet, citric, caramel'],
+      ['S. cerevisiae with C. parapsilosis (yeasts)', 'Natural / honey', 'Caramel, fruity'],
+      ['Lactiplantibacillus plantarum (bacteria)', 'Washed', 'Fruity, slightly acidic'],
+      ['Leuconostoc mesenteroides (bacteria)', 'Washed', 'Citric, herbal'],
+      ['Kefir (yeasts and bacteria)', 'Re-fermentation', 'Fruity, nutty, acidic, caramel, spicy; depends on time'],
+    ];
+
+    // What each process tends to taste like (Hackler & Särchen 2025, ch. 5–6).
+    // Research descriptions and examples, not promises. Keys are METHODS[].ref.
+    const HS6 = 'Hackler & Särchen 2025, ch. 6';
+    const PROCESS_FLAVOURS = {
+      washed: [['Zesty acidity with clear floral, caramel and fruity notes', 'Fermenting under water adds organic acids, esters and alcohols that become aroma when roasted, and the fruit is gone before drying. ¦ ' + HS6]],
+      natural: [['More body, less acidity and a broader range of fruit, often a "funky" fruitiness', 'The whole fruit ferments as it dries, for longer and with air, so more sugar stays in the bean and more aroma compounds form. ¦ ' + HS6]],
+      honey: [['More body and sweetness and less acidity than a washed coffee', 'The mucilage left on the parchment gives the microbes more to work with and leaves more sugar. ¦ ' + HS6]],
+      'anaerobic washed': [['Anaerobic fermentation gives more fermented, tangy and sour notes', 'Without oxygen, lactic bacteria and yeasts dominate, and the bean ends up with more lactic acid. ¦ ' + HS6], ['One research example tasted floral and fruity, with citrus and sugarcane', 'A single published study, so take it as one data point. ¦ ' + HS6]],
+      'anaerobic natural': [['Anaerobic fermentation gives more fermented, tangy and sour notes', 'Without oxygen, lactic bacteria and yeasts dominate, and the bean ends up with more lactic acid. ¦ ' + HS6], ['One research example tasted floral, fruity, winey, woody, caramel and alcoholic', 'A single published study, so take it as one data point. ¦ ' + HS6]],
+      'carbonic maceration': [['The book groups carbonic maceration with anaerobic fermentation: more fermented, tangy and sour notes', 'Whole cherries ferment in a CO₂-rich tank with little oxygen. SICC\'s Indian carbonic lots below show what that tasted like in practice. ¦ ' + HS6]],
+    };
+    const OFF_NOTES = [
+      ['Vinegar or potato: the wrong microbes took over', 'Some wild microbes make fruit flavours and acidity, others make vinegar and potato defects. Without control, you get whichever wins. ¦ Lucia Solis: Producer Toolkit #3'],
+      ['Onion-like: a fermentation that went wrong, too short or too long', 'Poorly controlled fermentation lets unwanted microbes make off-flavours. ¦ ' + HS6],
+      ['Flat and empty: dried too fast', 'Lucia has tasted coffee dried in one day: "flat and empty". Too much heat bursts the seed and it fades. ¦ Lucia Solis: Producer Toolkit #2'],
+    ];
+
+    const WCR_URL = 'https://varieties.worldcoffeeresearch.org/arabica/varieties';
+    const GAGNE = 'Gagné compared roasters\' published tasting notes for washed lots of each cultivar. A tendency across many lots, not a guarantee. ¦ Gagné 2019, washed lots, roaster tasting notes';
+    const DEFAULT_CULTIVARS = [
+      { name: 'Geisha / Gesha', flavor: 'Leads on floral and fruity notes', flavorRef: GAGNE },
+      { name: 'SL28', flavor: 'Leans blackcurrant and blackberry', flavorRef: GAGNE },
+      { name: 'Bourbon', flavor: 'Reads much like Caturra, with some nutty notes that may come from roasting', flavorRef: GAGNE },
+      { name: 'Caturra', flavor: 'Reads much like Bourbon, with some nutty notes that may come from roasting', flavorRef: GAGNE },
+      { name: 'Ethiopian landrace', flavor: 'Leans floral and lime', flavorRef: GAGNE },
+      { name: 'Typica' }, { name: 'Catuai' }, { name: 'S795 (Sln 795)' }, { name: 'Selection 9' },
+      { name: 'Selection 6' }, { name: 'Selection 5B' }, { name: 'Chandragiri' },
+    ];
+
+    // What roasters say about their lots. Only what each page states; see the
+    // "Roaster processing notes" doc. Not used for defaults or alerts.
+    const ROASTER_LOTS = [
+      // SICC (South India Coffee Company) lot pages: process, cup notes and score as stated
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (Four Strain Yeast)', p: 'carbonic maceration', f: '48 h aerobic whole cherry with four commercial yeasts (three S. cerevisiae, one T. delbrueckii), then 60 h carbonic maceration in a plastic drum at 0.2 bar, plus Lactobacillus casei', d: 'Raised beds in a partly shaded polyhouse, to 11%', t: 'Mulberry compote, grape, rambutan', s: 90, u: 'https://www.sicc.coffee/lots/arabica-natural-four-strain-yeast/' },
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (60 Hours Carbonic Maceration)', p: 'carbonic maceration', f: 'Whole-cherry carbonic maceration with S. cerevisiae in a plastic drum at 0.2 bar (title says 60 h, process table 72 h), then pectinase and a Lactobacillus spray', d: '12 days on raised beds, to 12%', t: 'Blackberry, black cherry, toffee', s: 88, u: 'https://www.sicc.coffee/lots/mooleh-manay-estate-arabica-experimental-60-hours-carbonic-maceration/' },
+      { o: 'India', r: 'SICC', lot: 'Sirangalli community, Coorg, 1,100–1,600 m, Selection 11 (SX 86)', p: 'carbonic maceration', f: '48 h open lactic ferment with L. casei, then 60 h carbonic maceration with T. delbrueckii at 0.2 bar', d: '12 days on raised beds, to 12%', t: 'Passion fruit, tangerine, vanilla', s: 86.5, u: 'https://www.sicc.coffee/lots/sirangalli-community-project-exp-lot-sx-86-project-sirangalli-community-arabica-natural/' },
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (DF87)', p: 'carbonic maceration', f: '48 h open lactic ferment with L. casei, then 60 h carbonic maceration with T. delbrueckii at 0.2 bar', d: '12 days on raised beds, to 12%', t: 'Blackberry, black mission fig, cocoa', s: 86, u: 'https://www.sicc.coffee/lots/mooleh-manay-estate-lot-df87-arabica-natural-sequential-fermented/' },
+      { o: 'India', r: 'SICC', lot: 'Sirangalli community, Coorg, 1,100–1,600 m, Selection 6 and 13', p: 'carbonic maceration', f: '48 h with S. cerevisiae, then 60 h carbonic maceration at 0.2 bar, L. casei afterwards', d: '12 days on raised beds, to 12%', t: 'Pink grapefruit, mandarin orange, vanilla', s: 85.25, u: 'https://www.sicc.coffee/lots/sirangalli-community-project-project-sirangalli-community-arabica-natural-carbonic-macerated/' },
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (Wine Yeast)', p: 'carbonic maceration', f: '72 h whole-cherry carbonic maceration with a wine yeast (S. cerevisiae) at 0.2 bar', d: '12 days on raised beds, to 12%', t: 'Orange zest, brown sugar, green grape', s: 84, u: 'https://www.sicc.coffee/lots/mooleh-manay-estate-exp-lot-48-arabica-natural-wine-yeast-ferment/' },
+      { o: 'India', r: 'SICC', lot: 'Lithanro, Kohima, Nagaland, 1,200–1,450 m, Selection 9', p: 'washed', f: 'Hand-sorted and floated, 24 h fermentation, then washed', d: 'Not stated', t: 'Apple, chocolate, bright acidity', u: 'https://www.sicc.coffee/lots/lithanro-nagaland-24-hours-fermented-washed/' },
+      { o: 'India', r: 'Subko', lot: 'Kalledevarapura Estate, Chikmagalur, 1,280 m, Sln 795', p: 'anaerobic natural', f: 'Picked at 18% Brix. 120 h anaerobic, yeast (not named)', d: '20 days on raised beds, raked regularly', u: 'https://www.subko.coffee/products/kalledevarapura-estate-lot-22-anaerobic-yeast-naturals-medium-roast-pan-india' },
+      { o: 'India', r: 'Subko', lot: 'Badra Estates, Chikmagalur', p: 'honey', f: 'Red honey. Cherries washed, 72 h partially anaerobic, pulped without water', d: '4 days on shaded trays, then drying grounds raked hourly to 10.5–11%', u: 'https://www.subko.coffee/products/project-360-badra-estates-chikmagalur-karnataka-arabica-anaerobic-naturals-medium-copy' },
+      { o: 'India', r: 'Subko', lot: 'Ratnagiri Estate (Project Pearl), 1,310 m, Catuai', p: 'anaerobic natural', f: 'Washed cherries, 38 h anaerobic in stainless steel', d: '25 days on raised beds', u: 'https://www.subko.coffee/products/project-pearl-ratnagiri-estate-karnataka-anaerobic-naturals-medium-roast' },
+      { o: 'India', r: 'Blue Tokai', lot: 'Ratnagiri Estate, 1,300–1,350 m, Catuai', p: 'anaerobic natural', f: '60 h with a custom culture', d: '13 days in a climate-controlled dark room', u: 'https://bluetokaicoffee.com/products/ratnagiri-estate-dark-room-natural' },
+      { o: 'India', r: 'Blue Tokai (listing site)', lot: 'Mooleh Manay Estate', p: 'carbonic maceration', f: 'Yeast inoculated, over 60 h CO₂-rich and oxygen-free', d: '7–10 days on raised beds in a polyhouse', u: 'https://www.thewaytocoffee.com/beans/mooleh-manay-estate-cm-natural' },
+      { o: 'India', r: 'Blue Tokai', lot: 'Kerehaklu Estate, about 1,200 m', p: 'anaerobic natural', f: 'Barrels indoors with one-way airlocks, ambient. Duration not stated', d: 'Raised beds, turned and raked every 45 min', u: 'https://bluetokaicoffee.com/blogs/blue-tokai-coffee-roasters/producer-series-lot-7-kerehaklu-estate' },
+      { o: 'India', r: 'Blue Tokai', lot: 'Riverdale Estate, Shevaroy Hills', p: 'natural', f: 'Floated, 72 h with temperature and pH monitored', d: '25–30 days on raised beds', u: 'https://wholesale.bluetokaicoffee.com/pages/riverdale-estate' },
+      { o: 'India', r: 'Code Black', lot: 'Kerehaklu Estate, Selection 9', p: 'washed', f: 'Overnight cherry ferment, then 35–37 h in lidded barrels with a coffee-blossom starter, stirred every few hours', d: '2 days heavy shade, then a polyhouse', u: 'https://codeblackcoffee.com.au/products/india-kerehaklu-estate-washed-espresso-single-origin' },
+      { o: 'India', r: 'Seven Seeds', lot: 'Ratnagiri Estate', p: 'anaerobic natural', f: '36 h in bioreactors with lab-isolated microbes', d: '25 days on raised beds', u: 'https://sevenseeds.com.au/blogs/seven-seeds-blog/new-release-ratnagiri-estate-india' },
+      { o: 'India', r: 'Ceremony', lot: 'Ratnagiri Estate, 1,340 m, Catuai', p: 'anaerobic washed', f: 'CO₂-purged tanks, 92 h, then 24 h soak (page also says "aerobic")', d: '29 days on raised beds', u: 'https://ceremonycoffee.com/products/honduras-monte-nevado' },
+      { o: 'India', r: 'Black Baza (listing site)', lot: 'BR Hills', p: 'anaerobic washed', f: 'Oxygen-free container. Duration not stated', d: '10–11 days, then rested 2 months', u: 'https://www.thewaytocoffee.com/beans/microlot-36-anaerobic-fermentation-of-washed-arabica' },
+      { o: 'India', r: 'Araku', lot: 'Bakuru village, 3,790–4,362 ft', p: 'honey', f: 'Black honey: nearly all mucilage left on', d: 'Sun-dried slowly. Duration not stated', u: 'https://arakucoffee.in/products/high-altitude' },
+      { o: 'Nepal', r: 'Subko', lot: 'Lekali Estate, Taplejung, 1,350 m', p: 'anaerobic natural', f: '9-day anaerobic in sealed tanks, to about pH 4.0', d: 'About two weeks of sun drying', u: 'https://www.subko.coffee/products/project-everest-lekali-nepal-taplejung-changray-anaerobic' },
+      { o: 'Nepal', r: 'Subko', lot: 'Lekali Estate, Kavre, 1,500 m', p: 'anaerobic washed', f: '24–48 h anaerobic in sealed tanks, to about pH 4.0', d: 'Greenhouse tunnels, to 10–12%', u: 'https://www.subko.coffee/products/project-everest-lekali-estate-nuwakot-nepal-anaerobic-naturals-medium-light-roast-copy' },
+      { o: 'Nepal', r: 'Subko', lot: 'Lekali Estate, Nuwakot, 1,350 m', p: 'anaerobic washed', f: 'LAL CAFE INTENSO yeast dosed by parchment weight, 42 h anaerobic', d: 'Sun-dried 9 days, hermetic bags', u: 'https://www.subko.coffee/products/project-everest-lekali-yasoda-washed-lekali-yeast-yasoda-washed-medium-roast-pan-india' },
+      { o: 'Nepal', r: 'Subko', lot: 'Ghanpokhara, Lamjung, 1,250–1,400 m', p: 'washed', f: 'Dry-fermented in a sealed tank, no yeast, 46 h', d: '15 days on raised beds', u: 'https://www.subko.coffee/products/project-everest-ganga-gurung-lamjung-washed-medium-roast-pan-india' },
+      { o: 'Nepal', r: 'Onyx (listing site)', lot: 'Paachpokhari, Sindhupalchowk, about 1,300 m', p: 'anaerobic natural', f: 'Koji inoculated, 36 h limited oxygen', d: 'About 20 days on raised beds', u: 'https://www.thewaytocoffee.com/beans/nepal-sindhupalchowk-paachpokhari-koji' },
+      { o: 'Nepal', r: 'Coffee Wallas (reseller)', lot: 'Godak Farm, 1,250–1,350 m', p: 'anaerobic natural', f: '"Extended" anaerobic. Duration not stated', d: 'Not stated', u: 'https://theroasterspack.com/collections/buy-canadian-coffee/products/nepal-dip-lama-godak-coffee-wallas-toronto-ontario' },
+      { o: 'Colombia', r: 'Onyx', lot: 'Jairo Arcila, Quindío, 1,500 m, Castillo', p: 'anaerobic washed', f: 'With lychee. Page gives both 36 h and 48 h', d: 'About 20 days on raised beds and patios, below 35 °C', u: 'https://onyxcoffeelab.com/products/colombia-jairo-arcila-lychee' },
+      { o: 'Colombia', r: 'Tim Wendelboe (reseller)', lot: 'Finca Tamana', p: 'washed', f: 'About 24 h in stainless tanks, then 24 h soak', d: '20–30 days under shade nets, to below 11%', u: 'https://sigmacoffee.co.uk/de/products/tim-wendelboe-finca-tamana-caturron' },
+      { o: 'Guatemala', r: 'April', lot: 'El Morito, Jalapa, 2,300 m, Gesha', p: 'washed', f: 'Pulped without water, 120 h below 20 °C, then 14 h soak', d: '18 days on open patios, turned every 20 min', u: 'https://www.aprilcoffeeroasters.com/collections/equipment/products/el-morito-guatemala-extended-fermentation-washed-gesha' },
+      { o: 'Colombia', r: 'Hydrangea', lot: 'Finca Monteblanco, Huila, 1,730 m, Purple Caturra', p: 'anaerobic washed', f: 'Sealed tanks with a fruit and yeast culture, 150 h, stopping before Brix 6 and pH 4', d: 'Not stated', u: 'https://hydrangea.coffee/products/purple-caturra-pina-colada-washed-finca-monteblanco' },
+      { o: 'Ecuador', r: 'Hydrangea', lot: 'Hacienda Santa Gertrudis, Loja, Sidra', p: 'natural', f: '72 h in stainless tanks, reaching pH 4.0', d: 'Staged: tray drying alternating with weeks in vacuum packs and GrainPro', u: 'https://hydrangea.coffee/products/sidra-boost-natural-hacienda-santa-gertrudis' },
+      { o: 'Colombia', r: 'Nomad (reseller)', lot: 'Finca Inmaculada, Valle del Cauca', p: 'other', f: '96 h anaerobic at 18–20 °C, then pulped', d: '12 days on raised beds', u: 'https://sigmacoffee.co.uk/products/nomad-colombia-pink-bourbon' },
+      { o: 'Kenya', r: 'Square Mile', lot: 'Nandi County, 1,850–2,040 m', p: 'washed', f: '48 h after depulping (their usual is 12 h)', d: 'Not stated', u: 'https://shop.eu.squaremilecoffee.com/products/chepsangor-esp' },
+      { o: 'Colombia', r: 'La Cabra / Phil & Sebastian', lot: 'Finca La Negrita, Tolima, 2,000 m, Gesha', p: 'honey', f: 'Not stated', d: '6 weeks (honey) and 5 weeks (semi-washed) in a dark room', u: 'https://philsebastian.com/products/project-iii' },
+    ];
+
+    // Kalimpong season plan, Oct–Jan. From replaying six real seasons (2019–20 to 2024–25) of
+    // Open-Meteo archive weather through this app's own drying outlook, mornings 1 Oct to 31 Jan.
+    // Periods are [from MM-DD, to MM-DD]. It is advice; the live forecast still ranks processes.
+    const REPLAY_SRC = 'Season replay: six seasons of Open-Meteo archive weather (2019–20 to 2024–25) run through this app';
+    const REPLAY_URL = 'https://claude.ai/artifact/6CVSYYqMMPhMccQpRfQsF5';
+    const SEASON_PLAN = {
+      name: 'Kalimpong', lat: 27.06, lon: 88.47,
+      periods: [
+        { from: '10-01', to: '10-15', run: 'Washed. Split the first lots: half wild, half LalCafé Oro.', natural: false, warm: false,
+          why: 'The tail of the monsoon: half of early October\'s poor drying days were rain days. The air is at its warmest (about 19 °C on average), so an open tank ferments well.' },
+        { from: '10-16', to: '11-15', run: 'Washed, and start naturals.', natural: true, warm: false,
+          why: 'From mid-October the app allowed a natural on every morning in all six seasons. November had 84% good drying days and no poor days caused by rain.' },
+        { from: '11-16', to: '11-30', run: 'Washed and naturals. Warm the tank for LalCafé lots.', natural: true, warm: true,
+          why: 'Still the best drying of the season, but from the second half of November the air is below 15 °C for about 45 of every 72 hours, under the 15 °C Lallemand gives as the minimum for its yeast.' },
+        { from: '12-01', to: '12-31', run: 'Naturals, checked each morning. Washed only in a warm tank.', natural: true, warm: true,
+          why: '75% good drying days on average, but in two of six seasons the app allowed a natural on only 45% of December mornings. The air averages about 11 °C.' },
+        { from: '01-01', to: '01-31', run: 'Washed, indoors. Naturals only when the app says yes.', natural: false, warm: true,
+          why: 'The riskiest month for naturals: allowed on 72% of mornings, with up to 7 poor drying days in a row. The air is below 15 °C for about 21 hours a day.' },
+      ],
+    };
+    // The plan for this date, if the mill is at Kalimpong (within about 30 km)
+    function seasonPlan(t) {
+      const m = state.settings.mill;
+      if (m.lat == null || Math.abs(m.lat - SEASON_PLAN.lat) > 0.3 || Math.abs(m.lon - SEASON_PLAN.lon) > 0.3) return null;
+      const d = new Date(t || Date.now()), md = String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      return SEASON_PLAN.periods.find(p => md >= p.from && md <= p.to) || null;
+    }
+    function seasonHtml(compact) {
+      const p = seasonPlan();
+      if (!p) return '';
+      const ref = `${p.why} Grid weather at 1,179 m, not your yard, and a perfect forecast, so real days will be less certain. ¦ ${REPLAY_SRC}`;
+      return `<div class="card mt-4 space-y-1"><div class="text-xs font-semibold uppercase tracking-wide text-coffee-400">This time of season in ${esc(SEASON_PLAN.name)}</div>
+        <div class="inline-why text-[15px] text-white">${esc(p.run)}${why(ref)}</div>
+        ${compact ? '' : `<a href="${REPLAY_URL}" target="_blank" rel="noopener" class="text-sm text-coffee-300 underline">The whole season replay</a>`}</div>`;
+    }
+
+    // ---------------------------------------------------------------
+    // STATE
+    // ---------------------------------------------------------------
+    const STORE_KEY = 'millAssistant.v2';
+    const DEFAULT_SETTINGS = {
+      preset: 'lucia', reliefPsi: 5, overrides: {},
+      mill: { name: 'Kalimpong', lat: 27.06, lon: 88.47 },
+      setup: { patio: true, beds: true, shade: false, covered: false, polyhouse: false, dryer: false },
+      capacityKg: null,
+      processes: ['Washed', 'Natural', 'Honey'],
+      thermometer: false, buying: false, extraInstruments: false,
+    };
+    let state = { settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), lots: [], recipes: [], cultivars: null, weather: null, selectedId: null, tab: 'today', refFilter: 'all' };
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          const s = JSON.parse(raw);
+          state = Object.assign(state, s);
+          state.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), s.settings || {});
+          state.settings.setup = Object.assign({}, DEFAULT_SETTINGS.setup, (s.settings || {}).setup || {});
+          state.settings.mill = Object.assign({}, DEFAULT_SETTINGS.mill, (s.settings || {}).mill || {});
+          if (state.settings.mill.lat == null || state.settings.mill.lon == null) state.settings.mill = Object.assign({}, DEFAULT_SETTINGS.mill);
+        }
+      } catch (e) { /* storage unavailable: run in memory */ }
+      if (!state.cultivars) state.cultivars = DEFAULT_CULTIVARS.map(c => Object.assign({ optMin: null, optMax: null }, c));
+    }
+    function save() {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+    }
+
+    // ---------------------------------------------------------------
+    // HELPERS
+    // ---------------------------------------------------------------
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function fmt(n, d = 0) {
+      if (n == null || isNaN(n)) return '–';
+      return Number(n).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: 0 });
+    }
+    function num(v) { const n = parseFloat(v); return isNaN(n) ? null : n; }
+    function uid(p) { return (p || 'x') + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    const HOUR = 3.6e6, DAY = 864e5;
+    function hoursBetween(a, b) { return (new Date(b) - new Date(a)) / HOUR; }
+    function toLocalInput(d) {
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+    function hm(t) { const d = new Date(t); return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+    function dayLabel(t) { return new Date(t).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }); }
+    function when(t) {
+      const now = Date.now(), d = new Date(t);
+      const sameDay = new Date(now).toDateString() === d.toDateString();
+      const tomorrow = new Date(now + DAY).toDateString() === d.toDateString();
+      return `${sameDay ? 'today' : tomorrow ? 'tomorrow' : dayLabel(t)} ${hm(t)}`;
+    }
+    function lotById(id) { return state.lots.find(l => l.id === id); }
+    function icons() { if (window.lucide) lucide.createIcons(); }
+    function avg(a) { const v = (a || []).filter(x => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; }
+    function parseList(s) { return String(s || '').split(/[,\s;]+/).map(num).filter(x => x != null); }
+    function note(tone, text, ref) { return { tone, text, ref }; }
+
+    const TONE = {
+      red: 'text-rose-200 bg-rose-500/10 border-rose-500/30',
+      amber: 'text-amber-200 bg-amber-500/10 border-amber-500/30',
+      green: 'text-emerald-200 bg-emerald-500/10 border-emerald-500/30',
+      info: 'text-coffee-200 bg-coffee-800/40 border-coffee-700',
+    };
+    const TONE_ICON = { red: 'alert-octagon', amber: 'alert-triangle', green: 'check-circle-2', info: 'info' };
+    function notesHtml(list) {
+      return list.map(a => `<div class="flex gap-2 border rounded-xl p-3 text-[15px] ${TONE[a.tone]}"><i data-lucide="${TONE_ICON[a.tone]}" class="w-4 h-4 flex-shrink-0 mt-0.5"></i><div><div>${esc(a.text)}</div>${why(a.ref)}</div></div>`).join('');
+    }
+
+    // Moisture from weight, assuming constant dry matter.
+    function moistureAt(w0, m0, w) {
+      if (!w0 || !w || m0 == null) return null;
+      return (1 - (w0 * (1 - m0 / 100)) / w) * 100;
+    }
+    function weightAtMoisture(w0, m0, mt) {
+      return w0 * (1 - m0 / 100) / (1 - mt / 100);
+    }
+
+    // ---------------------------------------------------------------
+    // WEATHER (Open-Meteo)
+    // ---------------------------------------------------------------
+    const WX_HOURLY = 'temperature_2m,relative_humidity_2m,dew_point_2m,precipitation_probability,precipitation,cloud_cover,shortwave_radiation,wind_speed_10m,vapour_pressure_deficit,is_day';
+    const WX_DAILY = 'sunrise,sunset,precipitation_probability_max,precipitation_sum,temperature_2m_max,temperature_2m_min,et0_fao_evapotranspiration';
+
+    // Open-Meteo returns local times without an offset; convert to real instants.
+    function parseLocal(s, offSec) {
+      const [d, t = '00:00'] = s.split('T');
+      const [y, m, dd] = d.split('-').map(Number);
+      const [H, M] = t.split(':').map(Number);
+      return Date.UTC(y, m - 1, dd, H, M) - offSec * 1000;
+    }
+
+    async function fetchWeather() {
+      const m = state.settings.mill;
+      if (m.lat == null || m.lon == null) return;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${m.lat}&longitude=${m.lon}&hourly=${WX_HOURLY}&daily=${WX_DAILY}&timezone=auto&forecast_days=16`;
+      wxStatus = 'loading'; if (!typing()) renderAll();
+      try {
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        state.weather = { fetchedAt: new Date().toISOString(), lat: m.lat, lon: m.lon, raw: j };
+        logLotWeather(j);
+        wxStatus = 'ok';
+        save();
+      } catch (e) {
+        wxStatus = 'error: ' + e.message;
+      }
+      wxCache = null;
+      if (!typing()) renderAll();
+    }
+    let wxStatus = '';
+    function typing() { return state.tab === 'new' && wiz && wiz.step !== 3; }
+    let wxCache = null;
+
+    function wx() {
+      const w = state.weather;
+      if (!w || !w.raw || !w.raw.hourly) return null;
+      if (wxCache && wxCache.src === w) return wxCache;
+      const j = w.raw, off = j.utc_offset_seconds || 0, H = j.hourly, D = j.daily;
+      const hours = H.time.map((s, i) => ({
+        t: parseLocal(s, off), key: s.slice(0, 10), hh: s.slice(11, 16),
+        temp: H.temperature_2m[i], rh: H.relative_humidity_2m[i], dew: H.dew_point_2m[i],
+        pp: H.precipitation_probability ? H.precipitation_probability[i] : null, prec: H.precipitation[i],
+        cloud: H.cloud_cover[i], sw: H.shortwave_radiation[i], wind: H.wind_speed_10m[i],
+        vpd: H.vapour_pressure_deficit[i], day: H.is_day[i] === 1,
+      }));
+      hours.forEach(h => Object.assign(h, hourMode(h)));
+      const days = D.time.map((s, i) => {
+        const dh = hours.filter(h => h.key === s && h.day);
+        const dry = dh.filter(h => h.mode === 'open' || h.mode === 'shade').length;
+        const wet = dh.filter(h => h.mode === 'cover').length;
+        const outlook = dry >= 6 && wet <= 1 ? 'good' : (dry < 3 || wet >= 4) ? 'poor' : 'fair';
+        return {
+          key: s, sunrise: parseLocal(D.sunrise[i], off), sunset: parseLocal(D.sunset[i], off),
+          ppMax: D.precipitation_probability_max ? D.precipitation_probability_max[i] : null, precSum: D.precipitation_sum[i],
+          tmax: D.temperature_2m_max[i], tmin: D.temperature_2m_min[i], et0: D.et0_fao_evapotranspiration[i],
+          dry, wet, outlook,
+        };
+      });
+      wxCache = { src: w, hours, days, tz: j.timezone, elevation: j.elevation };
+      return wxCache;
+    }
+
+    // One drying mode per hour. Night: piled and covered (ATI Philippines 2007;
+    // Hackler & Särchen 2025). Daytime thresholds are tool heuristics.
+    function hourMode(h) {
+      if (!h.day) return { mode: 'night', why: 'Night: piled and covered' };
+      if ((h.pp != null && h.pp >= V('rainProbPct')) || (h.prec != null && h.prec >= V('rainMmH'))) {
+        return { mode: 'cover', why: `Rain likely (${fmt(h.pp)}%, ${fmt(h.prec, 1)} mm)` };
+      }
+      if ((h.sw != null && h.sw >= V('shadeSunWm2')) || (h.temp != null && h.temp >= V('shadeAirC'))) {
+        return { mode: 'shade', why: `Strong sun or heat (${fmt(h.sw)} W/m², ${fmt(h.temp)} °C)` };
+      }
+      if (h.vpd != null && h.vpd >= V('vpdOpenKpa')) return { mode: 'open', why: `Good drying air (VPD ${fmt(h.vpd, 2)} kPa)` };
+      return { mode: 'slow', why: `Humid air, slow drying (VPD ${fmt(h.vpd, 2)} kPa)` };
+    }
+    const MODE_LABEL = { open: 'Open sun', shade: 'Shade', slow: 'Slow / humid', cover: 'Cover', night: 'Night (piled)' };
+    const MODE_ACTION = {
+      open: 'Spread thin and rake on schedule.',
+      shade: 'Shade cloth on, rake more often to cool the seed.',
+      slow: 'Thin layers and more raking for airflow. Consider the dryer early.',
+      cover: 'Pile and cover before it starts. Do not let rain re-wet the coffee.',
+      night: 'Piled and covered for the night.',
+    };
+
+    function wxSummary(hoursAhead) {
+      const w = wx(); if (!w) return null;
+      const now = Date.now();
+      const next = w.hours.filter(h => h.t >= now - HOUR && h.t <= now + (hoursAhead || 72) * HOUR);
+      const days = w.days.filter(d => d.sunset >= now);
+      const good = days.filter(d => d.outlook === 'good').length;
+      const fair = days.filter(d => d.outlook === 'fair').length;
+      const poor = days.filter(d => d.outlook === 'poor').length;
+      return {
+        meanT: avg(next.map(h => h.temp)), maxT: next.length ? Math.max(...next.map(h => h.temp)) : null,
+        days, good, fair, poor, n: days.length,
+      };
+    }
+    function sunTimes(ts) {
+      const w = wx();
+      if (w) {
+        const d = w.days.find(x => ts >= x.sunrise - 6 * HOUR && ts < x.sunrise + 18 * HOUR);
+        if (d) return { sunrise: d.sunrise, sunset: d.sunset };
+      }
+      const a = new Date(ts); a.setHours(6, 0, 0, 0);
+      const b = new Date(ts); b.setHours(18, 0, 0, 0);
+      return { sunrise: a.getTime(), sunset: b.getTime(), guessed: true };
+    }
+
+    // ---------------------------------------------------------------
+    // PROCESS SUGGESTION
+    // ---------------------------------------------------------------
+    function cultivarOf(name) {
+      if (!name) return null;
+      const n = name.trim().toLowerCase();
+      return state.cultivars.find(c => c.name.toLowerCase() === n) || null;
+    }
+    function ripeInfo(b) {
+      const c = b.counts || {};
+      const total = (c.green || 0) + (c.hard || 0) + (c.soft || 0) + (c.over || 0);
+      return { total, ripePct: total ? ((c.hard || 0) + (c.soft || 0)) / total * 100 : null, over: c.over || 0 };
+    }
+    function matchingRecipes(cultivar, masl) {
+      if (!cultivar) return [];
+      const band = V('altitudeBand');
+      return state.recipes.filter(r => r.cultivar && r.cultivar.toLowerCase() === cultivar.trim().toLowerCase()
+        && (masl == null || r.masl == null || Math.abs(r.masl - masl) <= band));
+    }
+
+    function suggest(b) {
+      const general = [];
+      const S = state.settings;
+      const preset = S.preset;
+      const sum = wxSummary(72);
+
+      // Time from picking (ATI Philippines 2007)
+      if (b.pickedAt) {
+        const age = hoursBetween(b.pickedAt, b.arrivedAt || new Date());
+        const soon = resolve('pickToProcessH'), max = resolve('pickMaxH');
+        if (age > max.v) general.push(note('red', `Picked ${fmt(age)} h ago. Pulping later than ${max.v} h lowers quality.`, explain(max)));
+        else if (age > soon.v) general.push(note('amber', `Picked ${fmt(age)} h ago. Processing should start within ${soon.v} h of picking.`, explain(soon)));
+      }
+      if (b.container === 'sacks') general.push(note('amber', 'Arrived in sacks. Heavy sacks crush the fruit, leak juice and heat up. Ventilated, stackable baskets of 18–23 kg protect it.', 'Under the weight of a full sack, cherries break and leak juice, which starts a fermentation you didn\'t ask for. Ventilated baskets keep them cooler and stack without crushing. ¦ Lucia Solis: Producer Toolkit #7'));
+      if (b.crushed || b.warm) general.push(note('amber', `Cherry arrived ${[b.crushed && 'crushed', b.warm && 'warm'].filter(Boolean).join(' and ')}. Uncontrolled fermentation may already have started.`, 'Broken, leaking or warm fruit has already started fermenting with whatever microbes are around, before you can control it. ¦ Lucia Solis: Producer Toolkit #7'));
+
+      // Ripeness
+      const ri = ripeInfo(b);
+      const tgt = resolve('ripeTargetPct');
+      const lowRipe = (ri.ripePct != null && ri.ripePct < tgt.v) || ['mixed', 'early', 'late'].includes(b.ripeness);
+      if (ri.ripePct != null) general.push(note(ri.ripePct >= tgt.v ? 'green' : 'amber', `Ripe ${fmt(ri.ripePct)}% on the classifier board (target ${tgt.v}%).`, explain(tgt)));
+      if (lowRipe) general.push(note('amber', 'Lower-quality or mixed cherry: commercial microbes give the biggest lift here (one lot went from 82 to 85), and little on lots already at 89 or more. Remove floaters and overripe cherry first.', 'Commercial microbes lifted an 82-point coffee to 85, but rarely help a coffee already at 89–90. Floating removes the dry and overripe fruit that floats. ¦ Lucia Solis: Producer Toolkit #3 and #2'));
+
+      // Altitude vs cultivar
+      const cv = cultivarOf(b.cultivar);
+      if (cv && b.masl != null && cv.optMin != null && b.masl < cv.optMin) {
+        general.push(note('amber', `Farm at ${fmt(b.masl)} m is below ${cv.name}'s optimal ${fmt(cv.optMin)}${cv.optMax ? '–' + fmt(cv.optMax) : '+'} m. Controlled fermentation with regular pH checks can narrow the gap for lower farms.`, 'Each cultivar has an altitude range where it does best, from the World Coffee Research catalogue (you enter it). Lucia says better fermentation control can help lower farms close part of the gap. ¦ World Coffee Research catalog (your entry); Making Coffee #59'));
+      }
+
+      // Mill temperature from the forecast
+      if (sum && sum.meanT != null) {
+        const cold = resolve('coldMillC'), hot = resolve('tempMax');
+        if (sum.meanT < cold.v) general.push(note('amber', `Cold mill: the next 72 h average ${fmt(sum.meanT, 1)} °C. Expect a longer fermentation (6–72 h depending on temperature). If tank space is short, a commercial yeast selected for cold cut one mill's fermentations from 100 h to 24 h.`, `Fermentation takes 6–72 h depending on temperature, and colder is slower. At a cold mill, tanks stayed busy 100 h until a cold-tolerant coffee yeast cut it to 24 h. ${explainR(cold)} ¦ Schwan & Fleet 2014, ch. 10; Producer Toolkit #3; cold line: ${srcLabel(cold)}`));
+        if (sum.maxT >= hot.v) general.push(note('amber', `Hot spell: air reaches ${fmt(sum.maxT, 1)} °C in the next 72 h. Plan a shorter fermentation and keep tanks in shade.`, `Higher temperatures speed fermentation up, so it can overshoot between checks. ${explainR(hot)} ¦ ${srcLabel(hot)}; Schwan & Fleet 2014, ch. 10`));
+      } else {
+        general.push(note('info', 'Set the mill location in Settings to get weather-based advice.', ''));
+      }
+
+      // Rank processes
+      const runs = S.processes && S.processes.length ? S.processes : ['Washed', 'Natural', 'Honey'];
+      let order = preset === 'research' ? ['Washed', 'Honey', 'Natural'] : ['Washed', 'Natural', 'Honey'];
+      order = order.filter(m => runs.includes(m));
+      if (b.experiment) order = order.concat(['Anaerobic washed', 'Anaerobic natural', 'Carbonic maceration']);
+      const poorMax = resolve('poorShareMax');
+      const ranked = order.map(id => {
+        const notes = []; let ok = true;
+        if (id === 'Washed') notes.push(note('info', 'Washed processing gives better control and generally fewer defects than naturals.', 'The fruit and mucilage come off before drying, and washed coffee dries faster than a natural. ¦ Hackler & Särchen 2025, ch. 5–6'));
+        if (id === 'Natural' || id === 'Honey' || id === 'Anaerobic natural' || id === 'Carbonic maceration') {
+          const need = resolve('dryDaysNatural');
+          if (sum) {
+            const share = sum.n ? sum.poor / sum.n * 100 : 0;
+            const what = id === 'Honey' ? 'A honey' : 'A natural';
+            const reason = `${explainR(need)}${id === 'Honey' ? ' A honey can dry even slower than a natural.' : ''}`, ref = `days: ${srcLabel(need)}${id === 'Honey' ? '; honey: Lucia Solis, Producer Toolkit #2' : ''}`;
+            if (share > poorMax.v) {
+              ok = false;
+              notes.push(note('amber', `${sum.poor} of the next ${sum.n} days look poor for drying (${fmt(share)}%). ${what} needs about ${need.v}+ days of drying.`, `A natural or honey sits on the beds for weeks, and long stretches of wet weather mean mould risk. ${reason} The ${poorMax.v}% cut-off is my choice. ¦ ${ref}; cut-off: ${srcLabel(poorMax)}`));
+            } else {
+              notes.push(note('green', `${sum.good} good, ${sum.fair} fair and ${sum.poor} poor drying days in the next ${sum.n}. ${what} needs about ${need.v}+ days of drying.`, `A natural or honey needs many dry days in a row. The forecast looks good enough for that. ${reason} ¦ Forecast: Open-Meteo; ${ref}`));
+            }
+          }
+          if ((id === 'Natural' || id === 'Anaerobic natural' || id === 'Carbonic maceration') && (ri.over > 0 || b.ripeness === 'late')) notes.push(note('amber', 'Sort out overripe cherry before a natural.', 'Lucia\'s episode on "de-funkifying" naturals starts with sorting out overripe cherry. ¦ Making Coffee #71'));
+        }
+        if (id === 'Honey') {
+          notes.push(preset === 'research'
+            ? note('info', 'Turned daily, honey has a much lower defect risk than a natural.', 'Part of the pulp comes off before drying, unlike a natural, and the book rates its defect risk much lower. ¦ Hackler & Särchen 2025, ch. 5')
+            : note('amber', 'The hardest process: the mucilage is exposed as in a washed, and it can dry even slower than a natural.', 'Lucia calls honey the hardest process: it has the worst part of a washed (exposed, sugary mucilage) and of a natural (slow drying). ¦ Lucia Solis: Producer Toolkit #2'));
+          const seed = resolve('seedMaxHoney');
+          if (!S.setup.shade) notes.push(note('amber', `Needs shade cloth to keep the seed at or below ${seed.v} °C. Your setup has none.`, explain(seed)));
+        }
+        if (id === 'Washed' && sum && sum.n && sum.poor / sum.n > 0.5) notes.push(note('amber', 'More than half the forecast days are poor. Even washed coffee will dry slowly.', 'Slow drying keeps the seed moist for longer, which brings a risk of mould (Producer Toolkit #2). The "more than half" cut-off is my choice. ¦ Tool heuristic'));
+        if (['Anaerobic washed', 'Anaerobic natural', 'Carbonic maceration'].includes(id)) notes.push(note('info', 'Offered because you marked this lot as an experiment.', 'Sealed and anaerobic methods are only shown when you ask for them, because they need more control and more checks. ¦ Design choice'));
+        return { id, ok, notes };
+      });
+      ranked.sort((a, c) => (c.ok - a.ok));
+      return { general, ranked, recipes: matchingRecipes(b.cultivar, b.masl), cultivar: cv };
+    }
+
+    // ---------------------------------------------------------------
+    // LOT STATUS, ALERTS, READY CHECKS
+    // ---------------------------------------------------------------
+    function lotStage(l) {
+      if (l.bag) return 'resting';
+      if (l.drying && l.drying.startAt) return 'drying';
+      if (methodOf(l.method).tank && !l.washedAt) return 'fermenting';
+      return 'to dry';
+    }
+    const STAGE_STYLE = {
+      fermenting: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+      'to dry': 'bg-orange-500/10 text-orange-300 border-orange-500/30',
+      drying: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30',
+      resting: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+    };
+    function maxHoursFor(l) {
+      const m = methodOf(l.method);
+      if (!m.tank) return null;
+      return m.sealed ? resolve('maxHoursSealed') : resolve('maxHoursOpen');
+    }
+    function seedLimitFor(type) {
+      return resolve(type === 'honey' ? 'seedMaxHoney' : type === 'cherry' ? 'seedMaxCherry' : 'seedMaxParchment');
+    }
+    function readingsOf(l) { return (l.readings || []).slice().sort((a, c) => new Date(a.at) - new Date(c.at)); }
+    function fermentHours(l, r) { return hoursBetween(l.fermentStart || l.createdAt, r ? r.at : (l.washedAt || new Date())); }
+
+    function fermentReady(l) {
+      const end = resolve('phEndpoint');
+      const rs = readingsOf(l);
+      const last = rs[rs.length - 1];
+      const needHand = methodOf(l.method).drying === 'parchment';
+      const ph = !!(last && last.ph != null && last.ph <= end.v), hand = !!(last && last.hand);
+      return { end, last, ph, hand, needHand, ready: ph && (hand || !needHand) };
+    }
+
+    function dryingInfo(l) {
+      const d = l.drying || {};
+      const ws = (d.weighings || []).slice().sort((a, c) => new Date(a.at) - new Date(c.at));
+      const target = d.target != null ? d.target : V('moistureTarget');
+      const ref = ws.find(w => w.weight != null && avg(w.meter) != null);
+      const pts = ref ? ws.filter(w => w.weight != null && new Date(w.at) >= new Date(ref.at)).map(w => ({ at: w.at, m: moistureAt(ref.weight, avg(ref.meter), w.weight), w: w.weight })) : [];
+      const targetW = ref ? weightAtMoisture(ref.weight, avg(ref.meter), target) : null;
+      const last = ws[ws.length - 1];
+      const spots = resolve('meterSpots'), hold = resolve('holdHours');
+      const meterOk = !!(last && last.meter && last.meter.length >= spots.v && last.meter.every(x => x <= target));
+      const earlier = last ? ws.filter(w => w !== last && w.meter && w.meter.length && avg(w.meter) <= target && hoursBetween(w.at, last.at) >= hold.v) : [];
+      const holdOk = meterOk && earlier.length > 0;
+      const brittle = !!(last && last.brittle);
+      let eta = null;
+      if (pts.length >= 2) {
+        const a = pts[pts.length - 2], c = pts[pts.length - 1];
+        const rate = (a.m - c.m) / hoursBetween(a.at, c.at);
+        if (rate > 0 && c.m > target) eta = new Date(new Date(c.at).getTime() + (c.m - target) / rate * HOUR);
+      }
+      const estNow = pts.length ? pts[pts.length - 1].m : (last && avg(last.meter));
+      return { ws, target, ref, pts, targetW, last, meterOk, holdOk, brittle, ready: meterOk && holdOk && brittle, eta, estNow, spots, hold };
+    }
+
+    function lotAlerts(l) {
+      const out = [];
+      const st = lotStage(l);
+      const S = state.settings;
+      const c = cultureOf(l.culture);
+      if (c.warn) out.push(note('red', "Baker's or beer yeast in use. In coffee they tend to give stress compounds such as cheesy or sulphur notes.", 'Bread and beer yeasts are bred for warm dough or grain sugars. A coffee tank is acidic, has little oxygen and holds fruit sugars, so they get stressed and make sulphur compounds. ¦ Lucia Solis: Producer Toolkit #3'));
+      if (c.needsDose && l.labelDose != null && l.dose != null && l.dose < l.labelDose) out.push(note('amber', `Dose ${fmt(l.dose, 2)} g/kg is below the label ${fmt(l.labelDose, 2)} g/kg. Underdosing lets wild microbes compete.`, 'Too little starter lets the wild microbes already on the fruit compete with it, so you lose the control you paid for. ¦ Lucia Solis: Producer Toolkit #3; Fermentis'));
+      const chk = l.checklist || {};
+      const missing = [['water', 'unchlorinated water'], ['clean', 'clean tanks'], ['soap', 'no scented soap'], ['calib', 'pH meter calibrated'], ['smell', 'no smoke, fuel or kitchen smells nearby']].filter(([k]) => !chk[k]).map(([, t]) => t);
+      if (!l.sample && missing.length && st === 'fermenting') out.push(note('amber', `Not confirmed: ${missing.join(', ')}.`, 'Chlorine kills the microbes you add, coffee soaks up scents like a sponge, and an uncalibrated pH meter gives you wrong endpoints. ¦ Lucia Solis: Producer Toolkit #3 and #7'));
+
+      if (st === 'fermenting') {
+        const rs = readingsOf(l), last = rs[rs.length - 1];
+        const fr = fermentReady(l);
+        const floor = resolve('phFloor'), tMax = resolve('tempMax');
+        if (last) {
+          if (last.temp != null && last.temp > tMax.v) out.push(note('red', `Tank at ${fmt(last.temp, 1)} °C, above ${tMax.v} °C. Shade or cool it.`, explain(tMax)));
+          if (c.id === 'lalcafe' && last.temp != null && last.temp < 15) out.push(note('amber', `Tank at ${fmt(last.temp, 1)} °C, below the 15 °C LalCafé needs to take hold. Move it somewhere warmer.`, 'Lallemand gives 15 °C inside the coffee as the minimum for its yeasts to establish. ¦ LalCafé by Lallemand: Cima and BSC pages'));
+          if (last.psi != null && last.psi > V('pressureMax')) out.push(note('red', `Pressure ${fmt(last.psi, 1)} PSI is above ${V('pressureMax')} PSI. Vent the tank.`, explain(resolve('pressureMax'))));
+          if (last.ph != null && last.ph < floor.v) out.push(note('red', `pH ${fmt(last.ph, 2)} is below ${floor.v}. Risk of over-fermentation.`, explain(floor)));
+          else if (fr.ph) out.push(note('green', `pH ${fmt(last.ph, 2)} has reached the ${fr.end.v} endpoint. Do the hand test, then wash or unload.`, explain(fr.end)));
+          if (fr.hand) out.push(note('green', 'Hand test passed: the parchment feels gritty, like pebbles. Wash now.', 'Schwan & Fleet 2014, ch. 10'));
+          const prior = rs.filter(r => r.ph != null && hoursBetween(r.at, last.at) >= 12).pop();
+          if (prior && last.ph != null && (prior.ph - last.ph) < V('stallPh') && last.ph > fr.end.v) out.push(note('amber', `pH has barely moved in ${fmt(hoursBetween(prior.at, last.at))} h (${fmt(prior.ph, 2)} → ${fmt(last.ph, 2)}). Slow ferments risk butyric and propionic off-notes.`, 'When fermentation is too slow, butyric or propionic acid can build up, and both hurt quality. ¦ Schwan & Fleet 2014, ch. 10'));
+        }
+        const maxH = maxHoursFor(l);
+        const limit = l.expectedHours || (maxH && maxH.v);
+        const h = fermentHours(l);
+        if (limit && h > limit) out.push(note('amber', `Fermenting for ${fmt(h)} h, past the expected ${limit} h.`, l.expectedHours ? 'The hours you planned for this lot. ¦ Your plan' : explain(maxH)));
+        if (!S.thermometer) {
+          const sum = wxSummary(24);
+          if (sum && sum.maxT != null && sum.maxT >= tMax.v - 5) out.push(note('amber', `No tank thermometer: forecast air reaches ${fmt(sum.maxT, 1)} °C, and a fermenting mass can run warmer than the air.`, 'Microbes give off heat as they work, so the tank can be warmer than the forecast air. ¦ Forecast: Open-Meteo; Schwan & Fleet 2014, ch. 10'));
+        }
+      }
+      if (st === 'to dry' && l.washedAt) {
+        const wd = resolve('washToDryMaxH');
+        const gap = hoursBetween(l.washedAt, new Date());
+        if (gap > wd.v && !l.sample) out.push(note('amber', `Washed ${fmt(gap, 1)} h ago and drying hasn't started (limit ${wd.v} h).`, explain(wd)));
+      }
+      if (st === 'drying') {
+        const di = dryingInfo(l);
+        const seed = seedLimitFor(methodOf(l.method).drying);
+        const lastSeed = di.ws.filter(w => w.seedTemp != null).pop();
+        if (lastSeed && lastSeed.seedTemp > seed.v) out.push(note('red', `Seed at ${fmt(lastSeed.seedTemp, 1)} °C, above ${seed.v} °C. Shade it or lower the dryer air.`, explain(seed)));
+        if (di.ready) out.push(note('green', `Dry: every meter reading is at or below ${di.target}%, it held over ${di.hold.v} h, and it feels hard and brittle. Bag it.`, explain(resolve('moistureTarget'))));
+      }
+      if (st === 'resting' && l.bag && l.bag.type !== 'barrier') {
+        out.push(note('amber', l.bag.type === 'jute'
+          ? 'Stored in jute: coffee can take moisture back up to 15% and pick up a "baggy" taste. Use barrier bags (polyethylene plus EVOH).'
+          : 'Plain polyethylene stops moisture but lets oxygen through, so the coffee ages faster. Barrier bags stop both.', 'Polyethylene is good at stopping moisture but not oxygen. EVOH stops oxygen but not moisture, so barrier bags layer both. ¦ Lucia Solis: Producer Toolkit #7'));
+      }
+      return out;
+    }
+
+    // ---------------------------------------------------------------
+    // REMINDERS
+    // ---------------------------------------------------------------
+    const REM_ICON = { ph: 'test-tube', rake: 'grip-horizontal', spread: 'sunrise', pile: 'sunset', cover: 'umbrella', uncover: 'sun', 'shade-on': 'cloud-sun', 'shade-off': 'sun', moisture: 'droplets', drystart: 'timer', recheck: 'package' };
+
+    function actionDone(l, kind, at) {
+      return (l.actions || []).some(a => a.kind === kind && Math.abs(new Date(a.at) - at) < 3 * HOUR);
+    }
+    function lastAction(l, kind) {
+      const a = (l.actions || []).filter(x => x.kind === kind).map(x => new Date(x.at).getTime());
+      return a.length ? Math.max(...a) : null;
+    }
+
+    function lotReminders(l, horizonH) {
+      const now = Date.now(), end = now + (horizonH || 36) * HOUR, from = now - 6 * HOUR;
+      const out = [];
+      const st = lotStage(l);
+      const S = state.settings;
+      const add = (kind, at, text, ref) => { if (at >= from && at <= end && !actionDone(l, kind, at)) out.push({ lot: l, kind, at, text, ref }); };
+      if (l.sample) return out;
+
+      if (st === 'fermenting') {
+        const rs = readingsOf(l);
+        const base = rs.length ? new Date(rs[rs.length - 1].at).getTime() : new Date(l.fermentStart || l.createdAt).getTime();
+        const iv = resolve('phChecksPerDay');
+        const at = Math.max(nextPhCheck(base + 3 * HOUR, iv.v), now - 6 * HOUR);
+        out.push({ lot: l, kind: 'ph', at, text: `Check pH${S.thermometer ? ' and tank temperature' : ''}${methodOf(l.method).drying === 'parchment' ? ', and do the hand test' : ''}`, ref: explain(iv) });
+      }
+      if (st === 'to dry' && l.washedAt) {
+        const wd = resolve('washToDryMaxH');
+        add('drystart', new Date(l.washedAt).getTime() + wd.v * HOUR, 'Start drying (limit after washing)', explain(wd));
+      }
+      if (st === 'drying') {
+        // Spread at sunrise, pile and cover before sunset (ATI Philippines 2007)
+        for (let k = 0; k < 3; k++) {
+          const s = sunTimes(now + (k - 1) * DAY + 12 * HOUR);
+          add('spread', s.sunrise, 'Spread the coffee out', 'Spread in thin layers, about 10 cm, each morning after the night under cover. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10');
+          add('pile', s.sunset - V('coverLeadMin') * 60000, 'Pile and cover for the night', 'Piled and covered, the coffee is protected from dew and rain overnight. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10');
+        }
+        // Raking 8–10 times a day (Schwan & Fleet ch. 10), spread across daylight
+        const s0 = sunTimes(now);
+        const iv = (s0.sunset - s0.sunrise) / 9;
+        const lr = lastAction(l, 'rake');
+        let next = Math.max(lr ? lr + iv : now, now);
+        for (let k = 0; k < 2; k++) {
+          const s = sunTimes(next);
+          if (next < s.sunrise) next = s.sunrise + iv / 2;
+          if (next > s.sunset) { const t = sunTimes(next + 12 * HOUR); next = t.sunrise + iv / 2; }
+          if (next <= end) out.push({ lot: l, kind: 'rake', at: next, text: 'Rake', ref: 'Raking turns the layer so it dries evenly and doesn\'t overheat on top. The book says 8–10 times a day. ¦ Schwan & Fleet 2014, ch. 10' });
+          break;
+        }
+        // Rain and shade blocks from the forecast
+        const w = wx();
+        if (w) {
+          const hs = w.hours.filter(h => h.t >= now - HOUR && h.t <= end && h.day);
+          const blocks = [];
+          hs.forEach(h => {
+            const b = blocks[blocks.length - 1];
+            if (b && b.mode === h.mode && h.t - b.end <= HOUR) b.end = h.t + HOUR; else blocks.push({ mode: h.mode, start: h.t, end: h.t + HOUR });
+          });
+          blocks.forEach(b => {
+            if (b.mode === 'cover') {
+              add('cover', b.start - V('coverLeadMin') * 60000, `Rain likely ${hm(b.start)}–${hm(b.end)}: pile and cover`, 'Wet coffee on the beds takes longer to dry and risks mould. The rain timing comes from the forecast. ¦ Forecast: Open-Meteo; Schwan & Fleet 2014, ch. 10');
+              if (b.end < sunTimes(b.end).sunset - V('coverLeadMin') * 60000) add('uncover', b.end, 'Rain passing: spread out again', 'Every dry hour counts, so spread it out again once the rain has passed. ¦ Forecast: Open-Meteo');
+            }
+            if (b.mode === 'shade' && S.setup.shade) {
+              add('shade-on', b.start, `Strong sun ${hm(b.start)}–${hm(b.end)}: shade cloth on`, 'Midday sun can push the seed past 40 °C. Shade lowers the peak, and Lucia\'s shaded naturals still dried in about 15 days. ¦ Lucia Solis: Producer Toolkit #2; Making Coffee #71');
+              add('shade-off', b.end, 'Shade cloth off', 'Once the strong sun has passed, open sun dries faster again. ¦ Forecast: Open-Meteo');
+            }
+          });
+        }
+        // Moisture checks
+        const di = dryingInfo(l);
+        const lw = di.last ? new Date(di.last.at).getTime() : new Date(l.drying.startAt).getTime();
+        const near = di.estNow != null && di.estNow <= di.target + 2;
+        const ivm = resolve('moistureCheckH').v * (near ? 0.5 : 1);
+        let mAt = Math.max(lw + ivm * HOUR, now - 6 * HOUR);
+        const ms = sunTimes(mAt);
+        // Weigh in daylight, while the coffee is spread out
+        if (mAt < ms.sunrise) mAt = ms.sunrise + HOUR; else if (mAt > ms.sunset - HOUR) mAt = sunTimes(mAt + 12 * HOUR).sunrise + HOUR;
+        out.push({ lot: l, kind: 'moisture', at: mAt, text: near ? 'Near target: meter readings in several spots, weigh, feel for brittle' : 'Weigh and take meter readings', ref: explain(resolve('moistureCheckH')) });
+      }
+      if (st === 'resting') {
+        const b0 = new Date(l.bag.at).getTime();
+        const lr = lastAction(l, 'recheck');
+        const at = (lr || b0) + 30 * DAY;
+        add('recheck', at, 'Re-check moisture in storage', 'Tool heuristic (monthly)');
+      }
+      return out.filter(r => r.at <= end).sort((a, c) => a.at - c.at);
+    }
+    // pH check times: morning and end of day (plus midday for 3 a day), or evenly spaced for more
+    function nextPhCheck(after, perDay) {
+      for (let k = 0; k < 3; k++) {
+        const st = sunTimes(after + k * DAY);
+        const mid = (st.sunrise + st.sunset) / 2;
+        const slots = perDay >= 4 ? Array.from({ length: Math.round(perDay) }, (_, i) => st.sunrise - 6 * HOUR + i * DAY / Math.round(perDay))
+          : perDay >= 3 ? [st.sunrise + HOUR, mid, st.sunset - HOUR] : perDay >= 2 ? [st.sunrise + HOUR, st.sunset - HOUR] : [st.sunrise + HOUR];
+        const t = slots.find(x => x >= after);
+        if (t) return t;
+      }
+      return after;
+    }
+    function allReminders(h) {
+      return state.lots.flatMap(l => lotReminders(l, h)).sort((a, c) => a.at - c.at);
+    }
+    function doneReminder(lotId, kind) {
+      const l = lotById(lotId);
+      if (kind === 'ph' || kind === 'moisture') { state.selectedId = lotId; state.openForm = kind === 'ph' ? 'ph' : 'weigh'; setTab('lot'); return; }
+      if (kind === 'drystart') { openLot(lotId); return; }
+      l.actions = (l.actions || []).concat([{ kind, at: new Date().toISOString() }]);
+      save(); renderAll();
+    }
+
+    // Calendar export (.ics) so reminders ring with the page closed
+    function icsDate(t) { return new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+    function icsEscape(s) { return String(s).replace(/\\/g, '\\\\').replace(/[,;]/g, m => '\\' + m).replace(/\n/g, '\\n'); }
+    function exportIcs() {
+      const rs = allReminders(48).filter(r => r.at >= Date.now());
+      if (!rs.length) { alert('No upcoming reminders in the next 48 hours.'); return; }
+      const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Mill Assistant//EN', 'CALSCALE:GREGORIAN'];
+      rs.forEach((r, i) => {
+        const title = `${r.text} (${r.lot.code})`;
+        lines.push('BEGIN:VEVENT', `UID:${r.lot.id}-${r.kind}-${r.at}-${i}@mill-assistant`, `DTSTAMP:${icsDate(Date.now())}`,
+          `DTSTART:${icsDate(r.at)}`, `DTEND:${icsDate(r.at + 10 * 60000)}`, `SUMMARY:${icsEscape(title)}`, `DESCRIPTION:${icsEscape(r.ref || '')}`,
+          'BEGIN:VALARM', 'ACTION:DISPLAY', 'TRIGGER:PT0M', `DESCRIPTION:${icsEscape(title)}`, 'END:VALARM', 'END:VEVENT');
+      });
+      lines.push('END:VCALENDAR');
+      download(`mill-reminders-${new Date().toISOString().slice(0, 10)}.ics`, lines.join('\r\n'), 'text/calendar');
+    }
+
+    // In-page alerts while the page is open
+    let notified = {};
+    function enableNotifications() {
+      if (!('Notification' in window)) { alert('This browser does not support notifications.'); return; }
+      Notification.requestPermission().then(() => renderAll());
+    }
+    function tickNotifications() {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const now = Date.now();
+      allReminders(1).filter(r => r.at <= now && r.at > now - 10 * 60000).forEach(r => {
+        const k = `${r.lot.id}-${r.kind}-${Math.round(r.at / 60000)}`;
+        if (notified[k]) return;
+        notified[k] = true;
+        try { new Notification(`${r.text}`, { body: r.lot.code }); } catch (e) { /* ignore */ }
+      });
+    }
+
+    // ---------------------------------------------------------------
+    // CHART (hand-rolled SVG)
+    // ---------------------------------------------------------------
+    function lineChart(points, opts) {
+      const W = 320, H = 150, L = 36, R = 10, T = 12, B = 24;
+      const pts = points.filter(p => p.y != null && p.x != null);
+      if (pts.length === 0) {
+        return `<div class="card !p-3"><div class="text-xs font-mono text-coffee-400 mb-1">${esc(opts.title)}</div><div class="h-[110px] flex items-center justify-center text-xs text-coffee-500">No readings yet</div></div>`;
+      }
+      const xMax = Math.max(...pts.map(p => p.x), opts.xMin || 1);
+      const ys = pts.map(p => p.y);
+      (opts.lines || []).forEach(l => ys.push(l.y));
+      let yMin = Math.min(...ys), yMax = Math.max(...ys);
+      if (yMin === yMax) { yMin -= 1; yMax += 1; }
+      const pad = (yMax - yMin) * 0.1; yMin -= pad; yMax += pad;
+      const sx = x => L + (x / xMax) * (W - L - R);
+      const sy = y => T + (1 - (y - yMin) / (yMax - yMin)) * (H - T - B);
+      const path = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+      let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto max-h-[240px]" role="img" aria-label="${esc(opts.title)}">`;
+      [yMin + pad, (yMin + yMax) / 2, yMax - pad].forEach(t => { svg += `<line x1="${L}" x2="${W - R}" y1="${sy(t)}" y2="${sy(t)}" stroke="#4B3520" stroke-width="0.5"/><text x="${L - 4}" y="${sy(t) + 3}" text-anchor="end" font-size="9" fill="#9E8057" font-family="JetBrains Mono">${fmt(t, opts.dp || 0)}</text>`; });
+      [0, xMax / 2, xMax].forEach(t => { svg += `<text x="${sx(t)}" y="${H - 8}" text-anchor="middle" font-size="9" fill="#9E8057" font-family="JetBrains Mono">${fmt(t)}${opts.xUnit || 'h'}</text>`; });
+      (opts.lines || []).forEach(l => { svg += `<line x1="${L}" x2="${W - R}" y1="${sy(l.y)}" y2="${sy(l.y)}" stroke="${l.color}" stroke-width="1" stroke-dasharray="4 3"/><text x="${W - R}" y="${sy(l.y) - 3}" text-anchor="end" font-size="8.5" fill="${l.color}" font-family="JetBrains Mono">${esc(l.label)}</text>`; });
+      svg += `<path d="${path}" fill="none" stroke="${opts.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      pts.forEach(p => { svg += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="2.5" fill="${opts.color}"><title>${fmt(p.x, 1)}: ${fmt(p.y, opts.dp || 1)}</title></circle>`; });
+      svg += `</svg>`;
+      return `<div class="card !p-3"><div class="text-xs font-mono text-coffee-400 mb-1">${esc(opts.title)}</div>${svg}</div>`;
+    }
+
+    function lalcafeHtml(product) {
+      const sel = LALCAFE.find(([n]) => product === 'LalCafé ' + n);
+      return `<div class="flex flex-wrap gap-2">${LALCAFE.map(([n]) => chip(n, sel && sel[0] === n, `wpick('product', ${esc(JSON.stringify('LalCafé ' + n))})`)).join('')}</div>
+        ${sel ? `<div class="inline-why text-sm text-coffee-200">${esc(sel[1])}${why("The maker's description of this product. ¦ " + sel[2])}</div>` : ''}
+        ${notesHtml([LALCAFE_TRIAL])}`;
+    }
+    function computePlan(p) {
+      const kg = p.kg || 0;
+      const culture = cultureOf(p.yeast);
+      const dose = p.dose != null ? p.dose : V('doseGPerKg');
+      const grams = culture.needsDose ? dose * kg : 0;
+      const barrels = p.container === 'barrel' ? Math.max(1, Math.ceil(kg / BARREL_KG)) : 1;
+      const out = { kg, culture, dose, grams, barrels, steps: [], warnings: [], notes: [] };
+      if (culture.needsDose) out.steps = culture.prep(grams, kg, barrels);
+      if (culture.warn) out.warnings.push("Baker's and beer yeast are made for grain sugars and oxygen. In coffee they tend to produce stress compounds such as cheesy or sulphur notes (Producer Toolkit #3).");
+      if (culture.needsDose && p.labelDose != null && dose < p.labelDose) out.warnings.push(`Dose is below the label rate (${fmt(dose, 2)} vs ${fmt(p.labelDose, 2)} g/kg). Underdosing lets wild microbes compete (Producer Toolkit #3).`);
+      if (p.container === 'barrel' && kg > 900) out.notes.push('Over about 900 kg (2,000 lb) a day, one larger tank is usually easier to manage than many barrels (Producer Toolkit #3).');
+      return out;
+    }
+    function planHtml(plan) {
+      const lines = [];
+      if (plan.culture.needsDose) lines.push(`<div class="flex justify-between"><span class="text-coffee-400">Culture</span><span class="font-mono text-white">${fmt(plan.grams)} g <span class="text-coffee-400">(${fmt(plan.dose, 2)} g/kg)</span></span></div>`);
+      lines.push(`<div class="flex justify-between"><span class="text-coffee-400">Vessels</span><span class="font-mono text-white">${plan.barrels > 1 ? plan.barrels + ' barrels' : '1 vessel'}</span></div>`);
+      let html = `<div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-3 space-y-1">${lines.join('')}</div>`;
+      if (plan.steps.length) html += `<ol class="list-decimal list-inside space-y-1 text-coffee-200 mt-2">${plan.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
+      html += plan.warnings.map(w => `<div class="mt-2 flex gap-2 text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 text-xs"><i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i><span>${esc(w)}</span></div>`).join('');
+      html += plan.notes.map(n => `<div class="mt-2 text-xs text-coffee-300">${esc(n)}</div>`).join('');
+      return html;
+    }
+
+    function recipeFromLot(l) {
+      const rs = readingsOf(l);
+      const lastPh = rs.filter(r => r.ph != null).pop();
+      const temps = rs.map(r => r.temp).filter(x => x != null);
+      const acts = l.actions || [];
+      const dryDays = l.drying && l.bag ? (new Date(l.bag.at) - new Date(l.drying.startAt)) / DAY : null;
+      return {
+        id: uid('r'), at: new Date().toISOString(), fromLot: l.code, lotId: l.id, cultivar: l.cultivar, masl: l.masl, ripeness: l.ripeness,
+        process: l.method, culture: l.culture, product: l.product, dose: l.dose,
+        phEnd: lastPh ? lastPh.ph : null, fermentH: methodOf(l.method).tank && l.washedAt ? fermentHours(l) : null, fermentTemp: avg(temps),
+        surface: l.drying && l.drying.surface, dryDays, finalMoisture: l.bag && l.bag.moisture,
+        rakes: acts.filter(a => a.kind === 'rake').length, covers: acts.filter(a => a.kind === 'pile' || a.kind === 'cover').length,
+        notes: [l.bag && l.bag.notes].filter(Boolean).join(' '), cupScore: l.cupScore ?? null, flavor: l.flavor || '',
+      };
+    }
+    function renderCalc() {
+      const yeastSel = document.getElementById('c_yeast');
+      if (!yeastSel.options.length) {
+        yeastSel.innerHTML = CULTURES.filter(c => c.needsDose).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+        document.getElementById('c_dose').value = V('doseGPerKg');
+      }
+      const target = document.getElementById('m_target');
+      if (target.value === '') target.value = V('moistureTarget');
+      const plan = computePlan({ kg: num(document.getElementById('c_kg').value), yeast: yeastSel.value, dose: num(document.getElementById('c_dose').value), container: document.getElementById('c_container').value });
+      document.getElementById('calcDoseOut').innerHTML = planHtml(plan) + `<p class="src mt-2">Default dose: ${esc(srcLabel(resolve('doseGPerKg')))}. Always check your product's label.</p>`;
+      const w0 = num(document.getElementById('m_w0').value), m0 = num(document.getElementById('m_m0').value), w1 = num(document.getElementById('m_w1').value), mt = num(target.value);
+      const out = document.getElementById('calcMoistOut');
+      if (w0 && m0 != null && w1 && mt != null) {
+        const m1 = moistureAt(w0, m0, w1), wt = weightAtMoisture(w0, m0, mt);
+        out.innerHTML = `<div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-3 space-y-1">
+          <div class="flex justify-between"><span class="text-coffee-400">Target weight at ${fmt(mt, 1)}%</span><span class="font-mono text-white">${fmt(wt, 2)} kg</span></div>
+          <div class="flex justify-between"><span class="text-coffee-400">Moisture at the later weight</span><span class="font-mono text-white">${fmt(m1, 1)}%</span></div>
+          <div class="flex justify-between"><span class="text-coffee-400">Still to lose</span><span class="font-mono text-white">${fmt(Math.max(0, w1 - wt), 2)} kg</span></div>
+        </div><p class="src">Formula: target weight = W × (1 − M) ÷ (1 − target). Target: ${esc(srcLabel(resolve('moistureTarget')))}.</p>`;
+      } else out.innerHTML = '';
+      icons();
+    }
+
+    function setSetting(path, val) {
+      const parts = path.split('.');
+      let o = state.settings;
+      for (let i = 0; i < parts.length - 1; i++) o = o[parts[i]];
+      o[parts[parts.length - 1]] = val;
+      if (path.startsWith('mill.')) { state.weather = null; wxCache = null; }
+      save(); renderHeader();
+      if (path.startsWith('setup.') || path === 'thermometer' || path === 'extraInstruments') renderAll();
+      if (path === 'mill.lat' || path === 'mill.lon') { if (state.settings.mill.lat != null && state.settings.mill.lon != null) fetchWeather(); }
+    }
+    function toggleProcess(id, on) {
+      const p = new Set(state.settings.processes);
+      on ? p.add(id) : p.delete(id);
+      state.settings.processes = METHODS.map(m => m.id).filter(x => p.has(x));
+      save();
+    }
+    function setOverride(k, v) {
+      if (v === '' || v == null) delete state.settings.overrides[k]; else state.settings.overrides[k] = Number(v);
+      wxCache = null; save(); renderAll();
+    }
+    function setCultivar(i, k, v) { state.cultivars[i][k] = v; save(); }
+    function addCultivar() { state.cultivars.push({ name: 'New cultivar', optMin: null, optMax: null }); save(); renderAll(); }
+    function removeCultivar(i) { state.cultivars.splice(i, 1); save(); renderAll(); }
+    function useMyLocation() {
+      if (!navigator.geolocation) { wxStatus = 'This browser cannot share its location. Enter it by hand in Settings.'; renderAll(); return; }
+      wxStatus = 'Finding your location…'; renderAll();
+      navigator.geolocation.getCurrentPosition(p => {
+        state.settings.mill.lat = Math.round(p.coords.latitude * 1e4) / 1e4;
+        state.settings.mill.lon = Math.round(p.coords.longitude * 1e4) / 1e4;
+        state.weather = null; wxCache = null; wxStatus = '';
+        save(); fetchWeather();
+      }, err => { wxStatus = 'Location not available: ' + err.message + '. Enter it by hand in Settings.'; renderAll(); }, { timeout: 15000 });
+    }
+
+    function download(name, text, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function csvRow(vals) { return vals.map(v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(','); }
+    function exportCsv() {
+      const lh = ['lot', 'created', 'farmer', 'farm', 'masl', 'cultivar', 'cherry_kg', 'price', 'picked', 'arrived', 'container', 'ripeness', 'process', 'culture', 'product', 'dose_g_per_kg', 'ferment_hours', 'drying_days', 'final_moisture', 'bag', 'cup_score', 'sample'];
+      const lots = [csvRow(lh)].concat(state.lots.map(l => csvRow([l.code, l.createdAt, l.farmer, l.farm, l.masl, l.cultivar, l.cherryKg, l.price, l.pickedAt, l.arrivedAt, l.container, l.ripeness, l.method, cultureOf(l.culture).name, l.product, l.dose,
+        methodOf(l.method).tank && l.washedAt ? fmt(fermentHours(l), 1) : '', l.drying && l.bag ? fmt((new Date(l.bag.at) - new Date(l.drying.startAt)) / DAY, 1) : '', l.bag && l.bag.moisture, l.bag && l.bag.type, l.cupScore, l.sample ? 'yes' : ''])));
+      const rh = ['lot', 'time', 'kind', 'ph', 'temp_c', 'brix', 'psi', 'weight_kg', 'meter_readings', 'brittle_or_hand_test', 'notes'];
+      const rows = [csvRow(rh)];
+      state.lots.forEach(l => {
+        readingsOf(l).forEach(r => rows.push(csvRow([l.code, r.at, 'fermentation', r.ph, r.temp, r.brix, r.psi, '', '', r.hand ? 'yes' : '', r.smell])));
+        ((l.drying && l.drying.weighings) || []).forEach(w => rows.push(csvRow([l.code, w.at, 'drying', '', w.seedTemp, '', '', w.weight, (w.meter || []).join(' '), w.brittle ? 'yes' : '', w.notes])));
+        (l.actions || []).forEach(a => rows.push(csvRow([l.code, a.at, a.kind, '', '', '', '', '', '', '', ''])));
+      });
+      download('lots.csv', lots.join('\n'), 'text/csv');
+      setTimeout(() => download('lot_log.csv', rows.join('\n'), 'text/csv'), 300);
+    }
+    function exportJson() {
+      download(`mill-assistant-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ version: 2, settings: state.settings, lots: state.lots, recipes: state.recipes, cultivars: state.cultivars }, null, 2), 'application/json');
+    }
+    function importJson(input) {
+      const file = input.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!Array.isArray(data.lots)) throw new Error('No lots in this file');
+          if (!confirm(`Replace your current ${state.lots.length} lots with ${data.lots.length} from the backup?`)) return;
+          state.lots = data.lots; state.recipes = data.recipes || [];
+          if (data.cultivars) state.cultivars = data.cultivars;
+          if (data.settings) state.settings = Object.assign(state.settings, data.settings);
+          state.selectedId = null;
+          save(); renderAll();
+        } catch (err) { alert('Could not read that backup: ' + err.message); }
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+    function clearAll() {
+      if (!confirm('Delete every lot and recipe saved in this browser? Export a backup first if you need it.')) return;
+      state.lots = []; state.recipes = []; state.selectedId = null;
+      save(); renderAll();
+    }
+
+    // Sample lots from Coffee_Processing_Batch_Tracker.xlsx (sample data, not real lots).
+    const SAMPLE_ROWS = [
+      ['BAT-2026-001', '2026-10-01', 'Upper Lot', 1850, 'Geisha / Gesha', 250, 'Washed', 'none', 'Native microbes', 24, 88.5, 'Jasmine, Bergamot, Lemongrass, Clean'],
+      ['BAT-2026-002', '2026-10-03', 'Valley View', 1600, 'Castillo', 500, 'Natural', 'none', 'Spontaneous', 72, 86.25, 'Blueberry, Ripe Plum, Dark Chocolate'],
+      ['BAT-2026-003', '2026-10-05', 'High Ridge', 1900, 'Pink Bourbon', 300, 'Anaerobic washed', 'lab', 'Lactic bacteria (LAB)', 96, 89.75, 'Passion Fruit, Mango, Refreshing Acidity'],
+      ['BAT-2026-004', '2026-10-08', 'Upper Lot', 1850, 'Geisha / Gesha', 200, 'Carbonic maceration', 'none', 'CO2 purged intact', 120, 91, 'Red Cherry, Bubblegum, Papaya, Floral'],
+      ['BAT-2026-005', '2026-10-10', 'East Slope', 1700, 'Caturra', 450, 'Honey', 'none', 'Native yeast', 48, 85.5, 'Honey, Dried Fig, Red Apple, Silky'],
+      ['BAT-2026-007', '2026-10-15', 'Valley View', 1600, 'Cenicafe 1', 600, 'Washed', 'none', 'Native microbes', 18, 84.75, 'Green Apple, Caramel, Milk Chocolate'],
+      ['BAT-2026-009', '2026-10-20', 'East Slope', 1700, 'Typica', 320, 'Natural', 'none', 'Spontaneous', 60, 86, 'Blackberry, Cacao Nibs, Winey'],
+    ];
+    const SAMPLE_CURVE = [ // BAT-2026-004 time series from the tracker
+      [0, 18, 5.8, 21.5, 0, 'Tank sealed; initial CO2 flush'], [12, 18.5, 5.65, 20.8, 2.5, 'Airlock bubbling stably'],
+      [24, 19.2, 5.3, 19, 5, 'Active yeast respiration'], [36, 20.1, 4.95, 16.5, 7.8, 'Fruity ester aroma at gas valve'],
+      [48, 21, 4.6, 13.2, 10.2, 'Peak activity; cooling jacket on'], [60, 20.5, 4.4, 10, 11.5, 'Lactic acid increasing'],
+      [72, 19.8, 4.25, 7.5, 12, 'pH near target'], [84, 19.2, 4.15, 5.2, 12.2, 'Slowing down'], [96, 18.5, 4.1, 4, 12.5, 'Endpoint reached; dump tank & wash'],
+    ];
+    function loadSamples() {
+      removeSamples(true);
+      SAMPLE_ROWS.forEach(([code, date, lot, masl, cultivar, kg, method, culture, product, hours, score, flavor]) => {
+        const start = new Date(date + 'T07:00:00');
+        const m = methodOf(method);
+        const washed = m.tank ? new Date(start.getTime() + hours * HOUR) : null;
+        const dryStart = washed || start;
+        const bagAt = new Date(dryStart.getTime() + (m.drying === 'parchment' ? 12 : 20) * DAY);
+        const l = {
+          id: uid('l'), sample: true, code, createdAt: start.toISOString(), farm: lot, masl, cultivar, cherryKg: kg, method, culture, product,
+          dose: culture === 'none' ? null : 1, fermentStart: m.tank ? start.toISOString() : null, washedAt: washed && washed.toISOString(),
+          readings: [], actions: [], checklist: {}, ripeness: 'ripe', counts: {}, container: 'baskets',
+          drying: { startAt: dryStart.toISOString(), surface: 'Raised beds', target: 11, weighings: [] },
+          bag: bagAt < new Date() ? { at: bagAt.toISOString(), type: 'barrier', moisture: 11 } : null, cupScore: bagAt < new Date() ? score : null, flavor: bagAt < new Date() ? flavor : '', notes: 'Sample data from the batch tracker spreadsheet.',
+        };
+        if (code === 'BAT-2026-004') l.readings = SAMPLE_CURVE.map(([h, temp, ph, brix, psi, notes]) => ({ at: new Date(start.getTime() + h * HOUR).toISOString(), temp, ph, brix, psi, smell: notes, hand: h === 96 }));
+        state.lots.push(l);
+      });
+      save(); setTab('lots');
+    }
+    function removeSamples(silent) {
+      state.lots = state.lots.filter(l => !l.sample);
+      if (state.selectedId && !lotById(state.selectedId)) state.selectedId = null;
+      save();
+      if (silent !== true) renderAll();
+    }
+
+    // ---------------------------------------------------------------
+    // UI HELPERS
+    // ---------------------------------------------------------------
+    // Sources sit behind a small "why?" so the screen stays short
+    // "Reason ¦ Source": the reason is the short note, the source goes underneath
+    function why(ref) {
+      if (!ref) return '';
+      const i = ref.indexOf(' ¦ '), r = i >= 0 ? ref.slice(0, i) : '', src = i >= 0 ? ref.slice(i + 3) : ref;
+      return `<details class="why"><summary>why?</summary><div class="why-body">${r ? `<div class="why-r">${esc(r)}</div>` : ''}${src ? `<div class="why-s">Source: ${esc(src)}</div>` : ''}</div></details>`;
+    }
+    function heading(text, extra) { return `<div class="flex items-center justify-between gap-2 mt-6 mb-2"><h2 class="text-xs font-semibold uppercase tracking-wider text-coffee-400">${text}</h2>${extra || ''}</div>`; }
+    function chip(label, on, onclick, sub) {
+      return `<button type="button" onclick="${onclick}" class="chip ${on ? 'chip-on' : ''} ${sub ? 'text-left' : ''}">${esc(label)}${sub ? `<span class="block text-xs ${on ? 'text-white/80' : 'text-coffee-400'} font-normal">${esc(sub)}</span>` : ''}</button>`;
+    }
+    function tick(ok, text, ref) {
+      return `<div class="flex gap-2.5 items-start py-1.5"><span class="mt-0.5 w-5 h-5 flex-shrink-0 rounded-full border flex items-center justify-center ${ok ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-coffee-600'}">${ok ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}</span><div class="inline-why text-[15px] ${ok ? 'text-emerald-200' : 'text-coffee-100'}">${text}${why(ref)}</div></div>`;
+    }
+    function firstBlock(hours, mode) {
+      const i = hours.findIndex(h => h.mode === mode);
+      if (i < 0) return null;
+      let j = i;
+      while (j + 1 < hours.length && hours[j + 1].mode === mode) j++;
+      return { start: hours[i].t, end: hours[j].t + HOUR };
+    }
+
+    // ---------------------------------------------------------------
+    // TODAY
+    // ---------------------------------------------------------------
+    function locationHtml() {
+      return `<div class="card space-y-3">
+        <div class="flex items-center gap-2 text-white font-semibold text-lg"><i data-lucide="map-pin" class="w-5 h-5 text-amber-400"></i> Where is the mill?</div>
+        <p class="text-[15px] text-coffee-300">The forecast needs the mill's location once. Do this at the mill.</p>
+        <button onclick="useMyLocation()" class="btn-big"><i data-lucide="locate" class="w-5 h-5"></i> Use my location</button>
+        <details><summary class="text-sm text-coffee-300 underline cursor-pointer">Type it in instead</summary>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <input id="latIn" type="number" step="any" inputmode="decimal" placeholder="Latitude" class="field-lg">
+            <input id="lonIn" type="number" step="any" inputmode="decimal" placeholder="Longitude" class="field-lg">
+          </div>
+          <button onclick="saveLatLon()" class="btn-big ghost mt-2">Save</button>
+        </details>
+        ${wxStatus ? `<p class="text-sm text-amber-300">${esc(wxStatus)}</p>` : ''}
+      </div>`;
+    }
+    function saveLatLon() {
+      const lat = num(document.getElementById('latIn').value), lon = num(document.getElementById('lonIn').value);
+      if (lat == null || lon == null) { wxStatus = 'Enter both numbers.'; renderAll(); return; }
+      state.settings.mill.lat = lat; state.settings.mill.lon = lon;
+      state.weather = null; wxCache = null; wxStatus = '';
+      save(); fetchWeather();
+    }
+
+    function weatherHtml() {
+      if (state.settings.mill.lat == null) return locationHtml();
+      const w = wx();
+      if (!w) {
+        return `<div class="card text-[15px] text-coffee-300 space-y-2"><p>${wxStatus === 'loading' ? 'Getting the forecast…' : 'No forecast yet.'}</p>
+          ${wxStatus.startsWith('error') ? '<p class="text-sm text-rose-300">Could not reach the weather service. Try again when there is signal.</p>' : ''}
+          ${wxStatus === 'loading' ? '' : '<button onclick="fetchWeather()" class="btn-big ghost">Try again</button>'}</div>`;
+      }
+      const now = Date.now();
+      const cur = w.hours.find(h => h.t <= now && h.t + HOUR > now) || w.hours[0];
+      const next24 = w.hours.filter(h => h.t + HOUR > now && h.t < now + 24 * HOUR);
+      const rain = firstBlock(next24, 'cover'), sun = firstBlock(next24, 'shade');
+      const sum = wxSummary(72);
+      const age = hoursBetween(state.weather.fetchedAt, new Date());
+      const lines = [];
+      lines.push(rain ? `<span class="text-sky-300 font-semibold">Rain likely ${esc(when(rain.start))}–${esc(hm(rain.end))}.</span> Pile and cover before it starts.` : 'No rain expected in the daytime over the next 24 hours.');
+      if (sun) lines.push(`Strong sun ${esc(when(sun.start))}–${esc(hm(sun.end))}${state.settings.setup.shade ? ': shade cloth on.' : '.'}`);
+      return `<div class="card space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl mode-${cur.mode} flex items-center justify-center text-white flex-shrink-0"><i data-lucide="${{ open: 'sun', shade: 'cloud-sun', slow: 'cloud', cover: 'cloud-rain', night: 'moon' }[cur.mode]}" class="w-6 h-6"></i></div>
+          <div class="min-w-0"><div class="text-lg font-bold text-white leading-tight">${cur.day ? 'Now: ' + MODE_LABEL[cur.mode].toLowerCase() : 'Night'}</div><div class="text-[15px] text-coffee-300">${esc(MODE_ACTION[cur.mode])}</div></div>
+          <div class="ml-auto text-right text-white font-semibold">${fmt(cur.temp)}°<div class="text-xs text-coffee-400 font-normal">${fmt(cur.rh)}% RH</div></div>
+        </div>
+        ${lines.map(t => `<p class="text-[15px] text-coffee-100">${t}</p>`).join('')}
+        <div>
+          <div class="flex gap-px rounded-md overflow-hidden">${next24.map(h => `<div class="flex-1 h-5 mode-${h.mode}" title="${esc(h.hh + ' ' + MODE_LABEL[h.mode])}"></div>`).join('')}</div>
+          <div class="flex justify-between text-[10px] font-mono text-coffee-400 mt-0.5"><span>now</span><span>+12 h</span><span>+24 h</span></div>
+          <div class="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[11px] text-coffee-300">${['open', 'shade', 'slow', 'cover', 'night'].map(k => `<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm mode-${k}"></span>${MODE_LABEL[k]}</span>`).join('')}</div>
+        </div>
+        <details>
+          <summary class="text-[15px] text-coffee-100 cursor-pointer">Next ${sum.n} days: <span class="text-emerald-300">${sum.good} good</span>, <span class="text-amber-300">${sum.fair} fair</span>, <span class="text-sky-300">${sum.poor} poor</span> for drying <span class="text-coffee-400 underline text-sm">show</span></summary>
+          <div class="grid grid-cols-4 sm:grid-cols-5 gap-1.5 mt-2">${sum.days.map(d => `<div class="rounded-lg border p-1.5 text-center ${d.outlook === 'good' ? 'border-emerald-500/40 bg-emerald-500/10' : d.outlook === 'fair' ? 'border-amber-500/40 bg-amber-500/10' : 'border-sky-500/40 bg-sky-500/10'}">
+            <div class="text-[11px] text-coffee-300">${esc(new Date(d.sunrise).toLocaleDateString([], { weekday: 'short' }) + ' ' + new Date(d.sunrise).getDate())}</div>
+            <div class="text-xs font-semibold ${d.outlook === 'good' ? 'text-emerald-300' : d.outlook === 'fair' ? 'text-amber-300' : 'text-sky-300'}">${d.outlook}</div>
+            <div class="text-[10px] text-coffee-400">${fmt(d.ppMax)}% rain</div></div>`).join('')}</div>
+          <div class="inline-why text-xs text-coffee-400 mt-2">Good: 6+ drying hours and at most 1 rain hour. Poor: under 3 drying hours or 4+ rain hours.${why('A day\'s rating counts the daylight hours that are good for drying and the hours with rain, from the hourly forecast. The cut-offs are my own, and you can change them under More, Where the numbers come from. ¦ Tool heuristic')}</div>
+        </details>
+        <div class="flex items-center justify-between text-xs text-coffee-400"><span>Updated ${fmt(age, age < 1 ? 1 : 0)} h ago · <a class="underline" href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</span><button onclick="fetchWeather()" class="flex items-center gap-1 underline"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh</button></div>
+        ${wxStatus.startsWith('error') ? '<p class="text-xs text-rose-300">Could not refresh. Showing the last forecast.</p>' : ''}
+      </div>`;
+    }
+
+    function reminderCard(r, showLot) {
+      const now = Date.now();
+      const late = r.at < now - 15 * 60000;
+      const label = r.kind === 'ph' ? 'Log pH' : r.kind === 'moisture' ? 'Log it' : r.kind === 'drystart' ? 'Open' : 'Done';
+      return `<div class="flex items-center gap-3 p-3 rounded-xl border ${late ? 'border-amber-500/50 bg-amber-500/10' : 'border-coffee-800 bg-coffee-900/60'}">
+        <i data-lucide="${REM_ICON[r.kind] || 'bell'}" class="w-5 h-5 flex-shrink-0 ${late ? 'text-amber-300' : 'text-coffee-300'}"></i>
+        <div class="flex-1 min-w-0">
+          <div class="text-[15px] text-white leading-snug">${esc(r.text)}</div>
+          <div class="text-xs ${late ? 'text-amber-300' : 'text-coffee-400'}">${r.at <= now + 5 * 60000 ? (late ? 'was due ' + esc(hm(r.at)) : 'now') : esc(when(r.at))}${showLot ? ` · ${esc(r.lot.code)}` : ''}</div>
+          ${why(r.ref)}
+        </div>
+        <button onclick="doneReminder('${r.lot.id}','${r.kind}')" class="btn ${r.at <= now + 2 * HOUR ? 'btn-primary' : 'btn-ghost'} !px-3.5 !py-2 !text-sm flex-shrink-0">${label}</button>
+      </div>`;
+    }
+
+    function lotStatus(l) {
+      const st = lotStage(l);
+      if (st === 'fermenting') {
+        const fr = fermentReady(l);
+        if (fr.ready) return { text: fr.needHand ? 'Ready to wash' : 'Ready to dry', cls: 'text-emerald-300' };
+        return { text: `Fermenting ${fmt(fermentHours(l))} h · ${fr.last && fr.last.ph != null ? 'pH ' + fmt(fr.last.ph, 2) : 'no pH yet'}`, cls: 'text-amber-300' };
+      }
+      if (st === 'to dry') return { text: 'Washed, waiting to dry', cls: 'text-amber-300' };
+      if (st === 'drying') {
+        const di = dryingInfo(l);
+        if (di.ready) return { text: 'Dry: bag it', cls: 'text-emerald-300' };
+        const day = Math.floor((Date.now() - new Date(l.drying.startAt)) / DAY) + 1;
+        return { text: `Drying, day ${day}${di.estNow != null ? ` · about ${fmt(di.estNow)}%` : ''}`, cls: 'text-cyan-300' };
+      }
+      return { text: `Bagged, resting ${fmt((Date.now() - new Date(l.bag.at)) / DAY)} days`, cls: 'text-coffee-300' };
+    }
+    function lotRow(l) {
+      const s = lotStatus(l);
+      const bad = lotAlerts(l).some(a => a.tone === 'red');
+      return `<button onclick="openLot('${l.id}')" class="row-btn">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="font-semibold text-white">${esc(l.code)}</span>${bad ? '<span class="w-2 h-2 rounded-full bg-rose-500"></span>' : ''}${l.sample ? '<span class="text-[10px] text-coffee-500 border border-coffee-700 rounded px-1">sample</span>' : ''}</div>
+          <div class="text-sm text-coffee-300 truncate">${esc(l.method)} · ${esc(l.cultivar || '–')} · ${fmt(l.cherryKg)} kg</div>
+          <div class="text-sm ${s.cls}">${esc(s.text)}</div>
+        </div>
+        <i data-lucide="chevron-right" class="w-5 h-5 text-coffee-500"></i>
+      </button>`;
+    }
+
+    function renderToday() {
+      const rs = allReminders(36);
+      const now = Date.now();
+      const soon = rs.filter(r => r.at <= now + 2 * HOUR), later = rs.filter(r => r.at > now + 2 * HOUR);
+      const active = state.lots.filter(l => lotStage(l) !== 'resting' && !l.sample);
+      let html = weatherHtml() + seasonHtml();
+      if (!state.lots.length) {
+        html += `<div class="card mt-6 space-y-3 text-center">
+          <p class="text-lg text-white font-semibold">No lots yet</p>
+          <p class="text-[15px] text-coffee-300">When cherry comes in, tap New lot. The app asks a few questions, suggests a process, then reminds you what to do and tells you when it's ready.</p>
+          <button onclick="startWizard()" class="btn-big"><i data-lucide="plus" class="w-5 h-5"></i> New lot</button>
+          <button onclick="loadSamples()" class="text-sm text-coffee-300 underline">Or look around with sample lots</button>
+        </div>`;
+        return html;
+      }
+      html += heading('To do now');
+      html += soon.length ? `<div class="space-y-2">${soon.map(r => reminderCard(r, true)).join('')}</div>` : `<p class="text-[15px] text-coffee-300">Nothing right now.${later.length ? ` Next: ${esc(later[0].text.toLowerCase())}, ${esc(when(later[0].at))}.` : ''}</p>`;
+      if (later.length) html += `<details class="mt-3"><summary class="text-sm text-coffee-300 underline cursor-pointer">Later (${later.length})</summary><div class="space-y-2 mt-2">${later.map(r => reminderCard(r, true)).join('')}</div></details>`;
+      html += heading('Lots in progress', `<button onclick="setTab('lots')" class="text-sm text-coffee-300 underline">All lots</button>`);
+      html += active.length ? `<div class="space-y-2">${active.map(lotRow).join('')}</div>` : '<p class="text-[15px] text-coffee-300">None. Every lot is bagged.</p>';
+      html += `<button onclick="startWizard()" class="btn-big mt-4"><i data-lucide="plus" class="w-5 h-5"></i> New lot</button>`;
+      return html;
+    }
+
+    // ---------------------------------------------------------------
+    // NEW LOT: cultivar, process, timeline
+    // ---------------------------------------------------------------
+    let wiz = null;
+    const WIZ_STEPS = ['Cultivar and farm', 'Process', 'Your timeline'];
+    function newDraft() {
+      return {
+        farmer: '', masl: null, cultivar: '', cherryKg: null,
+        pickedAt: toLocalInput(new Date(Date.now() - 4 * HOUR)), arrivedAt: toLocalInput(new Date()),
+        container: 'baskets', crushed: false, warm: false, ripeness: 'ripe', counts: {}, experiment: false,
+        method: '', culture: 'none', dose: null, labelDose: null, product: '', vessel: 'barrel', surface: '', checklist: {}, notes: '', recipeId: null,
+      };
+    }
+    function draftInput(d) {
+      return Object.assign({}, d, { pickedAt: d.pickedAt ? new Date(d.pickedAt) : null, arrivedAt: new Date() });
+    }
+    function startWizard() { wiz = { step: 0, d: newDraft(), err: '' }; setTab('new'); }
+    // Typing doesn't re-render, so the keyboard stays open
+    function wset(k, v) { wiz.d[k] = v; }
+    function wpick(k, v) { wiz.d[k] = v; renderAll(); }
+    function wcheck(k, v) { wiz.d.checklist[k] = v; }
+    function pickCultivar(i) { wiz.d.cultivar = state.cultivars[i].name; renderAll(); }
+    function wnext() {
+      const d = wiz.d;
+      wiz.err = '';
+      if (wiz.step === 0 && (d.masl == null || !d.cultivar)) wiz.err = 'Enter the farm altitude and pick a cultivar.';
+      if (!wiz.err) {
+        wiz.step++;
+        if (wiz.step === 1 && !d.method) { const sg = suggest(draftInput(d)); d.method = (sg.ranked[0] || { id: 'Washed' }).id; }
+        if (!d.surface) d.surface = surfaceOptions()[0];
+      }
+      renderAll(); window.scrollTo({ top: 0 });
+    }
+    function pickProcess(id) { wiz.d.method = id; wiz.d.recipeId = null; renderAll(); }
+    function useRecipe(rid) {
+      const r = state.recipes.find(x => x.id === rid); if (!r) return;
+      Object.assign(wiz.d, { method: r.process, culture: r.culture || 'none', dose: r.dose ?? null, product: r.product || '', recipeId: r.id, surface: r.surface || surfaceOptions()[0] });
+      wiz.step = 2; renderAll(); window.scrollTo({ top: 0 });
+    }
+    function wsetCulture(v) {
+      wiz.d.culture = v;
+      if (cultureOf(v).needsDose && wiz.d.dose == null) wiz.d.dose = V('doseGPerKg');
+      renderAll();
+    }
+
+    function renderWizard() {
+      if (!wiz) wiz = { step: 0, d: newDraft(), err: '' };
+      const d = wiz.d, s = wiz.step;
+      let html = `<div class="flex gap-1.5 mb-4">${WIZ_STEPS.map((_, i) => `<div class="h-1.5 flex-1 rounded-full ${i <= s ? 'bg-amber-500' : 'bg-coffee-800'}"></div>`).join('')}</div>
+        <div class="text-xs text-coffee-400 mb-1">Step ${s + 1} of ${WIZ_STEPS.length}</div>
+        <h2 class="text-2xl font-bold text-white mb-2">${WIZ_STEPS[s]}</h2>`;
+      const next = (label) => `${wiz.err ? `<p class="text-sm text-rose-300 mt-4">${esc(wiz.err)}</p>` : ''}<button onclick="wnext()" class="btn-big mt-6">${label || 'Next'} <i data-lucide="arrow-right" class="w-5 h-5"></i></button>`;
+
+      if (s === 0) {
+        const known = state.cultivars.some(c => c.name === d.cultivar);
+        const ripe = [['ripe', 'Mostly ripe'], ['mixed', 'Mixed'], ['early', 'Early picking'], ['late', 'Late picking']];
+        html += `<label class="q">Cultivar</label>
+          <div class="flex flex-wrap gap-2">${state.cultivars.map((c, i) => chip(c.name, d.cultivar === c.name, `pickCultivar(${i})`)).join('')}</div>
+          <input value="${known ? '' : esc(d.cultivar)}" oninput="wset('cultivar', this.value.trim())" placeholder="Or type another" class="field-lg mt-2">
+          <label class="q">Farm altitude</label>
+          <div class="relative"><input type="number" inputmode="numeric" value="${d.masl ?? ''}" oninput="wset('masl', num(this.value))" placeholder="e.g. 1400" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">m</span></div>
+          <label class="q">Cherry <span class="opt">(optional, for the yeast dose)</span></label>
+          <div class="relative"><input type="number" inputmode="decimal" step="0.1" value="${d.cherryKg ?? ''}" oninput="wset('cherryKg', num(this.value))" placeholder="e.g. 300" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">kg</span></div>
+          <details class="mt-4 card"><summary class="text-[15px] text-coffee-100 cursor-pointer">More about this cherry <span class="opt">(optional)</span></summary>
+            <div class="space-y-1">
+              <label class="q">Farmer or farm</label><input value="${esc(d.farmer)}" oninput="wset('farmer', this.value.trim())" class="field-lg">
+              <label class="q">Picked at</label><input type="datetime-local" value="${esc(d.pickedAt)}" oninput="wset('pickedAt', this.value)" class="field-lg">
+              <label class="q">Came in</label>
+              <div class="flex flex-wrap gap-2">${chip('Baskets', d.container === 'baskets', "wpick('container','baskets')")}${chip('Sacks', d.container === 'sacks', "wpick('container','sacks')")}${chip('Other', d.container === 'other', "wpick('container','other')")}</div>
+              <div class="space-y-2 pt-2">
+                <label class="chk-lg"><input type="checkbox" ${d.crushed ? 'checked' : ''} onchange="wset('crushed', this.checked)"> Some cherry is crushed or leaking</label>
+                <label class="chk-lg"><input type="checkbox" ${d.warm ? 'checked' : ''} onchange="wset('warm', this.checked)"> It feels warm</label>
+              </div>
+              <label class="q">Ripeness</label>
+              <div class="flex flex-wrap gap-2">${ripe.map(([v, l]) => chip(l, d.ripeness === v, `wpick('ripeness','${v}')`)).join('')}</div>
+            </div>
+          </details>
+          ${next()}`;
+      }
+      if (s === 1) {
+        const sg = suggest(draftInput(d));
+        const c = cultureOf(d.culture);
+        if (sg.recipes.length) {
+          html += `<div class="card border-emerald-500/50 space-y-2 mt-3"><div class="text-sm font-semibold text-emerald-300">You've done this before</div>
+            ${sg.recipes.map(r => `<div class="text-[15px] text-coffee-100">${esc(r.process)} from ${esc(r.fromLot)} (${fmt(r.masl)} m): stopped at pH ${fmt(r.phEnd, 2)}, dried ${fmt(r.dryDays)} days to ${fmt(r.finalMoisture, 1)}%.${r.flavor ? ` Tasted: ${esc(r.flavor)}.` : ''}
+              <button onclick="useRecipe('${r.id}')" class="btn-big ghost mt-2">Use this recipe</button></div>`).join('')}</div>`;
+        }
+        const warn = sg.general.filter(n => n.tone === 'amber' || n.tone === 'red');
+        html += seasonHtml(true);
+        if (warn.length) html += `<div class="space-y-2 mt-3">${notesHtml(warn)}</div>`;
+        html += `<div class="space-y-2 mt-3">`;
+        sg.ranked.forEach((r, i) => {
+          const on = d.method === r.id;
+          const main = r.notes.find(n => n.tone === 'amber' || n.tone === 'red') || r.notes[0];
+          html += `<button onclick="pickProcess('${esc(r.id)}')" class="w-full text-left rounded-xl border p-4 ${on ? 'border-amber-500 bg-amber-500/10' : 'border-coffee-800 bg-coffee-900/60'}">
+            <div class="flex items-center gap-3"><span class="w-5 h-5 rounded-full border-2 flex-shrink-0 ${on ? 'border-amber-500 bg-amber-500' : 'border-coffee-600'}"></span><span class="text-lg font-bold text-white flex-1">${esc(r.id)}</span>${i === 0 ? '<span class="text-xs font-semibold bg-amber-500 text-white rounded-full px-2 py-0.5">Suggested</span>' : !r.ok ? '<span class="text-xs text-amber-300">risky now</span>' : ''}</div>
+            ${main ? `<div class="text-sm mt-1 ml-8 ${main.tone === 'amber' || main.tone === 'red' ? 'text-amber-200' : 'text-coffee-300'}">${esc(main.text)}</div>` : ''}
+          </button>${on ? glossHtml(r.id) : ''}`;
+        });
+        html += `</div><button onclick="wpick('experiment', ${!d.experiment})" class="text-sm text-coffee-300 underline mt-3">${d.experiment ? 'Hide' : 'Show'} sealed and anaerobic options</button>`;
+        html += `<label class="q">Starter or wild?</label>
+          <div class="grid grid-cols-2 gap-2">${chip('Wild', !c.needsDose && !c.warn, "wsetCulture('none')", 'No culture added')}${chip('Starter culture', c.needsDose || !!c.warn, "wsetCulture('rehydrate')", 'Yeast or bacteria')}</div>`;
+        if (d.culture !== 'none') {
+          const plan = computePlan({ kg: d.cherryKg, yeast: d.culture, dose: d.dose, container: d.vessel });
+          html += `<div class="card mt-3 space-y-3">
+            <select onchange="wsetCulture(this.value)" class="field-lg">${CULTURES.filter(x => x.id !== 'none').map(x => `<option value="${x.id}" ${d.culture === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+            ${d.culture === 'lalcafe' ? lalcafeHtml(d.product) : ''}
+            ${d.culture === 'lalcafe' && seasonPlan() && seasonPlan().warm ? notesHtml([note('amber', 'Warm the tank: at this time of season the air in Kalimpong is below 15 °C for most of the day.', `Lallemand gives 15 °C inside the coffee as the minimum for its yeast to take hold. From late November the replay found the air below 15 °C for about 45 of every 72 hours, so ferment indoors or in an insulated tank, and log the tank temperature. ¦ ${REPLAY_SRC}; LalCafé by Lallemand: Cima and BSC pages`)]) : ''}
+            <input value="${esc(d.product)}" oninput="wset('product', this.value)" placeholder="Product name (optional)" class="field-lg">
+            ${c.needsDose ? `<div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div>
+              ${d.cherryKg ? `<div class="text-sm">${planHtml(plan)}</div>` : '<p class="text-sm text-coffee-400">Enter the kg on the first screen to get grams and mixing steps.</p>'}
+              <div class="inline-why text-sm text-coffee-400">Check the dose on your product's label.${why(explain(resolve('doseGPerKg')))}</div>` : ''}
+            ${c.warn ? notesHtml([note('red', "Baker's and beer yeast tend to give cheesy or sulphur notes in coffee.", 'They are bred for dough or grain, not acidic fruit with little oxygen, so they get stressed and make sulphur compounds. ¦ Lucia Solis: Producer Toolkit #3')]) : ''}
+          </div>`;
+        }
+        html += `<label class="q">Dries on</label>
+          <div class="flex flex-wrap gap-2">${surfaceOptions().map(x => chip(x, d.surface === x, `wpick('surface', ${esc(JSON.stringify(x))})`)).join('')}</div>`;
+        if (sg.cultivar && (sg.cultivar.flavor || sg.cultivar.optMin != null)) {
+          html += `<details class="mt-4"><summary class="text-sm text-coffee-300 underline cursor-pointer">About ${esc(sg.cultivar.name)}</summary>
+            <div class="text-sm text-coffee-200 mt-2 space-y-1">${sg.cultivar.optMin != null ? `<p>Best from ${fmt(sg.cultivar.optMin)}${sg.cultivar.optMax ? '–' + fmt(sg.cultivar.optMax) : '+'} m (your entry from World Coffee Research).</p>` : ''}${sg.cultivar.flavor ? `<p>${esc(sg.cultivar.flavor)}.${why(sg.cultivar.flavorRef)}</p>` : ''}</div></details>`;
+        }
+        html += next('See the timeline');
+      }
+      if (s === 2) {
+        const m = methodOf(d.method);
+        const recipe = d.recipeId ? state.recipes.find(r => r.id === d.recipeId) : null;
+        const c = cultureOf(d.culture);
+        html += `<p class="text-[15px] text-coffee-300">${esc(d.cultivar)} · ${fmt(d.masl)} m · ${esc(d.method)} · ${c.id === 'none' ? 'wild' : esc(d.product || 'starter culture')} <button onclick="wiz.step=1;renderAll()" class="underline ml-1">change</button></p>`;
+        html += roadmapHtml(roadmap({ method: d.method, culture: d.culture, product: d.product, dose: d.dose, kg: d.cherryKg, surface: d.surface, start: Date.now(), recipe }), null);
+        html += flavourHtml({ method: d.method, culture: d.culture, cultivar: d.cultivar }) + recordHtml(null, d.method);
+        if (m.tank) {
+          html += `<details class="card mt-6"><summary class="text-[15px] text-coffee-100 cursor-pointer">Before you start: tank checklist</summary>
+            <div class="space-y-2 mt-3">${[['water', 'Water is not chlorinated'], ['clean', 'Tanks and tools are clean'], ['soap', 'No scented soap'], ['calib', 'pH meter calibrated (4 and 7)'], ['smell', 'No smoke, fuel or kitchen smells nearby']].map(([k, t]) => `<label class="chk-lg"><input type="checkbox" ${d.checklist[k] ? 'checked' : ''} onchange="wcheck('${k}', this.checked)"> ${t}</label>`).join('')}</div>
+            <div class="inline-why text-xs text-coffee-400 mt-1">${why('Chlorine kills the microbes, dirty tanks carry over the wrong ones, coffee soaks up soap and smoke smells, and an uncalibrated meter gives wrong readings. ¦ Lucia Solis: Producer Toolkit #3 and #7')}</div>
+          </details>`;
+        }
+        html += `<button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="play" class="w-5 h-5"></i> Start this lot</button>
+          <p class="text-sm text-coffee-400 mt-2">Starting saves the lot, so the app can remind you at each step. Logging readings is optional.</p>`;
+      }
+      return html;
+    }
+
+    function saveLot() {
+      const d = wiz.d;
+      const n = state.lots.filter(l => !l.sample).length + 1;
+      const now = new Date().toISOString();
+      const m = methodOf(d.method);
+      const lot = {
+        id: uid('l'), code: `LOT-${new Date().getFullYear()}-${String(n).padStart(3, '0')}`, createdAt: now,
+        farmer: d.farmer, farm: '', masl: d.masl, cultivar: d.cultivar, cherryKg: d.cherryKg,
+        pickedAt: d.pickedAt ? new Date(d.pickedAt).toISOString() : null, arrivedAt: now,
+        container: d.container, crushed: d.crushed, warm: d.warm, ripeness: d.ripeness, counts: d.counts,
+        method: d.method, experiment: d.experiment, culture: d.culture, product: d.product, dose: cultureOf(d.culture).needsDose ? d.dose : null, vessel: d.vessel,
+        checklist: d.checklist, notes: d.notes, recipeId: d.recipeId || null, surface: d.surface,
+        fermentStart: m.tank ? now : null, readings: [], actions: [], bag: null,
+        drying: m.tank ? null : { startAt: now, surface: d.surface || surfaceOptions()[0], target: V('moistureTarget'), weighings: [] },
+      };
+      state.lots.push(lot);
+      wiz = null;
+      openLot(lot.id);
+    }
+
+    // ---------------------------------------------------------------
+    // LOTS
+    // ---------------------------------------------------------------
+    function openLot(id) { state.selectedId = id; state.openForm = null; save(); setTab('lot'); }
+    function toggleForm(k) { state.openForm = state.openForm === k ? null : k; renderAll(); }
+
+    function renderLots() {
+      const real = state.lots.filter(l => !l.sample).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const samples = state.lots.filter(l => l.sample);
+      const going = real.filter(l => lotStage(l) !== 'resting'), done = real.filter(l => lotStage(l) === 'resting');
+      let html = `<button onclick="startWizard()" class="btn-big"><i data-lucide="plus" class="w-5 h-5"></i> New lot</button>`;
+      if (!state.lots.length) html += `<p class="text-[15px] text-coffee-300 mt-4">No lots yet. <button onclick="loadSamples()" class="underline">Look around with sample lots</button></p>`;
+      if (going.length) html += heading('In progress') + `<div class="space-y-2">${going.map(lotRow).join('')}</div>`;
+      if (done.length) html += heading('Bagged') + `<div class="space-y-2">${done.map(lotRow).join('')}</div>`;
+      if (samples.length) html += heading('Sample lots', '<button onclick="removeSamples()" class="text-sm text-coffee-300 underline">Remove</button>') + `<div class="space-y-2">${samples.map(lotRow).join('')}</div>`;
+      return html;
+    }
+
+    function renderLot() {
+      const l = lotById(state.selectedId);
+      if (!l) return renderLots();
+      const st = lotStage(l), m = methodOf(l.method);
+      const alerts = lotAlerts(l).filter(a => a.tone !== 'green');
+      const urgent = alerts.filter(a => a.tone === 'red'), watch = alerts.filter(a => a.tone !== 'red');
+      let html = `<div>
+        <div class="flex items-center gap-2"><h2 class="text-2xl font-bold text-white">${esc(l.code)}</h2>${l.sample ? '<span class="text-xs text-coffee-400 border border-coffee-700 rounded px-1.5">sample</span>' : ''}</div>
+        <p class="text-[15px] text-coffee-300">${esc(l.method)} · ${esc(l.cultivar || '–')} · ${fmt(l.cherryKg)} kg${l.masl ? ` · ${fmt(l.masl)} m` : ''}${l.farmer || l.farm ? ` · ${esc(l.farmer || l.farm)}` : ''}</p>
+      </div>`;
+      if (urgent.length) html += `<div class="space-y-2 mt-4">${notesHtml(urgent)}</div>`;
+      html += heading('Roadmap') + roadmapHtml(lotRoadmap(l), l);
+      html += flavourHtml({ method: l.method, culture: l.culture, cultivar: l.cultivar, lot: l }) + recordHtml(l);
+      if (watch.length) html += heading('Watch out') + `<div class="space-y-2">${notesHtml(watch)}</div>`;
+      const rems = lotReminders(l, 36).filter(r => r.kind !== 'ph' && r.kind !== 'moisture');
+      if (rems.length) html += heading('Coming up') + `<div class="space-y-2">${rems.slice(0, 5).map(r => reminderCard(r, false)).join('')}</div>`;
+      html += historyHtml(l);
+      html += `<details class="mt-4"><summary class="text-sm text-coffee-300 underline cursor-pointer">More</summary><div class="card mt-2 space-y-3">
+        ${l.notes ? `<p class="text-sm text-coffee-300 whitespace-pre-line">${esc(l.notes)}</p>` : ''}
+        <button onclick="deleteLot('${l.id}')" class="text-sm text-rose-300 underline">Delete this lot</button>
+      </div></details>`;
+      return html;
+    }
+
+    function fermentCard(l, bare) {
+      const S = state.settings;
+      const fr = fermentReady(l);
+      const rs = readingsOf(l);
+      const ready = fr.ready;
+      const open = state.openForm === 'ph';
+      let html = bare ? `<div class="text-sm text-coffee-300 mb-2">Fermenting for ${fmt(fermentHours(l))} h</div>` : heading(`Fermenting · ${fmt(fermentHours(l))} h`);
+      html += `<div class="card space-y-3">`;
+      if (ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">${fr.needHand ? 'Ready. Wash it now.' : 'Ready. Take it out and start drying.'}</div>`;
+      html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
+        ${tick(fr.ph, `pH is ${fr.end.v} or lower${fr.last && fr.last.ph != null ? ` <span class="text-coffee-400">(last: ${fmt(fr.last.ph, 2)})</span>` : ''}`, explain(fr.end))}
+        ${fr.needHand ? tick(fr.hand, 'Hand test: the parchment feels gritty, like pebbles', 'Rub and rinse a few beans. When the mucilage is fully broken down they make a grating noise and feel gritty. Stop then to avoid over-fermenting. ¦ Schwan & Fleet 2014, ch. 10') : ''}</div>`;
+      html += open ? `<form onsubmit="addReading(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
+          <div class="grid grid-cols-2 gap-2"><div><div class="text-sm text-coffee-300 mb-1">pH</div><input name="ph" type="number" step="0.01" inputmode="decimal" class="field-lg" autofocus></div>
+          ${S.thermometer ? '<div><div class="text-sm text-coffee-300 mb-1">Tank °C</div><input name="temp" type="number" step="0.1" inputmode="decimal" class="field-lg"></div>' : ''}</div>
+          ${S.extraInstruments ? '<div class="grid grid-cols-2 gap-2"><input name="brix" type="number" step="0.1" placeholder="Brix °Bx" class="field-lg"><input name="psi" type="number" step="0.1" placeholder="Pressure PSI" class="field-lg"></div>' : ''}
+          <input name="smell" placeholder="How does it smell? (optional)" class="field-lg">
+          ${fr.needHand ? '<label class="chk-lg"><input name="hand" type="checkbox"> Hand test passed: gritty, like pebbles</label>' : ''}
+          <details><summary class="text-sm text-coffee-400 underline cursor-pointer">Different time?</summary><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field-lg mt-2"></details>
+          <div class="grid grid-cols-2 gap-2"><button type="button" onclick="toggleForm('ph')" class="btn-big ghost">Cancel</button><button class="btn-big">Save</button></div>
+        </form>` : `<button onclick="toggleForm('ph')" class="btn-big ${ready ? 'ghost' : ''}"><i data-lucide="test-tube" class="w-5 h-5"></i> Log pH</button>`;
+      html += `<button onclick="finishFermentation('${l.id}')" class="btn-big ${ready ? '' : 'ghost'}"><i data-lucide="droplets" class="w-5 h-5"></i> ${fr.needHand ? 'Washed. Start drying' : 'Done. Start drying'}</button>`;
+      if (rs.length >= 2) html += lineChart(rs.map(r => ({ x: fermentHours(l, r), y: r.ph })), { title: 'pH', color: '#F59E0B', dp: 1, lines: [{ y: fr.end.v, label: `ready at ${fr.end.v}`, color: '#34D399' }] });
+      const next = lotReminders(l, 48).find(r => r.kind === 'ph');
+      if (next && !open) html += `<div class="inline-why text-sm text-coffee-400">Next pH check: ${esc(when(next.at))}.${why(next.ref)}</div>`;
+      return html + '</div>';
+    }
+
+    // ---------------------------------------------------------------
+    // ROADMAP: every step from sorting to bagging, with what to do,
+    // how you know it's done, and dates where the forecast allows
+    // ---------------------------------------------------------------
+    // Sourced planning ranges. A saved recipe replaces them.
+    function fermentRange(m, recipe) {
+      if (recipe && recipe.fermentH) return { lo: recipe.fermentH, hi: recipe.fermentH, ref: `Your own lot took this long, so the timeline uses it. ¦ Your recipe from ${recipe.fromLot}` };
+      if (m.sealed) return { lo: 36, hi: V('maxHoursSealed'), ref: `The shortest sealed lot in the roaster notes ran 36 h. ${explainR(resolve('maxHoursSealed'))} ¦ Seven Seeds lot page; ${srcLabel(resolve('maxHoursSealed'))}` };
+      return { lo: 6, hi: 72, ref: 'Open fermentations take 6–72 h depending on temperature: warm mills and thick mucilage finish fast, cold mills slow. ¦ Schwan & Fleet 2014, ch. 10' };
+    }
+    function dryRange(m, surface, recipe) {
+      if (recipe && recipe.dryDays) { const d = Math.round(recipe.dryDays); return { lo: d, hi: d, ref: `Your own lot dried in this many days, so the timeline uses it. ¦ Your recipe from ${recipe.fromLot}` }; }
+      if (m.drying === 'parchment') return /raised|bed/i.test(surface || '') ? { lo: 5, hi: 10, ref: 'Air moves under raised beds, so parchment dries in 5–10 days depending on the weather. ¦ Schwan & Fleet 2014, ch. 10' } : { lo: 7, hi: 15, ref: 'On patios, parchment takes 7–15 days depending on the weather. ¦ Schwan & Fleet 2014, ch. 10' };
+      return { lo: 12, hi: 21, ref: `Whole cherries hold far more water, so they take 12–21 days on patios. Lucia\'s shaded naturals took about 15.${m.drying === 'honey' ? ' A honey can be even slower than a natural.' : ''} ¦ Schwan & Fleet 2014, ch. 10; Making Coffee #71${m.drying === 'honey' ? '; Producer Toolkit #2' : ''}` };
+    }
+    // What roasters say other mills did for this process, India and Nepal first
+    function otherMills(method, field, max) {
+      const cat = methodOf(method).ref;
+      const lots = ROASTER_LOTS.filter(x => x.p === cat && x[field] !== 'Not stated');
+      const near = lots.filter(x => x.o === 'India' || x.o === 'Nepal');
+      return near.concat(lots.filter(x => !near.includes(x))).slice(0, max || 3).map(x => [`${x.r}, ${x.o}: ${x[field]}`, x.u]);
+    }
+    function shortDate(t) { const d = new Date(t); return `${d.toLocaleDateString([], { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString([], { month: 'short' })}`; }
+
+    // p: { method, culture, product, dose, kg, surface, start (ms), lot (optional), recipe (optional) }
+    function roadmap(p) {
+      const S = state.settings, m = methodOf(p.method), l = p.lot, c = cultureOf(p.culture);
+      const parchment = m.drying === 'parchment';
+      const R = k => resolve(k);
+      const now = Date.now();
+      const t0 = p.start;
+      const d0 = new Date(t0); d0.setHours(0, 0, 0, 0);
+      const dayN = t => Math.floor((t - d0.getTime()) / DAY);
+      const span = (a, b) => { const x = dayN(a), y = dayN(b); return { days: x === y ? `Day ${x}` : `Day ${x}–${y}`, dates: x === y ? shortDate(a) : `${shortDate(a)} – ${shortDate(b)}` }; };
+      const starter = c.id === 'none' ? '' : p.product || { rehydrate: 'dry yeast', lalcafe: 'LalCafé yeast', activate: 'dry yeast', direct: 'direct-pitch culture', lab: 'lactic bacteria', baker: "baker's yeast" }[c.id];
+      const doseText = c.needsDose ? (p.kg ? `${fmt((p.dose ?? V('doseGPerKg')) * p.kg)} g (${fmt(p.dose ?? V('doseGPerKg'), 2)} g/kg)` : `${fmt(p.dose ?? V('doseGPerKg'), 2)} g/kg`) : '';
+      const stages = [];
+
+      // Times: real ones from the lot where they exist, sourced ranges otherwise
+      const fr = fermentRange(m, p.recipe), dr = dryRange(m, p.surface || (l && l.drying && l.drying.surface), p.recipe);
+      const fStart = l ? new Date(l.fermentStart || l.createdAt).getTime() : t0;
+      let fe = null;
+      if (m.tank) {
+        if (l && l.washedAt) fe = [new Date(l.washedAt).getTime(), new Date(l.washedAt).getTime()];
+        else fe = [Math.max(fStart + fr.lo * HOUR, l ? now : 0), Math.max(fStart + fr.hi * HOUR, l ? now : 0)];
+      }
+      const ds = l && l.drying ? [new Date(l.drying.startAt).getTime(), new Date(l.drying.startAt).getTime()] : m.tank ? fe : [t0, t0];
+      let de, deFromWeights = false;
+      if (l && l.bag) de = [new Date(l.bag.at).getTime(), new Date(l.bag.at).getTime()];
+      else {
+        const di = l && l.drying ? dryingInfo(l) : null;
+        if (di && di.eta) { de = [di.eta.getTime(), di.eta.getTime()]; deFromWeights = true; }
+        else de = [ds[0] + dr.lo * DAY, ds[1] + dr.hi * DAY];
+        if (l && l.drying) de = [Math.max(de[0], now), Math.max(de[1], now)];
+      }
+
+      // 1. Sort
+      const sort = { key: 'sort', title: m.drying === 'cherry' ? 'Sort the cherry' : 'Sort and pulp', ...span(t0, t0), todo: [], done: [] };
+      sort.todo.push([`Start within ${R('pickToProcessH').v} h of picking`, explain(R('pickToProcessH'))]);
+      sort.todo.push(['Float the cherry and remove the floaters', 'Dry, damaged and overripe cherries float, so a float tank sorts out the low-quality fruit cheaply. ¦ Lucia Solis: Producer Toolkit #2 and #3']);
+      sort.todo.push(m.drying === 'cherry' ? ['Pick out overripe cherry before a natural', 'Lucia\'s episode on "de-funkifying" naturals starts with sorting out overripe cherry. ¦ Lucia Solis: Making Coffee #71'] : ['Pick out green and overripe cherry', 'Aim for about 80% red ripe. Removing the worst fruit matters more than chasing 100%. ¦ Lucia Solis: Producer Toolkit #2 and #3']);
+      if (m.drying !== 'cherry') sort.todo.push([`Pulp it. Quality drops if pulping waits past ${R('pickMaxH').v} h from picking`, explain(R('pickMaxH'))]);
+      if (m.drying === 'honey') sort.todo.push(['Leave the mucilage on the parchment', 'The sweetness of a honey comes from the mucilage, so pulp with as little water as you can. ¦ Lucia Solis: Producer Toolkit #2']);
+      if (!m.tank && c.needsDose) sort.todo.push([`Apply the starter (${starter}) to the coffee: ${doseText}`, c.ref]);
+      stages.push(sort);
+
+      // 2. Ferment and wash
+      if (m.tank) {
+        const f = { key: 'ferment', title: `${m.sealed ? 'Ferment sealed' : 'Ferment'}, ${starter ? 'with ' + starter : 'wild'}`, ...span(fStart, fe[1]), todo: [], done: [] };
+        f.expect = [l && l.washedAt ? `Took ${fmt(fermentHours(l))} h` : `Usually ${fr.lo === fr.hi ? fmt(fr.lo) : fmt(fr.lo) + '–' + fmt(fr.hi)} h. The pH tells you when it's done, not the clock.`, fr.ref];
+        if (c.needsDose) {
+          const plan = p.kg ? computePlan({ kg: p.kg, yeast: p.culture, dose: p.dose, container: 'barrel' }) : null;
+          f.todo.push([`Add ${doseText} of ${starter}.${plan ? ' ' + plan.steps.join(' ') : ''}`, c.ref]);
+          f.todo.push(["Starters can shorten or lengthen it: a fast commercial microbe cut one cold mill's fermentations from 100 h to 24 h, and at Shira a yeast let them go from 12 h to 48 h for more flavour", 'A cold-tolerant coffee yeast freed up one mill\'s tanks. At Shira, the yeast kept a long fermentation clean, and the coffee tasted more intense. ¦ Lucia Solis: Producer Toolkit #3']);
+        }
+        if (c.id === 'lalcafe') {
+          f.todo.push(['Keep the tank at 15 °C or warmer. Lallemand gives 20–24 °C as best for BSC and 18–25 °C for Briosa', 'Below 15 °C the yeast may not take hold before the wild microbes do. Inside the best range it works without over-fermented notes. ¦ LalCafé by Lallemand: Cima and BSC pages; Scott Labs: BSC and Briosa data sheets']);
+          if (!m.sealed) f.todo.push(['Keep the coffee just under water, no more than 1 cm above it, and leave in as much mucilage as you can', 'The yeast makes its flavour from the fruit, so extra water dilutes it. ¦ Scott Labs: LalCafé BSC and Briosa data sheets']);
+        }
+        f.todo.push(['Check pH twice a day, in the morning and at the end of the day', 'pH falls as the microbes make acid, so it shows how far the fermentation has gone. Lucia checks at least twice a day. ¦ Lucia Solis: Producer Toolkit #3']);
+        if (S.thermometer) f.todo.push([`Check the tank temperature at the same time. Alert above ${R('tempMax').v} °C`, explain(R('tempMax'))]);
+        if (m.sealed && S.extraInstruments) f.todo.push([`Vent if the pressure passes ${R('pressureMax').v} PSI`, explain(R('pressureMax'))]);
+        f.done.push([`pH is ${R('phEndpoint').v} or lower`, explain(R('phEndpoint'))]);
+        if (parchment) f.done.push(['Hand test: the parchment feels gritty, like pebbles', 'Rub and rinse a few beans. When the mucilage is fully broken down they make a grating noise and feel gritty. Stop then to avoid over-fermenting. ¦ Schwan & Fleet 2014, ch. 10']);
+        f.others = otherMills(p.method, 'f');
+        stages.push(f);
+        if (parchment) {
+          const w = { key: 'wash', title: 'Wash', ...span(fe[0], fe[1]), todo: [], done: [] };
+          w.expect = [l && l.washedAt ? `Done ${when(l.washedAt)}` : 'As soon as the fermentation is ready', ''];
+          w.todo.push(['Wash off the fermented mucilage', 'Fermented parchment should be washed right after fermentation ends. ¦ Schwan & Fleet 2014, ch. 10']);
+          w.todo.push([`Start drying within ${R('washToDryMaxH').v} h of washing`, explain(R('washToDryMaxH'))]);
+          stages.push(w);
+        }
+      }
+
+      // 3. Dry
+      const surf = p.surface || (l && l.drying && l.drying.surface);
+      const d = { key: 'dry', title: `Dry${surf ? ' on ' + surf.toLowerCase() : ''}`, ...span(ds[0], de[1]), todo: [], done: [] };
+      d.expect = l && l.bag ? [`Took ${fmt((new Date(l.bag.at) - new Date(l.drying.startAt)) / DAY)} days`, '']
+        : deFromWeights ? [`Ready about ${dayLabel(de[0])}, from your weighings`, 'At the latest drying rate. Below about 20% drying slows down (Lucia Solis, Producer Toolkit #2).']
+        : [`Usually ${dr.lo === dr.hi ? dr.lo : dr.lo + '–' + dr.hi} days`, dr.ref];
+      const sum = wxSummary(72);
+      if (sum && !(l && l.bag)) {
+        const poor = sum.days.filter(x => x.sunset >= ds[0] && x.sunrise <= de[1] && x.outlook === 'poor');
+        const last = sum.days[sum.days.length - 1];
+        d.forecast = poor.length ? `Poor drying days in the forecast: ${poor.map(x => shortDate(x.sunrise).replace(/ \S+$/, '')).join(', ')}. The app reminds you to cover.` : 'No poor drying days in the forecast for these dates.';
+        if (last && de[1] > last.sunset) d.forecast += ` The forecast only runs to ${shortDate(last.sunrise)}.`;
+      }
+      const seed = seedLimitFor(m.drying);
+      d.todo.push(['Every morning: spread it out in thin layers, about 10 cm', 'Start with thin layers, about 10 cm. Once partly dry, the layer can be thicker. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Through the day: rake 8–10 times', 'Raking turns the layer so it dries evenly and the top doesn\'t overheat. ¦ Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Every evening: pile and cover before sunset', 'Piled and covered, the coffee is protected from dew and rain overnight. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Before rain: pile and cover. The app reminds you from the forecast', 'Rewetting slows drying and keeps the seed moist, which risks mould. ¦ Lucia Solis: Producer Toolkit #2; forecast: Open-Meteo']);
+      d.todo.push([`Keep the seed at or below ${seed.v} °C${S.setup.shade ? '. Shade cloth on in strong sun' : ''}`, explain(seed)]);
+      if (m.drying === 'cherry') d.todo.push(["Light shade helps: Lucia's shaded lots dried in about 15 days under roughly 30–40% shade", 'Shade lowers the midday peak temperature, and Lucia\'s shaded naturals still dried in about 15 days. ¦ Lucia Solis: Making Coffee #71']);
+      if (S.setup.dryer) d.todo.push([`With the dryer: use it first, then move to the patio at about ${R('dryerSwitch').v}%`, explain(R('dryerSwitch'))]);
+      d.todo.push(['From the last few days: weigh it and take meter readings to see when it is ready', 'Weight loss tracks moisture loss, so two weighings let the app estimate the ready date. Starting near the end is my choice. ¦ Tool heuristic']);
+      d.done.push([`Meter reads ${R('moistureTarget').v}% or less in ${R('meterSpots').v} spots`, explain(R('moistureTarget'))]);
+      d.done.push([`The reading still holds ${R('holdHours').v} h later`, explain(R('holdHours'))]);
+      d.done.push(['The beans feel hard and brittle', 'A quick hand check that backs up the meter: dry coffee is hard and brittle. ¦ ATI Philippines 2007']);
+      d.others = otherMills(p.method, 'd');
+      stages.push(d);
+
+      // 4. Bag and rest
+      const b = { key: 'bag', title: 'Bag and rest', ...span(de[0], de[1]), todo: [], done: [] };
+      b.expect = [l && l.bag ? `Bagged ${dayLabel(l.bag.at)}` : `Then rest several weeks before hulling`, l && l.bag ? '' : 'Dried coffee is stored for several weeks before the parchment comes off, to improve shelf life. ¦ Hackler & Särchen 2025, ch. 5'];
+      b.todo.push(['Use barrier bags (polyethylene plus EVOH)', 'Polyethylene stops moisture and EVOH stops oxygen, so together they slow ageing. ¦ Lucia Solis: Producer Toolkit #7']);
+      b.todo.push(['Store away from smoke, fuel and kitchen smells', '"Coffee is a sponge": it soaks up any smell near it. ¦ Lucia Solis: Producer Toolkit #7']);
+      b.todo.push(["Don't bag it while it is still warm from the sun", 'SICC advises against bagging warm coffee, and resting lets moisture even out inside the bean. ¦ SICC: Moisture Content vs Water Activity']);
+      b.todo.push(['Re-check the moisture once a month', 'Stored coffee can take moisture back from humid air. Monthly is my choice. ¦ Tool heuristic; Schwan & Fleet 2014, ch. 10']);
+      b.todo.push(['After resting, cup it and write down what you taste', 'Cupping is how you connect what happened in the tank to what is in the cup: "without that feedback loop, you really can\'t improve". ¦ Lucia Solis: Producer Toolkit #3']);
+      b.todo.push(['The app saves the lot as a recipe, so next time the timeline uses your own hours and days', 'Your own mill\'s numbers beat any book\'s range. ¦ Design choice']);
+      stages.push(b);
+      return stages;
+    }
+
+    function currentStage(l) {
+      const st = lotStage(l);
+      if (st === 'fermenting') return 'ferment';
+      if (st === 'to dry' || st === 'drying') return 'dry';
+      return 'bag';
+    }
+
+    // Vertical timeline. With a lot, the current step holds its action card.
+    function roadmapHtml(stages, l) {
+      const order = stages.map(s => s.key);
+      const cur = l ? currentStage(l) : null;
+      const ci = cur ? order.indexOf(cur) : -1;
+      const total = stages[stages.length - 1].days.replace(/^Day /, '');
+      let html = l ? '' : `<div class="card !p-3 mt-3 text-[15px] text-coffee-100">Roughly <b class="text-white">${total} days</b> from today to bagged coffee, then several weeks of rest.</div>`;
+      return html + `<ol class="mt-4">${stages.map((s, i) => {
+        const done = l ? (i < ci || (l.bag && s.key === 'bag')) : false;
+        const now = l ? i === ci && !(l.bag && s.key === 'bag') : false;
+        const last = i === stages.length - 1;
+        const dot = done ? 'bg-emerald-500 border-emerald-500 text-white' : now ? 'bg-amber-500 border-amber-500 text-white' : 'border-coffee-600 text-coffee-300 bg-coffee-950';
+        const list = items => items.map(([t, r]) => `<li class="flex gap-2 text-coffee-100"><span class="text-coffee-500">•</span><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('');
+        let body = `<div class="flex items-start justify-between gap-2"><div class="text-lg font-bold leading-tight ${done ? 'text-emerald-200' : 'text-white'}">${esc(s.title)}</div><span class="text-xs font-semibold rounded-full px-2 py-0.5 flex-shrink-0 ${now ? 'bg-amber-500 text-white' : done ? 'bg-emerald-600/30 text-emerald-200' : 'bg-coffee-800 text-coffee-200'}">${done ? 'Done' : now ? 'Now' : s.days}</span></div>
+          <div class="text-sm text-coffee-400">${esc(s.dates)}</div>
+          ${s.expect && s.expect[0] ? `<div class="inline-why text-[15px] ${now ? 'text-amber-200' : 'text-coffee-200'} mt-1">${esc(s.expect[0])}${why(s.expect[1])}</div>` : ''}`;
+        const plan = `${s.todo.length ? `<ul class="space-y-1.5 mt-2 text-[15px]">${list(s.todo)}</ul>` : ''}
+          ${s.done.length ? `<div class="mt-3 text-sm text-coffee-400">Done when</div><ul class="space-y-1.5 mt-1 text-[15px]">${s.done.map(([t, r]) => `<li class="flex gap-2 text-emerald-100"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0"></i><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('')}</ul>` : ''}
+          ${s.forecast ? `<p class="text-sm text-sky-200 mt-2">${esc(s.forecast)}</p>` : ''}
+          ${s.others && s.others.length ? `<details class="mt-2"><summary class="text-sm text-coffee-300 underline cursor-pointer">What other mills did</summary><ul class="space-y-1 mt-1 text-sm text-coffee-300">${s.others.map(([t, u]) => `<li>${esc(t)} <a class="underline text-coffee-400" href="${u}" target="_blank" rel="noopener">source</a></li>`).join('')}</ul></details>` : ''}`;
+        if (l && now) body += `<div class="mt-3">${actionCard(l)}</div><details class="mt-2"><summary class="text-sm text-coffee-300 underline cursor-pointer">Everything to do in this step</summary>${plan}</details>`;
+        else if (l && l.bag && s.key === 'bag') body += `<div class="mt-3">${restCard(l, true)}</div>`;
+        else if (l && !done) body += `<details class="mt-1"><summary class="text-sm text-coffee-300 underline cursor-pointer">What you'll do</summary>${plan}</details>`;
+        else if (!l) body += plan;
+        return `<li class="relative flex gap-3 ${last ? '' : 'pb-6'}">
+          ${last ? '' : `<span class="absolute left-[15px] top-8 bottom-0 w-0.5 ${done ? 'bg-emerald-600' : 'bg-coffee-800'}"></span>`}
+          <span class="relative z-10 w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-sm font-bold ${dot}">${done ? '<i data-lucide="check" class="w-4 h-4"></i>' : i + 1}</span>
+          <div class="flex-1 min-w-0 pt-0.5">${body}</div>
+        </li>`;
+      }).join('')}</ol>`;
+    }
+    // What the process is, from the Aviary glossary (index.html)
+    function glossHtml(id) {
+      const g = methodOf(id).gloss;
+      if (!g) return '';
+      return `<div class="inline-why text-sm text-coffee-300 ml-8 mt-2">${esc(g[1])}${why('Feran\'s glossary defines each process by what is done to the cherry (skin, environment, additives), not by time. Time is "not critical to the definition" for most of them, which is why the timeline uses research ranges. ¦ Christopher Feran, A sort of glossary of coffee processes (2022)')} <a href="index.html#p=${g[0]}" class="underline text-coffee-400">Glossary entry</a></div>`;
+    }
+
+    // What it might taste like: process, starter, cultivar, your own past cups
+    function flavourHtml(p) {
+      const m = methodOf(p.method), c = cultureOf(p.culture), l = p.lot;
+      const rows = (PROCESS_FLAVOURS[m.ref] || []).slice();
+      if (m.sealed && c.id !== 'none') rows.push(['With an S. cerevisiae yeast starter, sealed lots showed more citrus, floral, plum or peach than without one', 'Research compared the same anaerobic fermentation with and without that yeast. ¦ ' + HS6]);
+      if (m.tank && c.id !== 'none') rows.push(['In one trial, a longer fermentation with a coffee yeast tasted more intense and a little cleaner. The notes stayed similar', 'Lucia Solis: Producer Toolkit #3 (La Cabra and Shira, 12 h wild vs 48 h with yeast)']);
+      const cv = (state.cultivars || []).find(x => x.name === p.cultivar);
+      if (cv && cv.flavor) rows.push([`${cv.name}: ${cv.flavor.charAt(0).toLowerCase()}${cv.flavor.slice(1)} (washed lots)`, cv.flavorRef]);
+      const mine = state.recipes.filter(r => r.flavor && r.process === p.method && (!l || r.lotId !== l.id)).slice(-2).map(r => [`Your ${r.fromLot}: ${r.flavor}${r.cupScore != null ? ` (${fmt(r.cupScore, 2)})` : ''}`, '']);
+      const li = (t, r) => `<li class="flex gap-2 text-coffee-100"><span class="text-coffee-500">•</span><div class="inline-why">${esc(t)}${why(r)}</div></li>`;
+      let html = heading('What it might taste like') + `<div class="card space-y-3">`;
+      if (l && l.flavor) html += `<p class="text-[15px] text-emerald-200">You tasted: <b class="text-white">${esc(l.flavor)}</b>${l.cupScore != null ? ` · ${fmt(l.cupScore, 2)}` : ''}</p>`;
+      html += rows.length ? `<ul class="space-y-1.5 text-[15px]">${rows.map(([t, r]) => li(t, r)).join('')}</ul>` : `<p class="text-[15px] text-coffee-300">No flavour description for this process in the sources yet.</p>`;
+      const cups = ROASTER_LOTS.filter(x => x.t && x.p === m.ref).sort((a, b) => (b.s || 0) - (a.s || 0)).slice(0, 4);
+      if (cups.length) html += `<details><summary class="text-sm text-coffee-300 underline cursor-pointer">What other mills' ${esc(m.ref)} lots tasted like</summary><ul class="space-y-1.5 mt-2 text-[15px]">${cups.map(x => `<li class="flex gap-2 text-coffee-100"><span class="text-coffee-500">•</span><div>${esc(x.t)}${x.s ? ` · ${fmt(x.s, 2)} pts` : ''} <span class="text-sm text-coffee-400">(${esc(x.r)}: ${esc(x.lot)})</span> <a class="underline text-sm text-coffee-400" href="${x.u}" target="_blank" rel="noopener">source</a></div></li>`).join('')}</ul></details>`;
+      if (mine.length) html += `<ul class="space-y-1.5 text-[15px] border-t border-coffee-800 pt-3">${mine.map(([t]) => li(t, '')).join('')}</ul>`;
+      html += `<details><summary class="text-sm text-coffee-300 underline cursor-pointer">Off-notes to watch for</summary><ul class="space-y-1.5 mt-2 text-[15px]">${OFF_NOTES.map(([t, r]) => li(t, r)).join('')}</ul></details>`;
+      html += `<div class="inline-why text-sm text-coffee-400 ">A direction, not a promise. Fermentation leaves acids and other compounds in the bean, and the flavour itself forms when it is roasted.${why('Microbes make acids and other compounds in the mucilage, which move into the seed and shape the aroma formed in roasting. So the process sets a direction, and only your own cupping tells you the result. ¦ Hackler & Särchen 2025; Lucia Solis: Producer Toolkit #3')}</div>`;
+      return html + '</div>';
+    }
+
+    // What to write down so the next lot is better. Ticks show what this lot has.
+    function recordHtml(l, method) {
+      const m = methodOf(l ? l.method : method), rs = l ? readingsOf(l) : [], ws = l && l.drying ? (l.drying.weighings || []) : [];
+      const T3 = 'Lucia Solis: Producer Toolkit #3', T2 = 'Lucia Solis: Producer Toolkit #2';
+      const items = [
+        [l && l.counts && Object.values(l.counts).some(v => v), 'Ripeness: count ripe, unripe and overripe in a sample of 100 cherries', `A board with 100 holes gives you a ripeness percentage you can track across the harvest and compare with the cup. ¦ ${T2}`],
+        [l && !!(l.crushed || l.warm || l.notes), 'The condition of the cherry before you start', `Lucia lists the cherry\'s condition among the notes to keep, so you can find what links to the cup later. ¦ ${T3}`],
+      ];
+      if (m.tank) items.push(
+        [rs.some(r => r.ph != null), 'pH, morning and end of day', `pH shows how far the fermentation has gone. ¦ ${T3}`],
+        [rs.some(r => r.temp != null), 'Tank temperature', `Temperature sets the speed: "a pH meter and a thermometer are your eyes inside the fermentation". ¦ ${T3}`],
+        [rs.some(r => r.smell), 'What the tank smells like', `Lucia lists the tank's smell among the notes to keep, so you can link it to the cup later. ¦ ${T3}`]);
+      items.push(
+        [l && l.wx && Object.keys(l.wx).length, 'The weather each day (the app saves it whenever it fetches the forecast)', `Heat and rain change both fermentation and drying, so they help explain a good or bad lot. ¦ ${T3}`],
+        [ws.length > 0, 'Drying: weight and moisture meter readings', `Lucia: "buy the best moisture meter you can afford". Weight shows the drying rate between readings. ¦ ${T2}`],
+        [ws.some(w => w.seedTemp != null), 'Coffee temperature while drying, to keep it below 40 °C', `Above 40 °C the seed is damaged and fades early. ¦ ${T2}`],
+        [null, 'Photos and videos on your phone: they keep the date and time', `A photo records the date, time and weather for you. ¦ ${T3}`],
+        [l && l.cupScore != null, 'After resting: cup it, write the flavour notes, then compare them with these notes', `This is the feedback loop that lets you improve. ¦ ${T3}`]);
+      return `<details class="card mt-4"${l && l.bag ? ' open' : ''}><summary class="text-[15px] text-coffee-100 cursor-pointer font-semibold">Write these down for next time</summary>
+        <ul class="space-y-1.5 mt-3 text-[15px]">${items.map(([ok, t, r]) => `<li class="flex gap-2 ${ok ? 'text-emerald-100' : 'text-coffee-100'}"><i data-lucide="${ok ? 'check-circle-2' : 'circle'}" class="w-4 h-4 mt-0.5 flex-shrink-0 ${ok ? 'text-emerald-400' : 'text-coffee-600'}"></i><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('')}</ul>
+        <div class="inline-why text-sm text-coffee-400 mt-3 ">Cherry Brix is not a reliable sign of a sweet cup.${why(`The data hasn't supported a link between high-Brix cherry and a sweet cup, and Brix also rises when cherries lose water. ¦ ${T2}`)}</div>
+      </details>`;
+    }
+
+    // Save each day's weather on lots that are still fermenting or drying
+    function logLotWeather(j) {
+      const D = j && j.daily;
+      if (!D || !D.time || !D.time.length) return;
+      state.lots.filter(l => !l.sample && !l.bag).forEach(l => {
+        l.wx = l.wx || {};
+        l.wx[D.time[0]] = { tmax: D.temperature_2m_max[0], tmin: D.temperature_2m_min[0], rain: D.precipitation_sum[0] };
+      });
+    }
+    function actionCard(l) {
+      const st = lotStage(l);
+      if (st === 'fermenting') return fermentCard(l, true);
+      if (st === 'to dry') return startDryCard(l, true);
+      if (st === 'drying') return dryCard(l, true);
+      return restCard(l, true);
+    }
+    function lotRoadmap(l) {
+      const recipe = l.recipeId ? state.recipes.find(r => r.id === l.recipeId) : null;
+      return roadmap({ method: l.method, culture: l.culture, product: l.product, dose: l.dose, kg: l.cherryKg, surface: l.drying ? l.drying.surface : l.surface, start: new Date(l.createdAt).getTime(), lot: l, recipe });
+    }
+
+    function surfaceOptions() {
+      const s = state.settings.setup, o = [];
+      if (s.beds) o.push('Raised beds'); if (s.patio) o.push('Patio'); if (s.polyhouse) o.push('Polyhouse'); if (s.covered) o.push('Covered area'); if (s.dryer) o.push('Mechanical dryer');
+      if (s.shade) o.push('Raised beds under shade cloth');
+      return o.length ? o : ['Patio'];
+    }
+    function startDryCard(l, bare) {
+      return (bare ? '' : heading('Start drying')) + `<div class="card space-y-3">
+        <form onsubmit="startDrying(event,'${l.id}')" class="space-y-3">
+          <div class="text-[15px] text-coffee-100">Where will it dry?</div>
+          <select name="surface" class="field-lg">${surfaceOptions().map(s => `<option ${s === l.surface ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
+          <button class="btn-big"><i data-lucide="sun" class="w-5 h-5"></i> Start drying now</button>
+        </form>
+        <div class="inline-why text-sm text-coffee-400">Spread in thin layers, about 10 cm, and rake 8–10 times a day.${why('Thin layers and frequent raking dry the coffee evenly and stop the top from overheating. ¦ Schwan & Fleet 2014, ch. 10')}</div>
+      </div>`;
+    }
+
+    function dryCard(l, bare) {
+      const S = state.settings;
+      const di = dryingInfo(l);
+      const day = Math.floor((Date.now() - new Date(l.drying.startAt)) / DAY) + 1;
+      const open = state.openForm === 'weigh';
+      let html = bare ? `<div class="text-sm text-coffee-300 mb-2">Day ${day} of drying</div>` : heading(`Drying · day ${day} · ${esc(l.drying.surface || '')}`);
+      html += `<div class="card space-y-3">`;
+      if (di.ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">Dry. Bag it.</div>`;
+      const facts = [];
+      if (di.estNow != null) facts.push(`About <b class="text-white">${fmt(di.estNow, 1)}%</b> now${di.pts.length ? ' (from weight)' : ''}`);
+      if (di.targetW) facts.push(`Ready at about <b class="text-white">${fmt(di.targetW, 1)} kg</b>`);
+      if (di.eta) facts.push(`Expected around <b class="text-white">${esc(dayLabel(di.eta))}</b>`);
+      html += facts.length ? `<p class="text-[15px] text-coffee-200">${facts.join(' · ')}${di.eta ? why('Worked out from the latest drying rate. Below about 20% the water is bound more tightly and drying slows, so the real date is likely later. ¦ Lucia Solis: Producer Toolkit #2') : ''}</p>` : `<p class="text-[15px] text-coffee-300">Weigh it and take a meter reading. After two weighings the app can estimate the ready date.</p>`;
+      html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
+        ${tick(di.meterOk, `Meter reads ${di.target}% or less in ${di.spots.v} spots`, `${explainR(resolve('moistureTarget'))} ${explainR(di.spots)} ¦ Target: ${srcLabel(resolve('moistureTarget'))}. Spots: ${srcLabel(di.spots)}`)}
+        ${tick(di.holdOk, `The reading still holds ${di.hold.v} h later`, explain(di.hold))}
+        ${tick(di.brittle, 'The beans feel hard and brittle', 'ATI Philippines 2007')}</div>`;
+      if (!open) html += `<button onclick="toggleForm('weigh')" class="btn-big ${di.ready ? 'ghost' : ''}"><i data-lucide="scale" class="w-5 h-5"></i> Weigh and take readings</button>`;
+      else html += `<form onsubmit="addWeighing(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
+          <div><div class="text-sm text-coffee-300 mb-1">Weight (whole lot or a marked tray)</div><div class="relative"><input name="weight" type="number" step="0.01" inputmode="decimal" class="field-lg pr-12"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">kg</span></div></div>
+          <div><div class="text-sm text-coffee-300 mb-1">Meter readings, % (one per spot)</div><input name="meter" inputmode="decimal" placeholder="e.g. 18.5, 19.2, 18.9" class="field-lg"></div>
+          ${S.thermometer ? '<div><div class="text-sm text-coffee-300 mb-1">Seed temperature °C</div><input name="seedTemp" type="number" step="0.1" inputmode="decimal" class="field-lg"></div>' : ''}
+          <label class="chk-lg"><input name="brittle" type="checkbox"> Feels hard and brittle</label>
+          <input name="notes" placeholder="Notes (optional)" class="field-lg">
+          <details><summary class="text-sm text-coffee-400 underline cursor-pointer">Different time?</summary><input name="at" type="datetime-local" value="${toLocalInput(new Date())}" class="field-lg mt-2"></details>
+          <div class="grid grid-cols-2 gap-2"><button type="button" onclick="toggleForm('weigh')" class="btn-big ghost">Cancel</button><button class="btn-big">Save</button></div>
+        </form>`;
+      const nextW = lotReminders(l, 48).find(r => r.kind === 'moisture');
+      if (nextW && !open && !di.ready) html += `<div class="inline-why text-sm text-coffee-400">Next weighing: ${esc(when(nextW.at))}.${why(nextW.ref)}</div>`;
+      if (di.pts.length >= 2) html += lineChart(di.pts.map(p => ({ x: (new Date(p.at) - new Date(l.drying.startAt)) / DAY, y: p.m })), { title: 'Moisture from weight (%)', color: '#22D3EE', dp: 0, xUnit: 'd', lines: [{ y: di.target, label: `target ${di.target}%`, color: '#34D399' }] });
+      html += di.ready || state.openForm === 'bag' ? bagForm(l, di) : `<button onclick="toggleForm('bag')" class="text-sm text-coffee-400 underline">Bag it anyway</button>`;
+      return html + '</div>';
+    }
+
+    function bagForm(l, di) {
+      const m = di.last && avg(di.last.meter);
+      return `<form onsubmit="bagLot(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
+        <div class="text-lg font-semibold text-white">Bag it</div>
+        <div><div class="text-sm text-coffee-300 mb-1">Bags</div><select name="type" class="field-lg"><option value="barrier">Barrier bags (PE + EVOH)</option><option value="pe">Plain plastic (polyethylene)</option><option value="jute">Jute</option></select></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><div class="text-sm text-coffee-300 mb-1">Final meter %</div><input name="moisture" type="number" step="0.1" inputmode="decimal" value="${m != null ? fmt(m, 1) : ''}" required class="field-lg"></div>
+          <div><div class="text-sm text-coffee-300 mb-1">Number of bags</div><input name="bags" type="number" min="0" inputmode="numeric" class="field-lg"></div>
+        </div>
+        <input name="notes" placeholder="What worked? What would you change?" class="field-lg">
+        <label class="chk-lg"><input name="recipe" type="checkbox" checked> Save as a recipe for next time</label>
+        <button class="btn-big"><i data-lucide="package" class="w-5 h-5"></i> Bag it</button>
+        <div class="inline-why text-sm text-coffee-400">Barrier bags keep out moisture and air.${why('A 60 kg barrier bag costs about $3 and can be reused about three times if washed and dried, so it costs a few cents per kilo. ¦ Lucia Solis: Producer Toolkit #7')}</div>
+      </form>`;
+    }
+
+    function restCard(l, bare) {
+      const days = (Date.now() - new Date(l.bag.at)) / DAY;
+      return (bare ? '' : heading('Bagged')) + `<div class="card space-y-2">
+        <p class="text-[15px] text-coffee-100">Bagged ${esc(dayLabel(l.bag.at))} at ${fmt(l.bag.moisture, 1)}% in ${esc({ barrier: 'barrier bags', pe: 'plain plastic', jute: 'jute' }[l.bag.type] || 'bags')}. Resting for ${fmt(days)} days.</p>
+        <div class="inline-why text-sm text-coffee-400">Lots rest for several weeks before hulling. Keep the bags away from smells.${why('Resting improves shelf life, and coffee soaks up any smell near it. ¦ Hackler & Särchen 2025, ch. 5; Lucia Solis: Producer Toolkit #7')}</div>
+        ${l.recipeSaved ? '<p class="text-sm text-emerald-300">Saved as a recipe.</p>' : ''}
+        <form onsubmit="saveCup(event,'${l.id}')" class="space-y-2 border-t border-coffee-800 pt-3">
+          <div class="text-[15px] text-white font-semibold">Cup it <span class="opt">(after resting)</span></div>
+          <input name="flavor" value="${esc(l.flavor || '')}" placeholder="What did you taste? e.g. lime, black tea, caramel" class="field-lg">
+          <input name="cupScore" type="number" step="0.25" min="0" max="100" inputmode="decimal" value="${l.cupScore ?? ''}" placeholder="Score (optional)" class="field-lg">
+          <button class="btn-big ghost">Save</button>
+          <div class="inline-why text-sm text-coffee-400 ">Then compare it with your notes from the tank and the drying beds.${why('Cupping is how you link what happened in the tank to the cup. Without that feedback loop you can\'t improve. ¦ Lucia Solis: Producer Toolkit #3')}</div>
+        </form>
+      </div>`;
+    }
+
+    function historyHtml(l) {
+      const rs = readingsOf(l);
+      const ws = l.drying ? dryingInfo(l).ws : [];
+      const acts = l.actions || [];
+      const wxd = Object.values(l.wx || {});
+      if (!rs.length && !ws.length && !acts.length && !wxd.length) return '';
+      const count = k => acts.filter(a => a.kind === k).length;
+      let html = `<details class="mt-6"><summary class="text-sm text-coffee-300 underline cursor-pointer">History</summary><div class="card mt-2 space-y-3 text-sm">`;
+      if (rs.length) html += `<div><div class="text-coffee-400 mb-1">pH readings</div><table class="data w-full"><tbody>${rs.map(r => `<tr><td class="text-coffee-400">${fmt(fermentHours(l, r), 1)} h</td><td class="text-white">${fmt(r.ph, 2)}</td><td class="whitespace-normal">${r.hand ? '<span class="text-emerald-300">hand test ✓</span> ' : ''}${esc(r.smell || '')}</td><td><button onclick="deleteReading('${l.id}','${r.at}')" class="text-coffee-500" title="Delete"><i data-lucide="x" class="w-4 h-4"></i></button></td></tr>`).join('')}</tbody></table></div>`;
+      if (ws.length) html += `<div><div class="text-coffee-400 mb-1">Weighings</div><table class="data w-full"><tbody>${ws.map(w => `<tr><td class="text-coffee-400">${esc(dayLabel(w.at))}</td><td class="text-white">${fmt(w.weight, 1)} kg</td><td>${w.meter && w.meter.length ? esc(w.meter.map(v => fmt(v, 1)).join(', ')) + '%' : ''}</td><td>${w.brittle ? 'brittle' : ''}</td><td><button onclick="deleteWeighing('${l.id}','${w.at}')" class="text-coffee-500" title="Delete"><i data-lucide="x" class="w-4 h-4"></i></button></td></tr>`).join('')}</tbody></table></div>`;
+      if (wxd.length) html += `<p class="text-coffee-300">Weather saved for ${wxd.length} day${wxd.length > 1 ? 's' : ''}: highs averaged ${fmt(avg(wxd.map(x => x.tmax)), 1)} °C, 1 mm or more of rain on ${wxd.filter(x => x.rain >= 1).length}.</p>`;
+      if (acts.length) html += `<p class="text-coffee-300">Logged: ${count('rake')} rakes, ${count('pile') + count('cover')} times piled or covered, ${count('spread') + count('uncover')} times spread.</p>`;
+      return html + '</div></details>';
+    }
+
+    // ---------------------------------------------------------------
+    // LOT ACTIONS
+    // ---------------------------------------------------------------
+    function formTime(f) { return f.at && f.at.value ? new Date(f.at.value).toISOString() : new Date().toISOString(); }
+    function addReading(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      const r = { at: formTime(f), ph: num(f.ph.value), temp: f.temp ? num(f.temp.value) : null, brix: f.brix ? num(f.brix.value) : null, psi: f.psi ? num(f.psi.value) : null, smell: f.smell.value.trim(), hand: !!(f.hand && f.hand.checked) };
+      l.readings = (l.readings || []).filter(x => x.at !== r.at).concat([r]);
+      state.openForm = null; save(); renderAll();
+    }
+    function deleteReading(id, at) { const l = lotById(id); l.readings = l.readings.filter(r => r.at !== at); save(); renderAll(); }
+    function finishFermentation(id) {
+      const l = lotById(id);
+      if (!fermentReady(l).ready && !confirm('The ready checks are not all ticked yet. Finish the fermentation anyway?')) return;
+      l.washedAt = new Date().toISOString(); save(); renderAll();
+    }
+    function startDrying(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      l.drying = { startAt: new Date().toISOString(), surface: f.surface.value, target: V('moistureTarget'), weighings: [] };
+      save(); renderAll();
+    }
+    function addWeighing(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      const w = { at: formTime(f), weight: num(f.weight.value), meter: parseList(f.meter.value), seedTemp: f.seedTemp ? num(f.seedTemp.value) : null, brittle: f.brittle.checked, notes: f.notes.value.trim() };
+      l.drying.weighings = (l.drying.weighings || []).filter(x => x.at !== w.at).concat([w]);
+      state.openForm = null; save(); renderAll();
+    }
+    function deleteWeighing(id, at) { const l = lotById(id); l.drying.weighings = l.drying.weighings.filter(w => w.at !== at); save(); renderAll(); }
+    function bagLot(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      l.bag = { at: new Date().toISOString(), type: f.type.value, moisture: num(f.moisture.value), bags: num(f.bags.value), notes: f.notes.value.trim() };
+      if (f.recipe.checked) { state.recipes.push(recipeFromLot(l)); l.recipeSaved = true; }
+      state.openForm = null; save(); renderAll(); window.scrollTo({ top: 0 });
+    }
+    function saveCup(e, id) {
+      e.preventDefault();
+      const l = lotById(id), f = e.target;
+      l.cupScore = num(f.cupScore.value); l.flavor = f.flavor.value.trim();
+      state.recipes.filter(r => r.lotId === id).forEach(r => { r.cupScore = l.cupScore; r.flavor = l.flavor; });
+      save(); renderAll();
+    }
+    function deleteLot(id) {
+      const l = lotById(id);
+      if (!confirm(`Delete ${l.code} and all its readings?`)) return;
+      state.lots = state.lots.filter(x => x.id !== id);
+      state.selectedId = null;
+      save(); setTab('lots');
+    }
+
+    // ---------------------------------------------------------------
+    // MORE
+    // ---------------------------------------------------------------
+    function moreRow(tab, icon, title, sub) {
+      return `<button onclick="setTab('${tab}')" class="row-btn"><i data-lucide="${icon}" class="w-5 h-5 text-amber-400 flex-shrink-0"></i><div class="flex-1 min-w-0"><div class="text-white font-semibold">${title}</div><div class="text-sm text-coffee-400">${sub}</div></div><i data-lucide="chevron-right" class="w-5 h-5 text-coffee-500"></i></button>`;
+    }
+    function renderMore() {
+      return `<div class="space-y-2">
+        ${moreRow('recipes', 'book-marked', `Your recipes (${state.recipes.length})`, 'Saved each time you bag a lot')}
+        ${moreRow('refs', 'globe', 'What other mills did', 'Lots that roasters in India, Nepal and elsewhere describe')}
+        ${moreRow('settings', 'warehouse', 'Mill and setup', 'Location, drying setup, processes, cultivars')}
+        ${moreRow('alerts', 'bell-ring', 'Reminders on your phone', 'Calendar file and alerts')}
+        ${moreRow('sources', 'book-open', 'Where the numbers come from', 'Lucia Solis or research papers, and your own values')}
+        ${moreRow('calc', 'calculator', 'Calculators', 'Yeast dose and target weight')}
+        ${moreRow('data', 'hard-drive', 'Backup and sample data', 'Export, restore, sample lots')}
+      </div>`;
+    }
+
+    function renderRecipesPage() {
+      if (!state.recipes.length) return '<p class="text-[15px] text-coffee-300">No recipes yet. A recipe is saved when you bag a lot. Next time you buy the same cultivar from a similar altitude, it is offered first.</p>';
+      return `<p class="text-sm text-coffee-400 mb-3">Offered first when you buy the same cultivar within ${V('altitudeBand')} m of altitude.</p><div class="space-y-2">${state.recipes.map(r => `<div class="card space-y-1">
+        <div class="flex items-start justify-between gap-2"><div><div class="text-white font-semibold">${esc(r.cultivar || '–')} · ${esc(r.process)}</div><div class="text-sm text-coffee-400">${fmt(r.masl)} m · from ${esc(r.fromLot)}</div></div><button onclick="deleteRecipe('${r.id}')" class="text-coffee-500" title="Delete"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+        ${r.fermentH ? `<p class="text-[15px] text-coffee-200">Fermented ${fmt(r.fermentH)} h${r.fermentTemp ? ` at ${fmt(r.fermentTemp, 1)} °C` : ''}, stopped at pH ${fmt(r.phEnd, 2)}${r.culture && r.culture !== 'none' ? ` with ${esc(r.product || cultureOf(r.culture).name)}` : ''}.</p>` : ''}
+        <p class="text-[15px] text-coffee-200">Dried ${fmt(r.dryDays)} days${r.surface ? ` on ${esc(r.surface.toLowerCase())}` : ''} to ${fmt(r.finalMoisture, 1)}%${r.rakes ? `, raked ${r.rakes} times` : ''}.</p>
+        ${r.notes ? `<p class="text-sm text-coffee-300">${esc(r.notes)}</p>` : ''}
+        ${r.cupScore != null ? `<p class="text-sm text-coffee-300">Cupped ${fmt(r.cupScore, 2)}</p>` : ''}
+      </div>`).join('')}</div>`;
+    }
+    function deleteRecipe(id) { if (!confirm('Delete this recipe?')) return; state.recipes = state.recipes.filter(r => r.id !== id); save(); renderAll(); }
+
+    function renderRefs() {
+      const cats = ['all', 'washed', 'natural', 'honey', 'anaerobic washed', 'anaerobic natural', 'carbonic maceration', 'other'];
+      const f = state.refFilter || 'all';
+      const refs = ROASTER_LOTS.filter(x => f === 'all' || x.p === f);
+      return `<p class="text-sm text-coffee-400 mb-3">Only what each roaster's or exporter's page says. These are examples, not targets, and they never change the app's advice.</p>
+        <div class="flex flex-wrap gap-2 mb-3">${cats.map(c => chip(c, f === c, `state.refFilter='${c}';renderAll()`)).join('')}</div>
+        <div class="space-y-2">${refs.map(x => `<div class="card space-y-1">
+          <div class="text-white font-semibold">${esc(x.lot)}</div>
+          <div class="text-sm text-coffee-400">${esc(x.o)} · ${esc(x.p)} · <a class="underline" href="${x.u}" target="_blank" rel="noopener">${esc(x.r)}</a></div>
+          <p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Fermentation:</span> ${esc(x.f)}</p>
+          <p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Drying:</span> ${esc(x.d)}</p>
+          ${x.t ? `<p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Cup:</span> ${esc(x.t)}${x.s ? ` · ${fmt(x.s, 2)} pts` : ''}</p>` : ''}
+        </div>`).join('')}</div>
+        ${heading('Starter cultures and the flavours they push')}
+        <div class="card space-y-2">${CULTURE_FLAVOURS.map(r => `<div class="inline-why text-[15px] text-coffee-200"><span class="text-white">${esc(r[0])}</span> · ${esc(r[1])}: ${esc(r[2])}</div>`).join('')}<div class="inline-why text-xs text-coffee-400">Research examples, not guarantees.${why('Each culture makes its own set of aroma building blocks. The book shows what trials found, but the links are complex and are examples for that process only. ¦ Hackler & Särchen 2025, Tab. 6.1')}</div></div>`;
+    }
+
+    function renderSettingsPage() {
+      const S = state.settings, m = S.mill, su = S.setup;
+      const cb = (path, val, label) => `<label class="chk-lg"><input type="checkbox" ${val ? 'checked' : ''} onchange="setSetting('${path}', this.checked)"> ${label}</label>`;
+      return `${heading('Mill')}
+        <div class="card space-y-3">
+          <input value="${esc(m.name)}" placeholder="Mill name" class="field-lg" onchange="setSetting('mill.name', this.value)">
+          <div class="grid grid-cols-2 gap-2"><input type="number" step="any" inputmode="decimal" value="${m.lat ?? ''}" placeholder="Latitude" class="field-lg" onchange="setSetting('mill.lat', num(this.value))"><input type="number" step="any" inputmode="decimal" value="${m.lon ?? ''}" placeholder="Longitude" class="field-lg" onchange="setSetting('mill.lon', num(this.value))"></div>
+          <button onclick="useMyLocation()" class="btn-big ghost"><i data-lucide="locate" class="w-5 h-5"></i> Use my location</button>
+          <p class="text-sm text-coffee-400">${esc(wxStatus.startsWith('error') ? 'Could not reach the weather service.' : '')} Only the location is sent to the weather service. Everything else stays on this phone.</p>
+        </div>
+        ${heading('How you dry')}
+        <div class="card space-y-2">${cb('setup.patio', su.patio, 'Patio')}${cb('setup.beds', su.beds, 'Raised beds')}${cb('setup.shade', su.shade, 'Shade cloth')}${cb('setup.covered', su.covered, 'Covered area')}${cb('setup.polyhouse', su.polyhouse, 'Polyhouse')}${cb('setup.dryer', su.dryer, 'Mechanical dryer')}</div>
+        ${heading('Processes you run')}
+        <div class="card space-y-2">${METHODS.filter(x => x.id !== 'Other').map(x => `<label class="chk-lg"><input type="checkbox" ${S.processes.includes(x.id) ? 'checked' : ''} onchange="toggleProcess('${x.id}', this.checked)"> ${x.id}</label>`).join('')}</div>
+        ${heading('Tools')}
+        <div class="card space-y-2">${cb('thermometer', S.thermometer, 'I have a probe thermometer')}${cb('extraInstruments', S.extraInstruments, 'I measure Brix and tank pressure')}</div>
+        ${heading('Cultivars')}
+        <p class="text-sm text-coffee-400 mb-2">Add the best altitude for each from the <a class="underline" href="${WCR_URL}" target="_blank" rel="noopener">World Coffee Research catalog</a>. The app warns when a farm is lower.</p>
+        <div class="space-y-2">${state.cultivars.map((c, i) => `<div class="card !p-3 space-y-2">
+          <div class="flex gap-2"><input value="${esc(c.name)}" class="field-lg" onchange="setCultivar(${i},'name',this.value)"><button onclick="removeCultivar(${i})" class="text-coffee-500 px-2" title="Remove"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+          <div class="grid grid-cols-2 gap-2"><input type="number" inputmode="numeric" value="${c.optMin ?? ''}" placeholder="Best from (m)" class="field-lg" onchange="setCultivar(${i},'optMin',num(this.value))"><input type="number" inputmode="numeric" value="${c.optMax ?? ''}" placeholder="to (m)" class="field-lg" onchange="setCultivar(${i},'optMax',num(this.value))"></div>
+          ${c.flavor ? `<div class="inline-why text-sm text-coffee-300">${esc(c.flavor)}.${why(c.flavorRef)}</div>` : ''}
+        </div>`).join('')}</div>
+        <button onclick="addCultivar()" class="btn-big ghost mt-2"><i data-lucide="plus" class="w-5 h-5"></i> Add cultivar</button>`;
+    }
+
+    function renderSources() {
+      const S = state.settings;
+      const cols = ['lucia', 'research', 'toolkit', 'tool'];
+      const rows = Object.entries(THRESHOLDS).map(([k, t]) => {
+        const r = resolve(k);
+        return `<div class="card !p-3 space-y-1">
+          <div class="flex items-center justify-between gap-3"><div class="text-[15px] text-white">${esc(t.label)}</div><div class="flex items-center gap-1"><input type="number" step="any" value="${S.overrides[k] ?? ''}" placeholder="${r.v}" class="field !w-20 text-right" onchange="setOverride('${k}', this.value)"><span class="text-sm text-coffee-400 w-10">${esc(t.unit)}</span></div></div>
+          <div class="text-xs text-coffee-400">${cols.filter(c => t[c]).map(c => `<span class="${r.from === c ? 'text-amber-300' : ''}">${SOURCE_NAMES[c]}: ${t[c][0]}${t[c][1] ? ` (${esc(t[c][1])})` : ''}</span>`).join(' · ')}${r.from === 'you' ? ' · <span class="text-amber-300">Yours</span>' : ''}</div>
+        </div>`;
+      }).join('');
+      return `<div class="card space-y-2">
+          <div class="text-white font-semibold">Whose numbers to use</div>
+          <select onchange="setPreset(this.value)" class="field-lg"><option value="lucia" ${S.preset === 'lucia' ? 'selected' : ''}>Lucia Solis (default)</option><option value="research" ${S.preset === 'research' ? 'selected' : ''}>Research papers</option></select>
+          <p class="text-sm text-coffee-400">When a source has no number for something, the next one fills the gap. "Tool heuristic" values are my starting points, not published rules. Type your own value in the box to override any of them.</p>
+        </div>
+        <div class="space-y-2 mt-3">${rows}</div>`;
+    }
+
+    function renderAlertsPage() {
+      const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+      return `<div class="card space-y-3">
+          <div class="text-white font-semibold">Phone calendar</div>
+          <p class="text-[15px] text-coffee-300">Adds the next 48 hours of reminders to your calendar, so your phone rings even when this page is closed. Add it again when the weather changes.</p>
+          <button onclick="exportIcs()" class="btn-big"><i data-lucide="calendar-plus" class="w-5 h-5"></i> Add to calendar</button>
+        </div>
+        <div class="card space-y-3 mt-3">
+          <div class="text-white font-semibold">Alerts while the page is open</div>
+          <p class="text-[15px] text-coffee-300">${perm === 'granted' ? 'On.' : perm === 'denied' ? 'Blocked in the browser settings.' : perm === 'unsupported' ? 'This browser does not support alerts.' : 'Off.'}</p>
+          ${perm === 'default' ? '<button onclick="enableNotifications()" class="btn-big ghost">Turn on alerts</button>' : ''}
+        </div>`;
+    }
+
+    function renderDataPage() {
+      return `<div class="card space-y-3">
+          <p class="text-[15px] text-coffee-300">Lots are saved on this phone only. Make a backup now and then.</p>
+          <button onclick="exportJson()" class="btn-big ghost"><i data-lucide="download" class="w-5 h-5"></i> Back up</button>
+          <label class="btn-big ghost cursor-pointer"><i data-lucide="upload" class="w-5 h-5"></i> Restore a backup<input type="file" accept=".json,application/json" class="hidden" onchange="importJson(this)"></label>
+          <button onclick="exportCsv()" class="btn-big ghost"><i data-lucide="sheet" class="w-5 h-5"></i> Export for a spreadsheet (CSV)</button>
+        </div>
+        <div class="card space-y-3 mt-3">
+          <p class="text-[15px] text-coffee-300">Sample lots come from the batch tracker spreadsheet. They show how lots look at each stage.</p>
+          <button onclick="loadSamples()" class="btn-big ghost"><i data-lucide="sparkles" class="w-5 h-5"></i> Add sample lots</button>
+          <button onclick="removeSamples()" class="btn-big ghost"><i data-lucide="eraser" class="w-5 h-5"></i> Remove sample lots</button>
+          <button onclick="clearAll()" class="text-sm text-rose-300 underline">Delete everything</button>
+        </div>`;
+    }
+
+    const CALC_HTML = `<div class="space-y-4">
+        <div class="card space-y-3">
+          <div class="text-white font-semibold">Yeast dose</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><div class="text-sm text-coffee-300 mb-1">Coffee into tank (kg)</div><input id="c_kg" type="number" min="0" value="500" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Dose (g/kg)</div><input id="c_dose" type="number" min="0" step="0.1" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Culture</div><select id="c_yeast" class="field-lg" onchange="renderCalc()"></select></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Container</div><select id="c_container" class="field-lg" onchange="renderCalc()"><option value="barrel">Barrels (40–45 kg)</option><option value="tank">One tank</option></select></div>
+          </div>
+          <div id="calcDoseOut" class="text-sm space-y-2"></div>
+        </div>
+        <div class="card space-y-3">
+          <div class="text-white font-semibold">Target weight</div>
+          <p class="text-sm text-coffee-400">Dry matter stays the same while coffee dries. Once the meter gives a steady reading, one weighing tells you what the lot will weigh at the target.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div><div class="text-sm text-coffee-300 mb-1">Weight now (kg)</div><input id="m_w0" type="number" step="0.01" value="100" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Meter now (%)</div><input id="m_m0" type="number" step="0.1" value="20" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Later weight (kg)</div><input id="m_w1" type="number" step="0.01" value="95" class="field-lg" oninput="renderCalc()"></div>
+            <div><div class="text-sm text-coffee-300 mb-1">Target (%)</div><input id="m_target" type="number" step="0.1" class="field-lg" oninput="renderCalc()"></div>
+          </div>
+          <div id="calcMoistOut" class="text-sm space-y-2"></div>
+        </div>
+      </div>`;
+
+    // ---------------------------------------------------------------
+    // NAVIGATION & RENDER
+    // ---------------------------------------------------------------
+    const PAGES = {
+      today: { title: 'Today', nav: 'today' },
+      new: { title: 'New lot', nav: 'new', back: 'wizard' },
+      lots: { title: 'Lots', nav: 'lots' },
+      lot: { title: 'Lot', nav: 'lots', back: 'lots' },
+      more: { title: 'More', nav: 'more' },
+      recipes: { title: 'Your recipes', nav: 'more', back: 'more' },
+      refs: { title: 'What other mills did', nav: 'more', back: 'more' },
+      settings: { title: 'Mill and setup', nav: 'more', back: 'more' },
+      alerts: { title: 'Reminders on your phone', nav: 'more', back: 'more' },
+      sources: { title: 'Where the numbers come from', nav: 'more', back: 'more' },
+      calc: { title: 'Calculators', nav: 'more', back: 'more' },
+      data: { title: 'Backup and sample data', nav: 'more', back: 'more' },
+    };
+    function setPreset(v) { state.settings.preset = v; wxCache = null; save(); renderAll(); }
+    function setTab(tab) {
+      if (tab === 'new' && !wiz) wiz = { step: 0, d: newDraft(), err: '' };
+      state.tab = PAGES[tab] ? tab : 'today';
+      save(); renderAll(); window.scrollTo({ top: 0 });
+    }
+    function goBack() {
+      const p = PAGES[state.tab];
+      if (p.back === 'wizard') { if (wiz && wiz.step > 0) { wiz.step--; wiz.err = ''; renderAll(); window.scrollTo({ top: 0 }); } else { wiz = null; setTab('today'); } return; }
+      setTab(p.back || 'today');
+    }
+    function renderHeader() {
+      const p = PAGES[state.tab];
+      const m = state.settings.mill;
+      const l = state.tab === 'lot' ? lotById(state.selectedId) : null;
+      document.getElementById('pageTitle').textContent = p.title;
+      document.getElementById('millName').textContent = state.tab === 'today' ? (m.name || 'Mill Assistant') : '';
+      document.getElementById('millName').classList.toggle('hidden', state.tab !== 'today');
+      document.getElementById('backBtn').classList.toggle('hidden', !p.back);
+      document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('on', b.dataset.nav === p.nav));
+    }
+    function renderAll() {
+      const t = state.tab;
+      if (t === 'lot' && !lotById(state.selectedId)) state.tab = 'lots';
+      renderHeader();
+      const el = document.getElementById('view');
+      const pages = { today: renderToday, new: renderWizard, lots: renderLots, lot: renderLot, more: renderMore, recipes: renderRecipesPage, refs: renderRefs, settings: renderSettingsPage, alerts: renderAlertsPage, sources: renderSources, calc: () => CALC_HTML, data: renderDataPage };
+      el.innerHTML = pages[state.tab]();
+      if (state.tab === 'calc') renderCalc();
+      icons();
+    }
+
+    load();
+    if (!PAGES[state.tab] || state.tab === 'new') state.tab = 'today';
+    renderAll();
+    // Refresh the forecast when it's older than 3 hours and there is signal
+    if (state.settings.mill.lat != null && (!state.weather || hoursBetween(state.weather.fetchedAt, new Date()) > 3)) fetchWeather();
+    // Keep Today current, but never while someone is typing
+    setInterval(() => {
+      tickNotifications();
+      const a = document.activeElement;
+      if (state.tab === 'today' && !(a && /INPUT|SELECT|TEXTAREA/.test(a.tagName))) renderAll();
+    }, 60000);
+  </script>
+</body>
+</html>

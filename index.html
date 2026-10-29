@@ -100,7 +100,11 @@
             <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Flowcharts
           </button>
         </div>
-        
+
+        <a href="tools.html" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-coffee-300 hover:text-white bg-coffee-900 hover:bg-coffee-800 border border-coffee-800 rounded-lg transition" title="Mill assistant: weather, process suggestions, reminders and recipes">
+          <i data-lucide="flask-conical" class="w-4 h-4 text-amber-400"></i> Tools
+        </a>
+
         <a href="#quick-index" class="p-2 text-coffee-400 hover:text-white bg-coffee-900 hover:bg-coffee-800 border border-coffee-800 rounded-lg transition" title="Quick Index">
           <i data-lucide="list-tree" class="w-5 h-5"></i>
         </a>
@@ -918,6 +922,9 @@
       lucide.createIcons();
       renderIndexList();
       renderAllViews();
+      // Deep link from the mill assistant: index.html#p=<id> opens that process
+      const deep = location.hash.match(/^#p=(\d+)$/);
+      if (deep) openModal(Number(deep[1]));
     });
 
     // VIEW MODE SWITCHER
