@@ -228,6 +228,12 @@
           'Stir gently, then rest 15–30 min.',
           'Add the starter while mixing the tank.'
         ], ref: 'The maker says to rehydrate dry yeast in 10× its weight of clean water at 10–25 °C for 15–30 min before adding it. ¦ Fermentis SafCoffee data sheet' },
+      { id: 'lalcafe', name: 'LalCafé yeast (Lallemand)', needsDose: true,
+        prep: (g) => [
+          `Rehydrate ${fmt(g)} g of yeast in ${fmt(g * 10 / 1000, 1)} L of drinking water at 15–37 °C (10× its weight). Stir gently to break up clumps.`,
+          'Wait at least 10 min, stir again, then wait 10–20 min more.',
+          'After 20–30 min in all, add it while the tank fills, spread evenly.'
+        ], ref: 'Lallemand says to rehydrate in 10× its weight of drinking water at 15–37 °C for 20–30 min, then add it while the tank fills so it spreads evenly. ¦ Scott Labs: LalCafé BSC and Briosa data sheets' },
       { id: 'activate', name: 'Dry yeast, warm activation (Victor Chara)', needsDose: true,
         prep: (g, kg, barrels) => [
           `Heat ${fmt(kg * 14 / 500, 1)} L of water to about 30 °C (14 L per 500 kg).`,
@@ -242,6 +248,19 @@
       { id: 'baker', name: "Baker's or beer yeast", warn: true, prep: () => [], ref: 'Bred for dough or grain, these get stressed in an acidic coffee tank and give cheesy or sulphur notes. ¦ Lucia Solis: Producer Toolkit #3' },
     ];
     const cultureOf = id => CULTURES.find(c => c.id === id) || CULTURES[0];
+
+    // LalCafé range: [name, maker's claim, source]. All are the maker's or its distributors' words.
+    const LALCAFE = [
+      ['Oro', 'For mill efficiency, or for cup quality with longer fermentations. Robust at low temperatures, so it suits cool and warm climates.', 'LalCafé by Lallemand: Oro product page'],
+      ['Cima', 'Brightness and citrus notes, and more mid-palate mouthfeel. Needs at least 15 °C inside the coffee mass.', 'LalCafé by Lallemand: Cima product page'],
+      ['Intenso', 'Mouthfeel, floral aromas and tropical fruit notes. Builds complexity.', 'LalCafé by Lallemand: Intenso product page'],
+      ['Briosa', 'Balance and mouthfeel while keeping the varietal character. Best at 18–25 °C, for 18–72 h.', 'Scott Labs: LalCafé Briosa data sheet'],
+      ['BSC', 'A clean fermentation with no added flavour, to guard against spoilage. Best at 20–24 °C, at least 15 °C, for 18–48 h.', 'Scott Labs: LalCafé BSC data sheet'],
+      ['Inicio', 'A reliable fermentation in any process, with a touch of fruitiness.', 'Simalem Coffee: LalCafé product list'],
+      ['LDP', 'Made for the dry (natural) process.', 'Simalem Coffee: LalCafé product list'],
+      ['Bacti-Fresh', 'Lactic bacteria (Lactobacillus helveticus), alone or with a LalCafé yeast. Fresh, clean, balanced acidity. Follow its own sheet: the steps here are for the yeasts.', 'Simalem Coffee: LalCafé product list'],
+    ];
+    const LALCAFE_TRIAL = note('amber', "These are the maker's claims. In one 2018 trial in Ethiopia, the coffee with no yeast cupped 89, above Cima (86), Intenso (84) and Oro (83.25).", 'One farm and one season: 2 kg buckets, one roast profile, two cuppers, no statistics. Treat it as a reason to run your own side-by-side, not as a verdict. ¦ The Coffee Blog: Abana trial, Gera, Ethiopia, Dec 2018');
 
     // Starter cultures and the flavours they push (Hackler & Särchen 2025, Tab. 6.1)
     const CULTURE_FLAVOURS = [
@@ -688,6 +707,7 @@
         const floor = resolve('phFloor'), tMax = resolve('tempMax');
         if (last) {
           if (last.temp != null && last.temp > tMax.v) out.push(note('red', `Tank at ${fmt(last.temp, 1)} °C, above ${tMax.v} °C. Shade or cool it.`, explain(tMax)));
+          if (c.id === 'lalcafe' && last.temp != null && last.temp < 15) out.push(note('amber', `Tank at ${fmt(last.temp, 1)} °C, below the 15 °C LalCafé needs to take hold. Move it somewhere warmer.`, 'Lallemand gives 15 °C inside the coffee as the minimum for its yeasts to establish. ¦ LalCafé by Lallemand: Cima and BSC pages'));
           if (last.psi != null && last.psi > V('pressureMax')) out.push(note('red', `Pressure ${fmt(last.psi, 1)} PSI is above ${V('pressureMax')} PSI. Vent the tank.`, explain(resolve('pressureMax'))));
           if (last.ph != null && last.ph < floor.v) out.push(note('red', `pH ${fmt(last.ph, 2)} is below ${floor.v}. Risk of over-fermentation.`, explain(floor)));
           else if (fr.ph) out.push(note('green', `pH ${fmt(last.ph, 2)} has reached the ${fr.end.v} endpoint. Do the hand test, then wash or unload.`, explain(fr.end)));
@@ -899,6 +919,12 @@
       return `<div class="card !p-3"><div class="text-xs font-mono text-coffee-400 mb-1">${esc(opts.title)}</div>${svg}</div>`;
     }
 
+    function lalcafeHtml(product) {
+      const sel = LALCAFE.find(([n]) => product === 'LalCafé ' + n);
+      return `<div class="flex flex-wrap gap-2">${LALCAFE.map(([n]) => chip(n, sel && sel[0] === n, `wpick('product', ${esc(JSON.stringify('LalCafé ' + n))})`)).join('')}</div>
+        ${sel ? `<div class="inline-why text-sm text-coffee-200">${esc(sel[1])}${why("The maker's description of this product. ¦ " + sel[2])}</div>` : ''}
+        ${notesHtml([LALCAFE_TRIAL])}`;
+    }
     function computePlan(p) {
       const kg = p.kg || 0;
       const culture = cultureOf(p.yeast);
@@ -1354,6 +1380,7 @@
           const plan = computePlan({ kg: d.cherryKg, yeast: d.culture, dose: d.dose, container: d.vessel });
           html += `<div class="card mt-3 space-y-3">
             <select onchange="wsetCulture(this.value)" class="field-lg">${CULTURES.filter(x => x.id !== 'none').map(x => `<option value="${x.id}" ${d.culture === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+            ${d.culture === 'lalcafe' ? lalcafeHtml(d.product) : ''}
             <input value="${esc(d.product)}" oninput="wset('product', this.value)" placeholder="Product name (optional)" class="field-lg">
             ${c.needsDose ? `<div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div>
               ${d.cherryKg ? `<div class="text-sm">${planHtml(plan)}</div>` : '<p class="text-sm text-coffee-400">Enter the kg on the first screen to get grams and mixing steps.</p>'}
@@ -1512,7 +1539,7 @@
       const d0 = new Date(t0); d0.setHours(0, 0, 0, 0);
       const dayN = t => Math.floor((t - d0.getTime()) / DAY);
       const span = (a, b) => { const x = dayN(a), y = dayN(b); return { days: x === y ? `Day ${x}` : `Day ${x}–${y}`, dates: x === y ? shortDate(a) : `${shortDate(a)} – ${shortDate(b)}` }; };
-      const starter = c.id === 'none' ? '' : p.product || { rehydrate: 'dry yeast', activate: 'dry yeast', direct: 'direct-pitch culture', lab: 'lactic bacteria', baker: "baker's yeast" }[c.id];
+      const starter = c.id === 'none' ? '' : p.product || { rehydrate: 'dry yeast', lalcafe: 'LalCafé yeast', activate: 'dry yeast', direct: 'direct-pitch culture', lab: 'lactic bacteria', baker: "baker's yeast" }[c.id];
       const doseText = c.needsDose ? (p.kg ? `${fmt((p.dose ?? V('doseGPerKg')) * p.kg)} g (${fmt(p.dose ?? V('doseGPerKg'), 2)} g/kg)` : `${fmt(p.dose ?? V('doseGPerKg'), 2)} g/kg`) : '';
       const stages = [];
 
@@ -1552,6 +1579,10 @@
           const plan = p.kg ? computePlan({ kg: p.kg, yeast: p.culture, dose: p.dose, container: 'barrel' }) : null;
           f.todo.push([`Add ${doseText} of ${starter}.${plan ? ' ' + plan.steps.join(' ') : ''}`, c.ref]);
           f.todo.push(["Starters can shorten or lengthen it: a fast commercial microbe cut one cold mill's fermentations from 100 h to 24 h, and at Shira a yeast let them go from 12 h to 48 h for more flavour", 'A cold-tolerant coffee yeast freed up one mill\'s tanks. At Shira, the yeast kept a long fermentation clean, and the coffee tasted more intense. ¦ Lucia Solis: Producer Toolkit #3']);
+        }
+        if (c.id === 'lalcafe') {
+          f.todo.push(['Keep the tank at 15 °C or warmer. Lallemand gives 20–24 °C as best for BSC and 18–25 °C for Briosa', 'Below 15 °C the yeast may not take hold before the wild microbes do. Inside the best range it works without over-fermented notes. ¦ LalCafé by Lallemand: Cima and BSC pages; Scott Labs: BSC and Briosa data sheets']);
+          if (!m.sealed) f.todo.push(['Keep the coffee just under water, no more than 1 cm above it, and leave in as much mucilage as you can', 'The yeast makes its flavour from the fruit, so extra water dilutes it. ¦ Scott Labs: LalCafé BSC and Briosa data sheets']);
         }
         f.todo.push(['Check pH twice a day, in the morning and at the end of the day', 'pH falls as the microbes make acid, so it shows how far the fermentation has gone. Lucia checks at least twice a day. ¦ Lucia Solis: Producer Toolkit #3']);
         if (S.thermometer) f.todo.push([`Check the tank temperature at the same time. Alert above ${R('tempMax').v} °C`, explain(R('tempMax'))]);
