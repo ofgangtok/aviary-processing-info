@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Processing Tools</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFBF7',
+              100: '#F7F2EA',
+              200: '#E9DEC9',
+              300: '#D5C3A5',
+              400: '#BBA27E',
+              500: '#9E8057',
+              600: '#81633F',
+              700: '#654B2E',
+              800: '#4B3520',
+              900: '#322214',
+              950: '#1C120A',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1C120A; }
+    ::-webkit-scrollbar-thumb { background: #4B3520; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #81633F; }
+    .field { width: 100%; background: #1C120A; border: 1px solid #4B3520; border-radius: 0.5rem; padding: 0.375rem 0.625rem; font-size: 0.8125rem; color: #E9DEC9; }
+    .field:focus { outline: none; border-color: rgba(245, 158, 11, 0.5); }
+    .lbl { display: block; font-size: 0.6875rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #BBA27E; margin-bottom: 0.25rem; }
+    .card { background: rgba(50, 34, 20, 0.6); border: 1px solid rgba(75, 53, 32, 0.8); border-radius: 0.75rem; padding: 1rem; }
+    .btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; transition: background 0.15s; }
+    .btn-primary { background: #D97706; color: #fff; }
+    .btn-primary:hover { background: #B45309; }
+    .btn-ghost { background: #322214; color: #D5C3A5; border: 1px solid #4B3520; }
+    .btn-ghost:hover { background: #4B3520; color: #fff; }
+    .src { font-size: 0.625rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; }
+    table.data td, table.data th { padding: 0.375rem 0.5rem; text-align: left; white-space: nowrap; }
+    table.data th { font-size: 0.6875rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; color: #BBA27E; font-weight: 500; }
+    table.data tbody tr { border-top: 1px solid rgba(75, 53, 32, 0.6); }
+  </style>
+</head>
+<body class="bg-coffee-950 text-coffee-100 font-sans min-h-screen antialiased selection:bg-coffee-500 selection:text-white">
+
+  <!-- TOP HEADER / NAV -->
+  <header class="sticky top-0 z-40 bg-coffee-950/90 backdrop-blur-md border-b border-coffee-800/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="p-2 bg-coffee-800/80 rounded-xl border border-coffee-700 text-amber-400" title="Back to the Processing Matrix">
+          <i data-lucide="flask-conical" class="w-6 h-6"></i>
+        </a>
+        <div>
+          <h1 class="text-lg font-bold text-coffee-50 tracking-tight leading-none">Processing Tools</h1>
+          <p class="text-xs text-coffee-400 font-mono mt-0.5">Batch planner, fermentation log &amp; drying</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <div class="flex items-center gap-1 bg-coffee-900/80 border border-coffee-800 rounded-lg p-1">
+          <button data-tab="batches" onclick="setTab('batches')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1 rounded-md transition"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Batches</button>
+          <button data-tab="calc" onclick="setTab('calc')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1 rounded-md transition"><i data-lucide="calculator" class="w-3.5 h-3.5"></i> Calculators</button>
+          <button data-tab="data" onclick="setTab('data')" class="tab-btn flex items-center gap-1.5 px-2.5 py-1 rounded-md transition"><i data-lucide="database" class="w-3.5 h-3.5"></i> Data &amp; sources</button>
+        </div>
+        <label class="flex items-center gap-1.5 bg-coffee-900/80 border border-coffee-800 rounded-lg px-2 py-1" title="Which source the default targets and alerts come from">
+          <span class="text-coffee-400 font-mono">Presets</span>
+          <select id="presetSelect" onchange="setPreset(this.value)" class="bg-transparent text-coffee-100 focus:outline-none">
+            <option value="lucia">Lucia Solis (default)</option>
+            <option value="research">Research papers</option>
+          </select>
+        </label>
+        <a href="index.html" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-coffee-300 hover:text-white bg-coffee-900 hover:bg-coffee-800 border border-coffee-800 transition">
+          <i data-lucide="table" class="w-3.5 h-3.5"></i> Matrix
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- BATCHES VIEW -->
+    <section id="view-batches" class="hidden">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <aside class="w-full lg:w-72 flex-shrink-0 space-y-4">
+          <div class="flex gap-2">
+            <button onclick="openBatchForm()" class="btn btn-primary flex-1 justify-center"><i data-lucide="plus" class="w-4 h-4"></i> New batch</button>
+          </div>
+          <div id="batchStats" class="grid grid-cols-3 gap-2"></div>
+          <div id="batchList" class="space-y-2"></div>
+        </aside>
+        <div id="batchDetail" class="flex-1 min-w-0"></div>
+      </div>
+    </section>
+
+    <!-- CALCULATORS VIEW -->
+    <section id="view-calc" class="hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card space-y-3">
+          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-amber-400"></i> Dose &amp; additions planner</h2>
+          <p class="text-xs text-coffee-400">Works out yeast, rehydration water, barrel count and the optional sugar addition for a given mass of coffee.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="lbl">Coffee into tank (kg)</label><input id="c_kg" type="number" min="0" value="500" class="field" oninput="renderCalc()"></div>
+            <div><label class="lbl">Yeast dose (g/kg)</label><input id="c_dose" type="number" min="0" step="0.1" class="field" oninput="renderCalc()"></div>
+            <div><label class="lbl">Culture type</label><select id="c_yeast" class="field" onchange="renderCalc()"></select></div>
+            <div><label class="lbl">Container</label><select id="c_container" class="field" onchange="renderCalc()"><option value="barrel">Barrels (40–45 kg)</option><option value="tank">Single tank</option></select></div>
+            <div><label class="lbl">Cherry Brix (°Bx)</label><input id="c_brix" type="number" step="0.1" placeholder="optional" class="field" oninput="renderCalc()"></div>
+            <div class="flex items-end"><label class="flex items-center gap-2 text-sm text-coffee-200"><input id="c_sugar" type="checkbox" onchange="renderCalc()"> Add sugar (Victor method)</label></div>
+          </div>
+          <div id="calcDoseOut" class="text-sm space-y-2"></div>
+        </div>
+
+        <div class="card space-y-3">
+          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="sun" class="w-4 h-4 text-amber-400"></i> Moisture by weight</h2>
+          <p class="text-xs text-coffee-400">Dry matter stays constant while coffee dries, so weight alone tracks moisture. No meter needed, just a scale and the same sample each time.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="lbl">Starting weight (kg)</label><input id="m_w0" type="number" step="0.01" value="100" class="field" oninput="renderCalc()"></div>
+            <div><label class="lbl">Starting moisture (%)</label><input id="m_m0" type="number" step="0.1" value="52" class="field" oninput="renderCalc()"></div>
+            <div><label class="lbl">Current weight (kg)</label><input id="m_w1" type="number" step="0.01" value="70" class="field" oninput="renderCalc()"></div>
+            <div><label class="lbl">Target moisture (%)</label><input id="m_target" type="number" step="0.1" class="field" oninput="renderCalc()"></div>
+          </div>
+          <div id="calcMoistOut" class="text-sm space-y-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA VIEW -->
+    <section id="view-data" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card space-y-3">
+          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="hard-drive" class="w-4 h-4 text-amber-400"></i> Your data</h2>
+          <p class="text-xs text-coffee-400">Batches are saved in this browser only. Export a backup regularly, and import it to move to another device.</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="exportCsv()" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> Export CSV</button>
+            <button onclick="exportJson()" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> Backup (JSON)</button>
+            <label class="btn btn-ghost cursor-pointer"><i data-lucide="upload" class="w-4 h-4"></i> Restore backup<input type="file" accept=".json,application/json" class="hidden" onchange="importJson(this)"></label>
+          </div>
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-coffee-800/60">
+            <button onclick="loadSamples()" class="btn btn-ghost"><i data-lucide="sparkles" class="w-4 h-4"></i> Load sample batches</button>
+            <button onclick="removeSamples()" class="btn btn-ghost"><i data-lucide="eraser" class="w-4 h-4"></i> Remove samples</button>
+            <button onclick="clearAll()" class="btn btn-ghost text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete everything</button>
+          </div>
+        </div>
+        <div class="card space-y-3">
+          <h2 class="font-bold text-coffee-50 flex items-center gap-2"><i data-lucide="gauge" class="w-4 h-4 text-amber-400"></i> Equipment</h2>
+          <div>
+            <label class="lbl">Pressure relief valve setting (PSI)</label>
+            <input id="reliefPsi" type="number" min="0" step="0.5" class="field max-w-[10rem]" onchange="setRelief(this.value)">
+            <p class="text-xs text-coffee-400 mt-2">Plastic drums with clamp lids are generally not rated as pressure vessels. Fit a pressure-relief valve and enter its setting here. The tool alerts above this or the toolkit doc's 15 PSI, whichever is lower.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="font-bold text-coffee-50 mb-1 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-amber-400"></i> Where the numbers come from</h2>
+        <p class="text-xs text-coffee-400 mb-3">The highlighted value is the one in use. When the selected preset has no number for something, the next source fills the gap and is labelled. Every value is a starting point to test on your own farm, not a rule.</p>
+        <div class="overflow-x-auto"><table class="data w-full text-sm" id="sourceTable"></table></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- BATCH FORM MODAL -->
+  <div id="modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm overflow-y-auto">
+    <div class="max-w-3xl mx-auto my-6 px-4">
+      <div class="bg-coffee-900 border border-coffee-700 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="modalTitle" class="text-lg font-bold text-white">New batch</h2>
+          <button onclick="closeModal()" class="p-1 text-coffee-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="batchForm" onsubmit="saveBatch(event)" class="space-y-5">
+          <fieldset class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <legend class="text-xs font-mono uppercase text-amber-400 mb-2 col-span-full">Lot</legend>
+            <div><label class="lbl">Batch ID</label><input name="code" class="field" required></div>
+            <div><label class="lbl">Start (date &amp; time)</label><input name="start" type="datetime-local" class="field" required></div>
+            <div><label class="lbl">Farm lot</label><input name="lot" class="field"></div>
+            <div><label class="lbl">Altitude (MASL)</label><input name="masl" type="number" class="field"></div>
+            <div><label class="lbl">Variety</label><input name="variety" class="field"></div>
+            <div><label class="lbl">Cherry mass (kg)</label><input name="cherryKg" type="number" step="0.1" min="0" class="field" required></div>
+          </fieldset>
+
+          <fieldset class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <legend class="text-xs font-mono uppercase text-amber-400 mb-2 col-span-full">Intake (optional)</legend>
+            <div class="col-span-2 sm:col-span-4"><label class="flex items-center gap-2 text-sm text-coffee-200"><input name="floated" type="checkbox"> Cherries floated before pulping</label></div>
+            <div><label class="lbl">Floaters removed (kg)</label><input name="floatersKg" type="number" step="0.1" min="0" class="field"></div>
+            <div><label class="lbl">Green (of 100)</label><input name="green" type="number" min="0" max="100" class="field"></div>
+            <div><label class="lbl">Ripe (of 100)</label><input name="ripe" type="number" min="0" max="100" class="field"></div>
+            <div><label class="lbl">Overripe (of 100)</label><input name="over" type="number" min="0" max="100" class="field"></div>
+            <div><label class="lbl">Cherry Brix (°Bx)</label><input name="cherryBrix" type="number" step="0.1" class="field"></div>
+            <div class="col-span-2 sm:col-span-3 text-xs text-coffee-400 self-end">Counts come from a 100-hole cherry classifier board. Cherry Brix is stored as context only; it also rises as cherries dry out (Toolkit #2).</div>
+          </fieldset>
+
+          <fieldset class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <legend class="text-xs font-mono uppercase text-amber-400 mb-2 col-span-full">Process</legend>
+            <div><label class="lbl">Method</label><select name="method" class="field" onchange="onMethodChange()"></select></div>
+            <div><label class="lbl">Oxygen</label><select name="oxygen" class="field"><option value="open">Open tank</option><option value="sealed">Sealed with airlock</option><option value="co2">CO₂-flushed</option></select></div>
+            <div><label class="lbl">Container</label><select name="container" class="field"><option value="barrel">Barrels (40–45 kg)</option><option value="tank">Single tank</option></select></div>
+            <div><label class="lbl">Coffee into tank (kg)</label><input name="tankKg" type="number" step="0.1" min="0" class="field" placeholder="defaults to cherry mass"></div>
+            <div><label class="lbl">Expected hours</label><input name="expectedHours" type="number" min="0" class="field"></div>
+            <div><label class="lbl">Tank fill time (min)</label><input name="fillMin" type="number" min="0" class="field"></div>
+          </fieldset>
+
+          <fieldset class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <legend class="text-xs font-mono uppercase text-amber-400 mb-2 col-span-full">Culture &amp; additions</legend>
+            <div class="col-span-2"><label class="lbl">Culture</label><select name="yeast" class="field"></select></div>
+            <div><label class="lbl">Product name</label><input name="product" class="field" placeholder="e.g. SafCoffee Cool Blue"></div>
+            <div><label class="lbl">Dose used (g/kg)</label><input name="dose" type="number" step="0.1" min="0" class="field"></div>
+            <div><label class="lbl">Label dose (g/kg)</label><input name="labelDose" type="number" step="0.1" min="0" class="field"></div>
+            <div class="flex items-end"><label class="flex items-center gap-2 text-sm text-coffee-200"><input name="addSugar" type="checkbox"> Sugar by cherry Brix</label></div>
+            <div class="flex items-end"><label class="flex items-center gap-2 text-sm text-coffee-200"><input name="molasses" type="checkbox"> Molasses step</label></div>
+            <div><label class="lbl">Molasses at hour</label><input name="molassesH" type="number" min="0" class="field" value="50"></div>
+            <div class="flex items-end"><label class="flex items-center gap-2 text-sm text-coffee-200"><input name="backslop" type="checkbox"> Backslopped starter</label></div>
+          </fieldset>
+
+          <fieldset class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <legend class="text-xs font-mono uppercase text-amber-400 mb-2">Pre-batch checklist</legend>
+            <label class="flex items-center gap-2 text-sm text-coffee-200"><input name="chkWater" type="checkbox"> Water is not chlorinated</label>
+            <label class="flex items-center gap-2 text-sm text-coffee-200"><input name="chkClean" type="checkbox"> Tank &amp; tools cleaned since last use</label>
+            <label class="flex items-center gap-2 text-sm text-coffee-200"><input name="chkSoap" type="checkbox"> No scented soap used</label>
+            <label class="flex items-center gap-2 text-sm text-coffee-200"><input name="chkCalib" type="checkbox"> pH meter calibrated (pH 4 &amp; 7)</label>
+          </fieldset>
+
+          <fieldset>
+            <legend class="text-xs font-mono uppercase text-amber-400 mb-2">Notes</legend>
+            <textarea name="notes" rows="2" class="field" placeholder="Weather, cherry condition, target profile..."></textarea>
+          </fieldset>
+
+          <div id="formPreview" class="text-sm"></div>
+
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="closeModal()" class="btn btn-ghost">Cancel</button>
+            <button type="submit" class="btn btn-primary"><i data-lucide="save" class="w-4 h-4"></i> Save batch</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------------
+    // SOURCES & THRESHOLDS
+    // Each value carries its source. resolve() falls back through the
+    // other preset, then the toolkit doc, then tool defaults.
+    // ---------------------------------------------------------------
+    const SOURCE_NAMES = {
+      lucia: 'Lucia Solis',
+      research: 'Research papers',
+      toolkit: 'Toolkit doc (unsourced)',
+      tool: 'Tool default'
+    };
+
+    const THRESHOLDS = {
+      phEndpoint:       { label: 'pH endpoint (wash / unload)', unit: '',
+        lucia: [3.5, 'Making Coffee #66'], research: [4.3, 'Schwan & Fleet 2014, ch. 11'], toolkit: [4.2, 'Toolkit doc §2.1 (4.2–4.5)'] },
+      phFloor:          { label: 'pH low warning', unit: '',
+        research: [3.5, 'Schwan & Fleet 2014, ch. 11 (working range 3.5–5.5)'], toolkit: [4.0, 'Toolkit doc §2.1'] },
+      tempMax:          { label: 'Fermentation temperature alert', unit: '°C',
+        lucia: [30, 'Producer Toolkit #2 (Manuel Mata alert)'], research: [25, 'Schwan & Fleet 2014, ch. 11 (20–25 °C)'], toolkit: [25, 'Toolkit doc §2.3'] },
+      readingIntervalH: { label: 'Reading reminder interval', unit: 'h',
+        lucia: [12, 'Producer Toolkit #3 (at least twice a day)'], toolkit: [1, 'Toolkit doc §5 (hourly)'] },
+      stallPh:          { label: 'Stall: pH change under this over 12 h', unit: '',
+        tool: [0.05, 'Heuristic'] },
+      maxHoursOpen:     { label: 'Overdue: open / washed fermentation', unit: 'h',
+        lucia: [48, 'Producer Toolkit #3 (Shira 48 h trial)'], research: [72, 'Schwan & Fleet 2014, ch. 10 (6–72 h)'], toolkit: [36, 'Toolkit doc §2.1'] },
+      maxHoursSealed:   { label: 'Overdue: sealed fermentation', unit: 'h',
+        research: [120, 'Cenicafé SIAF study (viability >80% to 120 h)'], toolkit: [120, 'Toolkit doc §2.3 (48–120 h)'] },
+      maxHoursPatio:    { label: 'Overdue: cherry fermenting on patio', unit: 'h',
+        research: [336, 'Schwan & Fleet 2014, ch. 11 (risk past ~2 weeks)'] },
+      fillMaxMin:       { label: 'Tank fill time limit', unit: 'min',
+        research: [60, 'Schwan & Fleet 2014, ch. 10'] },
+      washToDryMaxH:    { label: 'Wash to drying start limit', unit: 'h',
+        research: [6, 'Schwan & Fleet 2014, ch. 10'] },
+      seedMaxParchment: { label: 'Seed temperature limit: parchment', unit: '°C',
+        lucia: [40, 'Producer Toolkit #2 (after Borém)'], research: [40, 'Schwan & Fleet 2014, ch. 10'] },
+      seedMaxHoney:     { label: 'Seed temperature limit: honey', unit: '°C',
+        lucia: [36, 'Producer Toolkit #2'] },
+      seedMaxCherry:    { label: 'Seed temperature limit: cherry', unit: '°C',
+        research: [45, 'Schwan & Fleet 2014, ch. 10'] },
+      moistureTarget:   { label: 'Drying moisture target', unit: '%',
+        lucia: [11, 'Producer Toolkit #2 (buyer spec)'], research: [12, 'Schwan & Fleet 2014, ch. 10 (10–11% in humid areas)'], toolkit: [11, 'Toolkit doc §3 (10.5–11.5%)'] },
+      dryerSwitch:      { label: 'Dryer first, move to patio at', unit: '%',
+        lucia: [16, 'Producer Toolkit #2'] },
+      pressureMax:      { label: 'Tank pressure limit', unit: 'PSI',
+        toolkit: [15, 'Toolkit doc §2.3 (5–15 PSI)'] },
+      doseGPerKg:       { label: 'Yeast dose', unit: 'g/kg',
+        lucia: [1, 'Producer Toolkit #3 (Victor: 500 g per 500 kg)'], research: [1, 'Fermentis SafCoffee data sheet'] },
+    };
+
+    function resolve(key, preset) {
+      preset = preset || state.settings.preset;
+      const t = THRESHOLDS[key];
+      const order = [preset, preset === 'lucia' ? 'research' : 'lucia', 'toolkit', 'tool'];
+      for (const s of order) {
+        if (t[s]) return { v: t[s][0], ref: t[s][1], from: s, fallback: s !== preset };
+      }
+      return null;
+    }
+
+    function srcLabel(r) {
+      if (!r) return '';
+      return `${SOURCE_NAMES[r.from]}: ${r.ref}`;
+    }
+
+    // ---------------------------------------------------------------
+    // METHODS & CULTURES
+    // ---------------------------------------------------------------
+    const METHODS = [
+      { id: 'Washed', kind: 'open', oxygen: 'open', drying: 'parchment' },
+      { id: 'Natural', kind: 'patio', oxygen: 'open', drying: 'cherry' },
+      { id: 'Honey', kind: 'patio', oxygen: 'open', drying: 'honey' },
+      { id: 'Anaerobic', kind: 'sealed', oxygen: 'sealed', drying: 'parchment' },
+      { id: 'Carbonic Maceration', kind: 'sealed', oxygen: 'co2', drying: 'cherry' },
+      { id: 'Lactic', kind: 'sealed', oxygen: 'sealed', drying: 'parchment' },
+      { id: 'Yeast Inoculated', kind: 'open', oxygen: 'open', drying: 'parchment' },
+      { id: 'Thermal Shock', kind: 'sealed', oxygen: 'sealed', drying: 'parchment' },
+      { id: 'Other', kind: 'open', oxygen: 'open', drying: 'parchment' },
+    ];
+    const methodOf = id => METHODS.find(m => m.id === id) || METHODS[METHODS.length - 1];
+
+    const BARREL_KG = 42.5; // 40–45 kg per barrel, Producer Toolkit #3
+
+    const CULTURES = [
+      { id: 'none', name: 'None (spontaneous / wild)', prep: () => [] },
+      { id: 'rehydrate', name: 'Dry yeast, rehydrate first (e.g. SafCoffee)', needsDose: true,
+        prep: (g) => [
+          `Rehydrate ${fmt(g)} g of yeast in ${fmt(g * 10 / 1000, 1)} L of clean, unchlorinated water at 10–25 °C (10× its weight).`,
+          'Stir gently, then rest 15–30 min.',
+          'Add the starter while mixing the tank.'
+        ], ref: 'Fermentis SafCoffee data sheet' },
+      { id: 'activate', name: 'Dry yeast, warm activation (Victor Chara barrels)', needsDose: true,
+        prep: (g, kg, barrels) => [
+          `Heat ${fmt(kg * 14 / 500, 1)} L of water to about 30 °C (14 L per 500 kg).`,
+          `Mix in ${fmt(g)} g of yeast and let it activate for about 10 min.`,
+          barrels > 1 ? `Split the solution evenly: about ${fmt(kg * 14 / 500 / barrels, 2)} L per barrel.` : 'Add all the solution to the tank and mix.'
+        ], ref: 'Producer Toolkit #3' },
+      { id: 'direct', name: 'Direct-pitch culture (e.g. Novonesis Pichia)', needsDose: true,
+        prep: (g) => [`Apply ${fmt(g)} g straight to the cherry or pulped coffee. No rehydration or waiting needed.`],
+        ref: 'Producer Toolkit #3' },
+      { id: 'lab', name: 'Lactic bacteria culture', needsDose: true,
+        prep: (g) => [`Prepare ${fmt(g)} g following the supplier's sheet.`], ref: 'Supplier data sheet' },
+      { id: 'baker', name: "Baker's or beer yeast", warn: true,
+        prep: () => [], ref: 'Producer Toolkit #3' },
+    ];
+    const cultureOf = id => CULTURES.find(c => c.id === id) || CULTURES[0];
+
+    // Victor's sugar rule: 0.5 kg per barrel at 17 °Bx, 1 kg at 12 °Bx.
+    function sugarPerBarrel(brix) {
+      const b = Math.min(17, Math.max(12, brix));
+      return 1 - (b - 12) / 5 * 0.5;
+    }
+
+    // ---------------------------------------------------------------
+    // STATE
+    // ---------------------------------------------------------------
+    const STORE_KEY = 'coffeeProcessingTools.v1';
+    let state = { settings: { preset: 'lucia', reliefPsi: 5 }, batches: [], selectedId: null, tab: 'batches' };
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          const s = JSON.parse(raw);
+          state = Object.assign(state, s);
+          state.settings = Object.assign({ preset: 'lucia', reliefPsi: 5 }, s.settings || {});
+        }
+      } catch (e) { /* storage unavailable: run in memory */ }
+    }
+    function save() {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+    }
+
+    // ---------------------------------------------------------------
+    // HELPERS
+    // ---------------------------------------------------------------
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function fmt(n, d = 0) {
+      if (n == null || isNaN(n)) return '–';
+      return Number(n).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: 0 });
+    }
+    function num(v) { const n = parseFloat(v); return isNaN(n) ? null : n; }
+    function uid() { return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    function hoursSince(iso) { return (Date.now() - new Date(iso).getTime()) / 3.6e6; }
+    function toLocalInput(d) {
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+    function batchById(id) { return state.batches.find(b => b.id === id); }
+    function icons() { if (window.lucide) lucide.createIcons(); }
+
+    function batchStatus(b) {
+      if (b.cupScore != null || b.done) return 'done';
+      if (b.washedAt != null) return 'drying';
+      return 'fermenting';
+    }
+    const STATUS_STYLE = {
+      fermenting: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+      drying: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30',
+      done: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+    };
+
+    function maxHoursFor(b) {
+      const kind = methodOf(b.method).kind;
+      if (kind === 'patio') return resolve('maxHoursPatio');
+      if (b.oxygen === 'sealed' || b.oxygen === 'co2') return resolve('maxHoursSealed');
+      return resolve('maxHoursOpen');
+    }
+    function seedLimitFor(type) {
+      return resolve(type === 'honey' ? 'seedMaxHoney' : type === 'cherry' ? 'seedMaxCherry' : 'seedMaxParchment');
+    }
+    function pressureLimit() {
+      const r = resolve('pressureMax');
+      const relief = num(state.settings.reliefPsi);
+      if (relief != null && relief < r.v) return { v: relief, ref: 'your relief valve setting', from: 'tool' };
+      return r;
+    }
+
+    // Moisture from weight, assuming constant dry matter.
+    function moistureAt(w0, m0, w) {
+      if (!w0 || !w || m0 == null) return null;
+      return (1 - (w0 * (1 - m0 / 100)) / w) * 100;
+    }
+    function weightAtMoisture(w0, m0, mt) {
+      return w0 * (1 - m0 / 100) / (1 - mt / 100);
+    }
+
+    // ---------------------------------------------------------------
+    // PLAN (dose, barrels, sugar, schedule)
+    // ---------------------------------------------------------------
+    function computePlan(p) {
+      const kg = p.kg || 0;
+      const culture = cultureOf(p.yeast);
+      const dose = p.dose != null ? p.dose : resolve('doseGPerKg').v;
+      const grams = culture.needsDose ? dose * kg : 0;
+      const barrels = p.container === 'barrel' ? Math.max(1, Math.ceil(kg / BARREL_KG)) : 1;
+      const out = { kg, culture, dose, grams, barrels, steps: [], warnings: [], notes: [] };
+
+      if (culture.needsDose) out.steps = culture.prep(grams, kg, barrels);
+      if (culture.warn) out.warnings.push("Baker's and beer yeast are made for grain sugars and oxygen. In coffee they tend to produce stress compounds such as cheesy or sulphur notes (Producer Toolkit #3).");
+      if (culture.needsDose && p.labelDose != null && dose < p.labelDose) {
+        out.warnings.push(`Dose is below the label rate (${fmt(dose, 2)} vs ${fmt(p.labelDose, 2)} g/kg). Underdosing lets wild microbes compete (Producer Toolkit #3; Barista Hustle).`);
+      }
+      if (p.container === 'barrel' && kg > 900) {
+        out.notes.push('Over about 900 kg (2,000 lb) a day, one larger tank is usually easier to manage than many barrels (Producer Toolkit #3).');
+      }
+      if (p.container === 'tank' && kg > 0 && kg <= 900) {
+        out.notes.push('Large tanks heat up more than barrels. Watch temperature closely.');
+      }
+      if (p.addSugar) {
+        if (p.cherryBrix == null) {
+          out.warnings.push('Enter a cherry Brix reading to size the sugar addition.');
+        } else {
+          const perBarrel = sugarPerBarrel(p.cherryBrix);
+          out.sugarKg = perBarrel * kg / BARREL_KG;
+          out.sugarPerBarrel = perBarrel;
+          out.notes.push(`Sugar: ${fmt(perBarrel, 2)} kg per 42.5 kg barrel at ${fmt(p.cherryBrix, 1)} °Bx, ${fmt(out.sugarKg, 1)} kg in total (Victor Chara, Producer Toolkit #3). Lucia warns cherry Brix also rises as cherries dry out, so treat this as a starting point.`);
+        }
+      }
+      return out;
+    }
+
+    function planHtml(plan, extra) {
+      const lines = [];
+      if (plan.culture.needsDose) {
+        lines.push(`<div class="flex justify-between"><span class="text-coffee-400">Culture</span><span class="font-mono text-white">${fmt(plan.grams)} g <span class="text-coffee-400">(${fmt(plan.dose, 2)} g/kg)</span></span></div>`);
+      }
+      lines.push(`<div class="flex justify-between"><span class="text-coffee-400">Containers</span><span class="font-mono text-white">${plan.barrels > 1 ? plan.barrels + ' barrels' : '1 vessel'}</span></div>`);
+      if (plan.sugarKg != null) {
+        lines.push(`<div class="flex justify-between"><span class="text-coffee-400">Sugar</span><span class="font-mono text-white">${fmt(plan.sugarKg, 1)} kg</span></div>`);
+      }
+      let html = `<div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-3 space-y-1">${lines.join('')}</div>`;
+      if (plan.steps.length) {
+        html += `<ol class="list-decimal list-inside space-y-1 text-coffee-200 mt-2">${plan.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
+      }
+      if (extra) html += extra;
+      html += plan.warnings.map(w => `<div class="mt-2 flex gap-2 text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 text-xs"><i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i><span>${esc(w)}</span></div>`).join('');
+      html += plan.notes.map(n => `<div class="mt-2 text-xs text-coffee-300">${esc(n)}</div>`).join('');
+      return html;
+    }
+
+    // ---------------------------------------------------------------
+    // ALERTS
+    // ---------------------------------------------------------------
+    function batchAlerts(b) {
+      const alerts = []; // {level: 'red'|'amber'|'green', text, ref}
+      const status = batchStatus(b);
+      const readings = (b.readings || []).slice().sort((a, c) => a.h - c.h);
+      const last = readings[readings.length - 1];
+
+      // Setup checks
+      const c = cultureOf(b.yeast);
+      if (c.warn) alerts.push({ level: 'red', text: "Baker's or beer yeast in use.", ref: 'Producer Toolkit #3' });
+      if (b.backslop) alerts.push({ level: 'amber', text: 'Backslopped starter. This batch is not a clean trial, and results may drift.', ref: 'Producer Toolkit #3' });
+      if (c.needsDose && b.labelDose != null && b.dose != null && b.dose < b.labelDose) {
+        alerts.push({ level: 'amber', text: `Dose ${fmt(b.dose, 2)} g/kg is below the label ${fmt(b.labelDose, 2)} g/kg.`, ref: 'Producer Toolkit #3' });
+      }
+      const chk = b.checklist || {};
+      const missing = [['water', 'unchlorinated water'], ['clean', 'cleaning'], ['soap', 'no scented soap'], ['calib', 'pH calibration']].filter(([k]) => !chk[k]).map(([, l]) => l);
+      if (!b.sample && missing.length && status === 'fermenting') alerts.push({ level: 'amber', text: `Checklist not confirmed: ${missing.join(', ')}.`, ref: 'Producer Toolkit #3' });
+      const fill = resolve('fillMaxMin');
+      if (b.fillMin != null && b.fillMin > fill.v) alerts.push({ level: 'amber', text: `Tank took ${b.fillMin} min to fill (limit ${fill.v}). First and last beans will ferment for different times.`, ref: srcLabel(fill) });
+
+      // Fermentation readings (live batches only)
+      if (last && status === 'fermenting') {
+        const tMax = resolve('tempMax');
+        if (last.temp != null && last.temp > tMax.v) alerts.push({ level: 'red', text: `Temperature ${fmt(last.temp, 1)} °C is above ${tMax.v} °C. Move to shade or cool the tank.`, ref: srcLabel(tMax) });
+        const pMax = pressureLimit();
+        if (last.psi != null && last.psi > pMax.v) alerts.push({ level: 'red', text: `Pressure ${fmt(last.psi, 1)} PSI is above ${pMax.v} PSI. Vent the tank.`, ref: srcLabel(pMax) });
+        const end = resolve('phEndpoint');
+        const floor = resolve('phFloor');
+        if (last.ph != null && last.ph < floor.v) alerts.push({ level: 'red', text: `pH ${fmt(last.ph, 2)} is below ${floor.v}. Risk of over-fermentation.`, ref: srcLabel(floor) });
+        else if (last.ph != null && last.ph <= end.v && status === 'fermenting') alerts.push({ level: 'green', text: `pH ${fmt(last.ph, 2)} has reached the ${end.v} endpoint. Check smell and the grit test, then wash or unload.`, ref: srcLabel(end) });
+        if (last.grit && status === 'fermenting') alerts.push({ level: 'green', text: 'Grit test passed: beans feel like pebbles. Wash now.', ref: 'Schwan & Fleet 2014, ch. 10' });
+
+        const stall = resolve('stallPh');
+        const prior = readings.filter(r => r.ph != null && r.h <= last.h - 12).pop();
+        if (status === 'fermenting' && prior && last.ph != null && last.h >= 12 && (prior.ph - last.ph) < stall.v && last.ph > end.v) {
+          alerts.push({ level: 'amber', text: `pH has barely moved over ${fmt(last.h - prior.h)} h (${fmt(prior.ph, 2)} → ${fmt(last.ph, 2)}). Slow ferments risk butyric and propionic off-notes.`, ref: 'Schwan & Fleet 2014, ch. 10' });
+        }
+        const maxH = maxHoursFor(b);
+        const limitH = b.expectedHours || maxH.v;
+        if (status === 'fermenting' && last.h > limitH) alerts.push({ level: 'amber', text: `Past the expected ${limitH} h.`, ref: b.expectedHours ? 'Batch plan' : srcLabel(maxH) });
+      }
+
+      // Reminder for live batches
+      if (status === 'fermenting' && !b.sample) {
+        const interval = resolve('readingIntervalH');
+        const nowH = hoursSince(b.start);
+        const lastH = last ? last.h : 0;
+        if (nowH - lastH > interval.v) alerts.push({ level: 'amber', text: `No reading for ${fmt(nowH - lastH)} h. Take pH and temperature.`, ref: srcLabel(interval) });
+        if (b.molasses && b.molassesH != null && nowH >= b.molassesH && !(b.readings || []).some(r => /molasses/i.test(r.notes || ''))) {
+          alerts.push({ level: 'amber', text: `Molasses due at ${b.molassesH} h. Log a reading noting "molasses" once added.`, ref: 'Producer Toolkit #3' });
+        }
+      }
+
+      // Drying
+      const d = b.drying;
+      if (d) {
+        const wd = resolve('washToDryMaxH');
+        if (b.washedAt && d.startAt) {
+          const gap = (new Date(d.startAt) - new Date(b.washedAt)) / 3.6e6;
+          if (gap > wd.v) alerts.push({ level: 'amber', text: `Drying started ${fmt(gap, 1)} h after washing (limit ${wd.v} h).`, ref: srcLabel(wd) });
+        }
+        const dr = (d.readings || []).slice().sort((a, c2) => a.h - c2.h);
+        const dl = dr[dr.length - 1];
+        if (dl) {
+          const seed = seedLimitFor(d.type);
+          if (dl.seedTemp != null && dl.seedTemp > seed.v) alerts.push({ level: 'red', text: `Seed temperature ${fmt(dl.seedTemp, 1)} °C is above ${seed.v} °C. Shade it or lower the dryer air.`, ref: srcLabel(seed) });
+          const m = moistureAt(d.w0, d.m0, dl.weight);
+          const tgt = d.target != null ? { v: d.target, ref: 'Batch target', from: 'tool' } : resolve('moistureTarget');
+          if (m != null && m <= tgt.v && status !== 'done') alerts.push({ level: 'green', text: `Estimated moisture ${fmt(m, 1)}% has reached the ${tgt.v}% target. Confirm with a meter or bite test before bagging.`, ref: srcLabel(tgt) });
+        }
+      } else if (status === 'drying' && b.washedAt && !b.sample) {
+        const wd = resolve('washToDryMaxH');
+        const gap = hoursSince(b.washedAt);
+        if (gap > wd.v) alerts.push({ level: 'amber', text: `Washed ${fmt(gap, 1)} h ago and drying hasn't started.`, ref: srcLabel(wd) });
+      }
+      return alerts;
+    }
+
+    // ---------------------------------------------------------------
+    // CHART (hand-rolled SVG)
+    // ---------------------------------------------------------------
+    function lineChart(points, opts) {
+      const W = 320, H = 150, L = 36, R = 10, T = 12, B = 24;
+      const pts = points.filter(p => p.y != null && p.x != null);
+      if (pts.length === 0) {
+        return `<div class="card !p-3"><div class="text-xs font-mono text-coffee-400 mb-1">${esc(opts.title)}</div><div class="h-[120px] flex items-center justify-center text-xs text-coffee-500">No readings yet</div></div>`;
+      }
+      let xMax = Math.max(...pts.map(p => p.x), opts.xMin || 1);
+      let ys = pts.map(p => p.y);
+      (opts.lines || []).forEach(l => ys.push(l.y));
+      let yMin = Math.min(...ys), yMax = Math.max(...ys);
+      if (yMin === yMax) { yMin -= 1; yMax += 1; }
+      const pad = (yMax - yMin) * 0.1; yMin -= pad; yMax += pad;
+      const sx = x => L + (x / xMax) * (W - L - R);
+      const sy = y => T + (1 - (y - yMin) / (yMax - yMin)) * (H - T - B);
+      const path = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+      const yTicks = [yMin + pad, (yMin + yMax) / 2, yMax - pad];
+      const xTicks = [0, xMax / 2, xMax];
+      let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img" aria-label="${esc(opts.title)}">`;
+      yTicks.forEach(t => { svg += `<line x1="${L}" x2="${W - R}" y1="${sy(t)}" y2="${sy(t)}" stroke="#4B3520" stroke-width="0.5"/><text x="${L - 4}" y="${sy(t) + 3}" text-anchor="end" font-size="9" fill="#9E8057" font-family="JetBrains Mono">${fmt(t, opts.dp || 0)}</text>`; });
+      xTicks.forEach(t => { svg += `<text x="${sx(t)}" y="${H - 8}" text-anchor="middle" font-size="9" fill="#9E8057" font-family="JetBrains Mono">${fmt(t)}h</text>`; });
+      (opts.lines || []).forEach(l => {
+        svg += `<line x1="${L}" x2="${W - R}" y1="${sy(l.y)}" y2="${sy(l.y)}" stroke="${l.color}" stroke-width="1" stroke-dasharray="4 3"/><text x="${W - R}" y="${sy(l.y) - 3}" text-anchor="end" font-size="8.5" fill="${l.color}" font-family="JetBrains Mono">${esc(l.label)}</text>`;
+      });
+      svg += `<path d="${path}" fill="none" stroke="${opts.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      pts.forEach(p => { svg += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="2.5" fill="${opts.color}"><title>${fmt(p.x, 1)} h: ${fmt(p.y, opts.dp || 1)}</title></circle>`; });
+      svg += `</svg>`;
+      return `<div class="card !p-3"><div class="text-xs font-mono text-coffee-400 mb-1">${esc(opts.title)}</div>${svg}</div>`;
+    }
+
+    // ---------------------------------------------------------------
+    // RENDER: BATCH LIST
+    // ---------------------------------------------------------------
+    function renderBatchList() {
+      const list = document.getElementById('batchList');
+      const stats = document.getElementById('batchStats');
+      const bs = state.batches.slice().sort((a, b) => new Date(b.start) - new Date(a.start));
+      const scored = bs.filter(b => b.cupScore != null);
+      const avg = scored.length ? scored.reduce((s, b) => s + b.cupScore, 0) / scored.length : null;
+      stats.innerHTML = [
+        ['Batches', fmt(bs.length)],
+        ['Cherry kg', fmt(bs.reduce((s, b) => s + (b.cherryKg || 0), 0))],
+        ['Avg cup', avg == null ? '–' : fmt(avg, 2)],
+      ].map(([l, v]) => `<div class="card !p-2 text-center"><div class="text-[10px] font-mono uppercase text-coffee-400">${l}</div><div class="font-bold text-white">${v}</div></div>`).join('');
+
+      if (!bs.length) {
+        list.innerHTML = `<div class="card text-sm text-coffee-300 space-y-2"><p>No batches yet.</p><p class="text-xs text-coffee-400">Start a new batch, or load the sample batches from your tracker to look around.</p><button onclick="loadSamples()" class="btn btn-ghost w-full justify-center"><i data-lucide="sparkles" class="w-4 h-4"></i> Load sample batches</button></div>`;
+        return;
+      }
+      list.innerHTML = bs.map(b => {
+        const st = batchStatus(b);
+        const al = batchAlerts(b);
+        const red = al.filter(a => a.level === 'red').length;
+        const amber = al.filter(a => a.level === 'amber').length;
+        const active = b.id === state.selectedId;
+        return `<button onclick="selectBatch('${b.id}')" class="w-full text-left p-3 rounded-xl border transition ${active ? 'bg-coffee-800/80 border-amber-500/40' : 'bg-coffee-900/60 border-coffee-800/80 hover:border-coffee-600'}">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-mono text-sm text-white truncate">${esc(b.code)}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full border ${STATUS_STYLE[st]}">${st}</span>
+          </div>
+          <div class="text-xs text-coffee-400 mt-1 truncate">${esc(b.method)} · ${esc(b.variety || '–')} · ${fmt(b.cherryKg)} kg</div>
+          <div class="flex gap-2 mt-1 text-[10px] font-mono">
+            ${b.sample ? '<span class="text-coffee-500">sample</span>' : ''}
+            ${red ? `<span class="text-rose-400">${red} alert${red > 1 ? 's' : ''}</span>` : ''}
+            ${amber ? `<span class="text-amber-400">${amber} warning${amber > 1 ? 's' : ''}</span>` : ''}
+            ${b.cupScore != null ? `<span class="text-emerald-300">${fmt(b.cupScore, 2)} pts</span>` : ''}
+          </div>
+        </button>`;
+      }).join('');
+    }
+
+    // ---------------------------------------------------------------
+    // RENDER: BATCH DETAIL
+    // ---------------------------------------------------------------
+    function renderBatchDetail() {
+      const el = document.getElementById('batchDetail');
+      const b = batchById(state.selectedId);
+      if (!b) {
+        el.innerHTML = `<div class="card text-center py-12 text-coffee-400"><i data-lucide="flask-conical" class="w-8 h-8 mx-auto mb-3 text-coffee-600"></i><p class="text-sm">Select a batch, or start a new one.</p></div>`;
+        return;
+      }
+      const st = batchStatus(b);
+      const m = methodOf(b.method);
+      const alerts = batchAlerts(b);
+      const readings = (b.readings || []).slice().sort((a, c) => a.h - c.h);
+      const plan = computePlan({ kg: b.tankKg || b.cherryKg, yeast: b.yeast, dose: b.dose, labelDose: b.labelDose, container: b.container, addSugar: b.addSugar, cherryBrix: b.intake && b.intake.cherryBrix });
+      const end = resolve('phEndpoint');
+      const tMax = resolve('tempMax');
+      const intake = b.intake || {};
+      const classified = [intake.green, intake.ripe, intake.over].some(v => v != null);
+      const ripePct = classified ? intake.ripe / ((intake.green || 0) + (intake.ripe || 0) + (intake.over || 0)) * 100 : null;
+      const oxyLabel = { open: 'Open tank', sealed: 'Sealed, airlock', co2: 'CO₂-flushed' }[b.oxygen] || '–';
+
+      const levelStyle = {
+        red: 'text-rose-200 bg-rose-500/10 border-rose-500/30',
+        amber: 'text-amber-200 bg-amber-500/10 border-amber-500/30',
+        green: 'text-emerald-200 bg-emerald-500/10 border-emerald-500/30',
+      };
+      const levelIcon = { red: 'alert-octagon', amber: 'alert-triangle', green: 'check-circle-2' };
+
+      let html = `
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-2xl font-extrabold text-white font-mono">${esc(b.code)}</h2>
+              <span class="text-xs px-2 py-0.5 rounded-full border ${STATUS_STYLE[st]}">${st}</span>
+              ${b.sample ? '<span class="text-xs px-2 py-0.5 rounded-full border border-coffee-700 text-coffee-400">sample data</span>' : ''}
+            </div>
+            <p class="text-sm text-coffee-300 mt-1">${esc(b.method)} · ${esc(b.variety || 'variety –')} · ${esc(b.lot || 'lot –')}${b.masl ? ` (${fmt(b.masl)} m)` : ''} · started ${esc(new Date(b.start).toLocaleString())}</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="openBatchForm('${b.id}')" class="btn btn-ghost"><i data-lucide="pencil" class="w-4 h-4"></i> Edit</button>
+            <button onclick="deleteBatch('${b.id}')" class="btn btn-ghost text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</button>
+          </div>
+        </div>`;
+
+      if (alerts.length) {
+        html += `<div class="space-y-2 mb-4">${alerts.map(a => `<div class="flex gap-2 border rounded-lg p-2.5 text-sm ${levelStyle[a.level]}"><i data-lucide="${levelIcon[a.level]}" class="w-4 h-4 flex-shrink-0 mt-0.5"></i><div><div>${esc(a.text)}</div><div class="src mt-0.5">${esc(a.ref)}</div></div></div>`).join('')}</div>`;
+      }
+
+      // Summary cards
+      html += `<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        ${[
+          ['Cherry', `${fmt(b.cherryKg)} kg`],
+          ['Oxygen', oxyLabel],
+          ['Culture', cultureOf(b.yeast).id === 'none' ? 'Wild' : esc(b.product || cultureOf(b.yeast).name.split(' (')[0])],
+          ['Ripe %', ripePct == null ? '–' : `${fmt(ripePct)}% <span class="text-[10px] text-coffee-400">(target 80)</span>`],
+        ].map(([l, v]) => `<div class="card !p-3"><div class="text-[10px] font-mono uppercase text-coffee-400">${l}</div><div class="text-sm text-white mt-0.5">${v}</div></div>`).join('')}
+      </div>`;
+
+      // Plan
+      html += `<details class="card mb-4" ${st === 'fermenting' && !b.sample ? 'open' : ''}><summary class="cursor-pointer font-semibold text-coffee-50">Batch plan</summary><div class="mt-3 text-sm">${planHtml(plan, scheduleHtml(b))}</div></details>`;
+
+      // Charts
+      html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        ${lineChart(readings.map(r => ({ x: r.h, y: r.ph })), { title: 'pH', color: '#F59E0B', dp: 1, lines: [{ y: end.v, label: `endpoint ${end.v}`, color: '#34D399' }] })}
+        ${lineChart(readings.map(r => ({ x: r.h, y: r.brix })), { title: 'Brix (°Bx)', color: '#22D3EE', dp: 0 })}
+        ${lineChart(readings.map(r => ({ x: r.h, y: r.temp })), { title: 'Temperature (°C)', color: '#FB7185', dp: 0, lines: [{ y: tMax.v, label: `alert ${tMax.v} °C`, color: '#FB7185' }] })}
+      </div>`;
+
+      // Reading form + table
+      const nowH = Math.max(0, hoursSince(b.start));
+      html += `<div class="card mb-4">
+        <h3 class="font-semibold text-coffee-50 mb-3">Fermentation readings</h3>
+        <form onsubmit="addReading(event, '${b.id}')" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 mb-3">
+          <div><label class="lbl">Hours</label><input name="h" type="number" step="0.1" min="0" value="${st === 'fermenting' && !b.sample ? nowH.toFixed(1) : ''}" class="field" required></div>
+          <div><label class="lbl">Temp °C</label><input name="temp" type="number" step="0.1" class="field"></div>
+          <div><label class="lbl">pH</label><input name="ph" type="number" step="0.01" class="field"></div>
+          <div><label class="lbl">Brix °Bx</label><input name="brix" type="number" step="0.1" class="field"></div>
+          <div><label class="lbl">Pressure PSI</label><input name="psi" type="number" step="0.1" class="field"></div>
+          <div><label class="lbl">Titr. acidity</label><input name="ta" type="number" step="0.1" class="field"></div>
+          <div><label class="lbl">DO mg/L</label><input name="dox" type="number" step="0.01" class="field" placeholder="optional"></div>
+          <div><label class="lbl">Smell</label><input name="smell" class="field" placeholder="fruity, sour..."></div>
+          <div><label class="lbl">Weather</label><input name="weather" class="field"></div>
+          <div class="col-span-2 sm:col-span-2"><label class="lbl">Notes</label><input name="notes" class="field"></div>
+          <div class="flex items-end"><label class="flex items-center gap-2 text-xs text-coffee-200"><input name="grit" type="checkbox"> Grit test passed</label></div>
+          <div class="col-span-2 sm:col-span-4 lg:col-span-6 flex justify-end"><button class="btn btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Add reading</button></div>
+        </form>
+        ${readings.length ? `<div class="overflow-x-auto"><table class="data w-full text-sm">
+          <thead><tr><th>h</th><th>°C</th><th>pH</th><th>°Bx</th><th>PSI</th><th>TA</th><th>DO</th><th>Smell</th><th>Notes</th><th></th></tr></thead>
+          <tbody>${readings.map(r => `<tr>
+            <td class="font-mono">${fmt(r.h, 1)}</td><td>${fmt(r.temp, 1)}</td><td>${fmt(r.ph, 2)}</td><td>${fmt(r.brix, 1)}</td><td>${fmt(r.psi, 1)}</td><td>${fmt(r.ta, 1)}</td><td>${fmt(r.dox, 2)}</td>
+            <td class="max-w-[10rem] truncate">${esc(r.smell || '')}</td>
+            <td class="max-w-[16rem] truncate" title="${esc(r.notes || '')}">${r.grit ? '<span class="text-emerald-300">grit ✓</span> ' : ''}${esc([r.weather, r.notes].filter(Boolean).join(' · '))}</td>
+            <td><button onclick="deleteReading('${b.id}', ${r.h})" class="text-coffee-500 hover:text-rose-300" title="Delete reading"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td>
+          </tr>`).join('')}</tbody></table></div>` : '<p class="text-xs text-coffee-400">No readings yet. Aim for at least two a day: pH and temperature, plus smell and weather.</p>'}
+        ${st === 'fermenting' ? `<div class="flex justify-end mt-3"><button onclick="finishFermentation('${b.id}')" class="btn btn-ghost"><i data-lucide="droplets" class="w-4 h-4"></i> Fermentation finished (washed / unloaded)</button></div>` : ''}
+      </div>`;
+
+      if (st !== 'fermenting') html += dryingHtml(b, m);
+
+      // Cupping
+      html += `<div class="card">
+        <h3 class="font-semibold text-coffee-50 mb-3">Cupping</h3>
+        <form onsubmit="saveCupping(event, '${b.id}')" class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <div><label class="lbl">Score</label><input name="cupScore" type="number" step="0.25" min="0" max="100" value="${b.cupScore != null ? b.cupScore : ''}" class="field"></div>
+          <div class="sm:col-span-2"><label class="lbl">Flavor notes</label><input name="flavor" value="${esc(b.flavor || '')}" class="field"></div>
+          <div class="flex items-end"><button class="btn btn-primary w-full justify-center"><i data-lucide="save" class="w-4 h-4"></i> Save</button></div>
+        </form>
+        ${b.notes ? `<p class="text-xs text-coffee-300 mt-3 whitespace-pre-line">${esc(b.notes)}</p>` : ''}
+      </div>`;
+
+      el.innerHTML = html;
+    }
+
+    function scheduleHtml(b) {
+      const items = [];
+      const exp = b.expectedHours || maxHoursFor(b).v;
+      const interval = resolve('readingIntervalH');
+      items.push(`Read pH and temperature every ${interval.v} h or better <span class="src">(${esc(srcLabel(interval))})</span>`);
+      if (b.oxygen !== 'open') items.push('Open, stir and reseal once a day (each morning) <span class="src">(Victor Chara, Producer Toolkit #3)</span>');
+      if (b.molasses) items.push(`Add molasses at ${fmt(b.molassesH)} h <span class="src">(Producer Toolkit #3)</span>`);
+      items.push(`Stop at pH ${resolve('phEndpoint').v}, a passed grit test, or ${fmt(exp)} h, whichever comes first`);
+      items.push(`Start drying within ${resolve('washToDryMaxH').v} h of washing <span class="src">(${esc(srcLabel(resolve('washToDryMaxH')))})</span>`);
+      return `<div class="mt-3"><div class="text-xs font-mono uppercase text-coffee-400 mb-1">Schedule</div><ul class="list-disc list-inside space-y-1 text-coffee-200">${items.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
+    }
+
+    function dryingHtml(b, m) {
+      const d = b.drying;
+      if (!d) {
+        const type = m.drying;
+        return `<div class="card mb-4">
+          <h3 class="font-semibold text-coffee-50 mb-3">Start drying</h3>
+          <form onsubmit="startDrying(event, '${b.id}')" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div><label class="lbl">Type</label><select name="type" class="field">
+              <option value="parchment" ${type === 'parchment' ? 'selected' : ''}>Parchment</option>
+              <option value="honey" ${type === 'honey' ? 'selected' : ''}>Honey</option>
+              <option value="cherry" ${type === 'cherry' ? 'selected' : ''}>Cherry (natural)</option></select></div>
+            <div><label class="lbl">Start weight (kg)</label><input name="w0" type="number" step="0.01" min="0" class="field" required></div>
+            <div><label class="lbl">Start moisture %</label><input name="m0" type="number" step="0.1" value="52" class="field" required></div>
+            <div><label class="lbl">Target %</label><input name="target" type="number" step="0.1" value="${resolve('moistureTarget').v}" class="field"></div>
+            <div class="flex items-end"><button class="btn btn-primary w-full justify-center"><i data-lucide="sun" class="w-4 h-4"></i> Start</button></div>
+          </form>
+          <p class="text-xs text-coffee-400 mt-2">Starting moisture is an estimate (about 50–55% for freshly washed parchment). Weigh the same sample or the whole lot each time.</p>
+        </div>`;
+      }
+      const dr = (d.readings || []).slice().sort((a, c) => a.h - c.h);
+      const withM = dr.map(r => Object.assign({}, r, { m: moistureAt(d.w0, d.m0, r.weight) }));
+      const seed = seedLimitFor(d.type);
+      const target = d.target != null ? d.target : resolve('moistureTarget').v;
+      const switchAt = resolve('dryerSwitch');
+      const targetW = weightAtMoisture(d.w0, d.m0, target);
+      let eta = '';
+      if (withM.length >= 2) {
+        const a = withM[withM.length - 2], c = withM[withM.length - 1];
+        const rate = (a.m - c.m) / (c.h - a.h);
+        if (rate > 0 && c.m > target) eta = `At the latest rate (${fmt(rate, 2)} %/h) it reaches ${target}% in about ${fmt((c.m - target) / rate)} h. Drying slows below about 20%, so expect longer.`;
+      }
+      const nowH = Math.max(0, hoursSince(d.startAt));
+      return `<div class="card mb-4">
+        <h3 class="font-semibold text-coffee-50 mb-1">Drying (${esc(d.type)})</h3>
+        <p class="text-xs text-coffee-400 mb-3">Target ${target}% means a weight of about <span class="text-white font-mono">${fmt(targetW, 1)} kg</span>. Seed limit ${seed.v} °C <span class="src">(${esc(srcLabel(seed))})</span>.${switchAt ? ` With a mechanical dryer, Lucia uses it first and moves to the patio at about ${switchAt.v}%.` : ''}</p>
+        ${eta ? `<p class="text-sm text-coffee-200 mb-3">${esc(eta)}</p>` : ''}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          ${lineChart(withM.map(r => ({ x: r.h, y: r.m })), { title: 'Estimated moisture (%)', color: '#22D3EE', dp: 0, lines: [{ y: target, label: `target ${target}%`, color: '#34D399' }] })}
+          ${lineChart(dr.map(r => ({ x: r.h, y: r.seedTemp })), { title: 'Seed temperature (°C)', color: '#FB7185', dp: 0, lines: [{ y: seed.v, label: `limit ${seed.v} °C`, color: '#FB7185' }] })}
+        </div>
+        <form onsubmit="addDryReading(event, '${b.id}')" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-3">
+          <div><label class="lbl">Hours</label><input name="h" type="number" step="0.1" min="0" value="${b.sample ? '' : nowH.toFixed(1)}" class="field" required></div>
+          <div><label class="lbl">Weight kg</label><input name="weight" type="number" step="0.01" class="field"></div>
+          <div><label class="lbl">Seed °C</label><input name="seedTemp" type="number" step="0.1" class="field" title="Probe in the coffee mass"></div>
+          <div><label class="lbl">Surface °C</label><input name="surfaceTemp" type="number" step="0.1" class="field" title="IR gun"></div>
+          <div><label class="lbl">Room °C</label><input name="roomTemp" type="number" step="0.1" class="field"></div>
+          <div><label class="lbl">Humidity %</label><input name="rh" type="number" step="1" class="field"></div>
+          <div class="flex items-end"><button class="btn btn-primary w-full justify-center"><i data-lucide="plus" class="w-4 h-4"></i> Add</button></div>
+        </form>
+        ${dr.length ? `<div class="overflow-x-auto"><table class="data w-full text-sm"><thead><tr><th>h</th><th>kg</th><th>Moisture</th><th>Seed</th><th>Surface</th><th>Room</th><th>RH</th><th></th></tr></thead><tbody>
+          ${withM.map(r => `<tr><td class="font-mono">${fmt(r.h, 1)}</td><td>${fmt(r.weight, 2)}</td><td>${r.m == null ? '–' : fmt(r.m, 1) + '%'}</td><td>${fmt(r.seedTemp, 1)}</td><td>${fmt(r.surfaceTemp, 1)}</td><td>${fmt(r.roomTemp, 1)}</td><td>${fmt(r.rh)}</td>
+          <td><button onclick="deleteDryReading('${b.id}', ${r.h})" class="text-coffee-500 hover:text-rose-300" title="Delete reading"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td></tr>`).join('')}
+        </tbody></table></div>` : ''}
+      </div>`;
+    }
+
+    // ---------------------------------------------------------------
+    // ACTIONS
+    // ---------------------------------------------------------------
+    function selectBatch(id) {
+      state.selectedId = id; save(); renderBatches();
+      if (window.innerWidth < 1024) document.getElementById('batchDetail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function addReading(e, id) {
+      e.preventDefault();
+      const b = batchById(id); const f = e.target;
+      const r = {
+        h: num(f.h.value), temp: num(f.temp.value), ph: num(f.ph.value), brix: num(f.brix.value),
+        psi: num(f.psi.value), ta: num(f.ta.value), dox: num(f.dox.value),
+        smell: f.smell.value.trim(), weather: f.weather.value.trim(), notes: f.notes.value.trim(), grit: f.grit.checked
+      };
+      if (r.h == null) return;
+      b.readings = (b.readings || []).filter(x => x.h !== r.h).concat([r]);
+      save(); renderBatches();
+    }
+    function deleteReading(id, h) {
+      const b = batchById(id);
+      b.readings = (b.readings || []).filter(r => r.h !== h);
+      save(); renderBatches();
+    }
+    function finishFermentation(id) {
+      const b = batchById(id);
+      b.washedAt = new Date().toISOString();
+      save(); renderBatches();
+    }
+    function startDrying(e, id) {
+      e.preventDefault();
+      const b = batchById(id); const f = e.target;
+      b.drying = { type: f.type.value, w0: num(f.w0.value), m0: num(f.m0.value), target: num(f.target.value), startAt: new Date().toISOString(), readings: [] };
+      save(); renderBatches();
+    }
+    function addDryReading(e, id) {
+      e.preventDefault();
+      const b = batchById(id); const f = e.target;
+      const r = { h: num(f.h.value), weight: num(f.weight.value), seedTemp: num(f.seedTemp.value), surfaceTemp: num(f.surfaceTemp.value), roomTemp: num(f.roomTemp.value), rh: num(f.rh.value) };
+      if (r.h == null) return;
+      b.drying.readings = (b.drying.readings || []).filter(x => x.h !== r.h).concat([r]);
+      save(); renderBatches();
+    }
+    function deleteDryReading(id, h) {
+      const b = batchById(id);
+      b.drying.readings = b.drying.readings.filter(r => r.h !== h);
+      save(); renderBatches();
+    }
+    function saveCupping(e, id) {
+      e.preventDefault();
+      const b = batchById(id); const f = e.target;
+      b.cupScore = num(f.cupScore.value);
+      b.flavor = f.flavor.value.trim();
+      save(); renderBatches();
+    }
+    function deleteBatch(id) {
+      const b = batchById(id);
+      if (!confirm(`Delete batch ${b.code} and all its readings?`)) return;
+      state.batches = state.batches.filter(x => x.id !== id);
+      if (state.selectedId === id) state.selectedId = null;
+      save(); renderBatches();
+    }
+
+    // ---------------------------------------------------------------
+    // BATCH FORM
+    // ---------------------------------------------------------------
+    let editingId = null;
+
+    function openBatchForm(id) {
+      editingId = id || null;
+      const f = document.getElementById('batchForm');
+      f.reset();
+      f.method.innerHTML = METHODS.map(m => `<option>${m.id}</option>`).join('');
+      f.yeast.innerHTML = CULTURES.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+      document.getElementById('modalTitle').textContent = id ? 'Edit batch' : 'New batch';
+      if (id) {
+        const b = batchById(id);
+        const i = b.intake || {}, c = b.checklist || {};
+        Object.entries({
+          code: b.code, start: toLocalInput(new Date(b.start)), lot: b.lot, masl: b.masl, variety: b.variety, cherryKg: b.cherryKg,
+          floatersKg: i.floatersKg, green: i.green, ripe: i.ripe, over: i.over, cherryBrix: i.cherryBrix,
+          method: b.method, oxygen: b.oxygen, container: b.container, tankKg: b.tankKg, expectedHours: b.expectedHours, fillMin: b.fillMin,
+          yeast: b.yeast, product: b.product, dose: b.dose, labelDose: b.labelDose, molassesH: b.molassesH, notes: b.notes
+        }).forEach(([k, v]) => { if (f[k]) f[k].value = v == null ? '' : v; });
+        f.floated.checked = !!i.floated; f.addSugar.checked = !!b.addSugar; f.molasses.checked = !!b.molasses; f.backslop.checked = !!b.backslop;
+        f.chkWater.checked = !!c.water; f.chkClean.checked = !!c.clean; f.chkSoap.checked = !!c.soap; f.chkCalib.checked = !!c.calib;
+      } else {
+        const n = state.batches.filter(b => !b.sample).length + 1;
+        f.code.value = `BAT-${new Date().getFullYear()}-${String(n).padStart(3, '0')}`;
+        f.start.value = toLocalInput(new Date());
+        f.dose.value = resolve('doseGPerKg').v;
+        onMethodChange();
+      }
+      document.getElementById('modal').classList.remove('hidden');
+      f.oninput = renderFormPreview;
+      renderFormPreview();
+      icons();
+    }
+    function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+    function onMethodChange() {
+      const f = document.getElementById('batchForm');
+      const m = methodOf(f.method.value);
+      f.oxygen.value = m.oxygen;
+      const tmp = { method: m.id, oxygen: m.oxygen };
+      f.expectedHours.placeholder = `default ${maxHoursFor(tmp).v}`;
+      renderFormPreview();
+    }
+
+    function formValues() {
+      const f = document.getElementById('batchForm');
+      return {
+        kg: num(f.tankKg.value) != null ? num(f.tankKg.value) : num(f.cherryKg.value),
+        yeast: f.yeast.value, dose: num(f.dose.value), labelDose: num(f.labelDose.value),
+        container: f.container.value, addSugar: f.addSugar.checked, cherryBrix: num(f.cherryBrix.value)
+      };
+    }
+    function renderFormPreview() {
+      const p = formValues();
+      document.getElementById('formPreview').innerHTML = p.kg ? `<div class="text-xs font-mono uppercase text-amber-400 mb-2">Plan preview</div>${planHtml(computePlan(p))}` : '';
+      icons();
+    }
+
+    function saveBatch(e) {
+      e.preventDefault();
+      const f = e.target;
+      const existing = editingId ? batchById(editingId) : null;
+      const b = existing || { id: uid(), readings: [] };
+      Object.assign(b, {
+        code: f.code.value.trim(), start: new Date(f.start.value).toISOString(), lot: f.lot.value.trim(), masl: num(f.masl.value),
+        variety: f.variety.value.trim(), cherryKg: num(f.cherryKg.value),
+        intake: { floated: f.floated.checked, floatersKg: num(f.floatersKg.value), green: num(f.green.value), ripe: num(f.ripe.value), over: num(f.over.value), cherryBrix: num(f.cherryBrix.value) },
+        method: f.method.value, oxygen: f.oxygen.value, container: f.container.value, tankKg: num(f.tankKg.value),
+        expectedHours: num(f.expectedHours.value), fillMin: num(f.fillMin.value),
+        yeast: f.yeast.value, product: f.product.value.trim(), dose: num(f.dose.value), labelDose: num(f.labelDose.value),
+        addSugar: f.addSugar.checked, molasses: f.molasses.checked, molassesH: num(f.molassesH.value), backslop: f.backslop.checked,
+        checklist: { water: f.chkWater.checked, clean: f.chkClean.checked, soap: f.chkSoap.checked, calib: f.chkCalib.checked },
+        notes: f.notes.value.trim()
+      });
+      if (!existing) state.batches.push(b);
+      state.selectedId = b.id;
+      save(); closeModal(); renderBatches();
+    }
+
+    // ---------------------------------------------------------------
+    // CALCULATORS
+    // ---------------------------------------------------------------
+    function renderCalc() {
+      const yeastSel = document.getElementById('c_yeast');
+      if (!yeastSel.options.length) {
+        yeastSel.innerHTML = CULTURES.filter(c => c.needsDose).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+        document.getElementById('c_dose').value = resolve('doseGPerKg').v;
+      }
+      const target = document.getElementById('m_target');
+      if (target.value === '') target.value = resolve('moistureTarget').v;
+
+      const plan = computePlan({
+        kg: num(document.getElementById('c_kg').value),
+        yeast: yeastSel.value,
+        dose: num(document.getElementById('c_dose').value),
+        container: document.getElementById('c_container').value,
+        addSugar: document.getElementById('c_sugar').checked,
+        cherryBrix: num(document.getElementById('c_brix').value),
+      });
+      document.getElementById('calcDoseOut').innerHTML = planHtml(plan) + `<p class="src mt-2">Default dose: ${esc(srcLabel(resolve('doseGPerKg')))}. Always check your product's label.</p>`;
+
+      const w0 = num(document.getElementById('m_w0').value);
+      const m0 = num(document.getElementById('m_m0').value);
+      const w1 = num(document.getElementById('m_w1').value);
+      const mt = num(target.value);
+      const out = document.getElementById('calcMoistOut');
+      if (w0 && m0 != null && w1 && mt != null) {
+        const m1 = moistureAt(w0, m0, w1);
+        const wt = weightAtMoisture(w0, m0, mt);
+        out.innerHTML = `<div class="bg-coffee-950/60 border border-coffee-800 rounded-lg p-3 space-y-1">
+          <div class="flex justify-between"><span class="text-coffee-400">Current moisture</span><span class="font-mono text-white">${fmt(m1, 1)}%</span></div>
+          <div class="flex justify-between"><span class="text-coffee-400">Weight at ${fmt(mt, 1)}%</span><span class="font-mono text-white">${fmt(wt, 2)} kg</span></div>
+          <div class="flex justify-between"><span class="text-coffee-400">Still to lose</span><span class="font-mono text-white">${fmt(Math.max(0, w1 - wt), 2)} kg</span></div>
+        </div>
+        <p class="text-xs text-coffee-300">${m1 <= mt ? 'At or below target. Confirm with a meter or bite test before bagging.' : m1 > 20 ? 'Above 20% water leaves easily. Below 20% it is bound tightly and drying slows down (Producer Toolkit #2).' : 'Below 20%: keep it slow and gentle to protect the seed.'}</p>
+        <p class="src">Target: ${esc(srcLabel(resolve('moistureTarget')))}</p>`;
+      } else {
+        out.innerHTML = '';
+      }
+      icons();
+    }
+
+    // ---------------------------------------------------------------
+    // DATA: sources table, export, import, samples
+    // ---------------------------------------------------------------
+    function renderData() {
+      document.getElementById('reliefPsi').value = state.settings.reliefPsi == null ? '' : state.settings.reliefPsi;
+      const cols = ['lucia', 'research', 'toolkit', 'tool'];
+      const rows = Object.entries(THRESHOLDS).map(([k, t]) => {
+        const r = resolve(k);
+        return `<tr><td class="text-coffee-200">${esc(t.label)}${t.unit ? ` <span class="text-coffee-500">(${t.unit})</span>` : ''}</td>${cols.map(c => {
+          if (!t[c]) return '<td class="text-coffee-600">–</td>';
+          const active = r.from === c;
+          return `<td class="${active ? 'text-amber-300 font-semibold' : 'text-coffee-300'}" title="${esc(t[c][1])}">${t[c][0]}<div class="src font-normal whitespace-normal max-w-[14rem]">${esc(t[c][1])}</div></td>`;
+        }).join('')}</tr>`;
+      }).join('');
+      document.getElementById('sourceTable').innerHTML = `<thead><tr><th>Value</th>${cols.map(c => `<th>${SOURCE_NAMES[c]}</th>`).join('')}</tr></thead><tbody>${rows}</tbody>`;
+    }
+
+    function download(name, text, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function csvRow(vals) {
+      return vals.map(v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',');
+    }
+    function exportCsv() {
+      const bh = ['batch_id', 'start', 'lot', 'masl', 'variety', 'cherry_kg', 'method', 'oxygen', 'culture', 'product', 'dose_g_per_kg', 'expected_hours', 'ferment_hours', 'cup_score', 'flavor', 'sample'];
+      const batches = [csvRow(bh)].concat(state.batches.map(b => {
+        const rs = b.readings || [];
+        const fh = rs.length ? Math.max(...rs.map(r => r.h)) : null;
+        return csvRow([b.code, b.start, b.lot, b.masl, b.variety, b.cherryKg, b.method, b.oxygen, cultureOf(b.yeast).name, b.product, b.dose, b.expectedHours, fh, b.cupScore, b.flavor, b.sample ? 'yes' : '']);
+      }));
+      const rh = ['batch_id', 'hours', 'temp_c', 'ph', 'brix', 'pressure_psi', 'titratable_acidity', 'do_mg_l', 'smell', 'weather', 'grit_test', 'notes'];
+      const readings = [csvRow(rh)];
+      state.batches.forEach(b => (b.readings || []).slice().sort((a, c) => a.h - c.h).forEach(r => readings.push(csvRow([b.code, r.h, r.temp, r.ph, r.brix, r.psi, r.ta, r.dox, r.smell, r.weather, r.grit ? 'yes' : '', r.notes]))));
+      download('batches.csv', batches.join('\n'), 'text/csv');
+      setTimeout(() => download('fermentation_readings.csv', readings.join('\n'), 'text/csv'), 300);
+    }
+    function exportJson() {
+      download(`coffee-tools-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ version: 1, settings: state.settings, batches: state.batches }, null, 2), 'application/json');
+    }
+    function importJson(input) {
+      const file = input.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!Array.isArray(data.batches)) throw new Error('No batches in file');
+          if (!confirm(`Replace your current ${state.batches.length} batches with ${data.batches.length} from the backup?`)) return;
+          state.batches = data.batches;
+          if (data.settings) state.settings = Object.assign(state.settings, data.settings);
+          state.selectedId = null;
+          save(); renderAll();
+        } catch (err) { alert('Could not read that backup: ' + err.message); }
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+    function clearAll() {
+      if (!confirm('Delete every batch saved in this browser? Export a backup first if you need it.')) return;
+      state.batches = []; state.selectedId = null;
+      save(); renderAll();
+    }
+
+    // Sample batches from Coffee_Processing_Batch_Tracker.xlsx (sample data, not real lots).
+    const SAMPLE_ROWS = [
+      ['BAT-2026-001', '2026-10-01', 'Upper Lot', 1850, 'Geisha', 250, 'Washed', 'none', 'Native microbes', 24, 88.5, 'Jasmine, Bergamot, Lemongrass, Clean'],
+      ['BAT-2026-002', '2026-10-03', 'Valley View', 1600, 'Castillo', 500, 'Natural', 'none', 'Spontaneous', 72, 86.25, 'Blueberry, Ripe Plum, Dark Chocolate'],
+      ['BAT-2026-003', '2026-10-05', 'High Ridge', 1900, 'Pink Bourbon', 300, 'Anaerobic', 'lab', 'Lactic bacteria (LAB)', 96, 89.75, 'Passion Fruit, Mango, Refreshing Acidity'],
+      ['BAT-2026-004', '2026-10-08', 'Upper Lot', 1850, 'Geisha', 200, 'Carbonic Maceration', 'none', 'CO2 purged intact', 120, 91, 'Red Cherry, Bubblegum, Papaya, Floral'],
+      ['BAT-2026-005', '2026-10-10', 'East Slope', 1700, 'Caturra', 450, 'Honey', 'none', 'Native yeast', 48, 85.5, 'Honey, Dried Fig, Red Apple, Silky'],
+      ['BAT-2026-006', '2026-10-12', 'High Ridge', 1900, 'Bourbon', 350, 'Thermal Shock', 'rehydrate', 'Lallemand yeast strain', 72, 90.25, 'Peach Blossom, Apricot, Earl Grey'],
+      ['BAT-2026-007', '2026-10-15', 'Valley View', 1600, 'Cenicafe 1', 600, 'Washed', 'none', 'Native microbes', 18, 84.75, 'Green Apple, Caramel, Milk Chocolate'],
+      ['BAT-2026-008', '2026-10-18', 'Upper Lot', 1850, 'Pink Bourbon', 280, 'Anaerobic', 'none', 'Fruit co-ferment (passion fruit)', 108, 89.25, 'Tropical Punch, Guava, Vibrant Acid'],
+      ['BAT-2026-009', '2026-10-20', 'East Slope', 1700, 'Typica', 320, 'Natural', 'none', 'Spontaneous', 60, 86, 'Blackberry, Cacao Nibs, Winey'],
+      ['BAT-2026-010', '2026-10-24', 'High Ridge', 1900, 'Geisha', 180, 'Carbonic Maceration', 'rehydrate', 'CO2 flush + wine yeast', 144, 92.5, 'Violaceous, Complex Berry, Creamy Finish'],
+    ];
+    const SAMPLE_CURVE = [ // BAT-2026-004 time series from the tracker
+      [0, 18, 5.8, 21.5, 0, 1.2, 'Tank sealed; initial CO2 flush'],
+      [12, 18.5, 5.65, 20.8, 2.5, 1.5, 'Airlock bubbling stably'],
+      [24, 19.2, 5.3, 19, 5, 2.1, 'Active yeast respiration'],
+      [36, 20.1, 4.95, 16.5, 7.8, 3, 'Fruity ester aroma at gas valve'],
+      [48, 21, 4.6, 13.2, 10.2, 4.2, 'Peak activity; cooling jacket on'],
+      [60, 20.5, 4.4, 10, 11.5, 5.1, 'Lactic acid increasing'],
+      [72, 19.8, 4.25, 7.5, 12, 6, 'pH near target'],
+      [84, 19.2, 4.15, 5.2, 12.2, 6.8, 'Slowing down'],
+      [96, 18.5, 4.1, 4, 12.5, 7.2, 'Endpoint reached; dump tank & wash'],
+    ];
+    function loadSamples() {
+      removeSamples(true);
+      SAMPLE_ROWS.forEach(([code, date, lot, masl, variety, kg, method, yeast, product, hours, score, flavor]) => {
+        const m = methodOf(method);
+        const b = {
+          id: uid(), sample: true, code, start: new Date(date + 'T07:00:00').toISOString(), lot, masl, variety, cherryKg: kg,
+          method, oxygen: m.oxygen, container: kg > 300 ? 'tank' : 'barrel', yeast, product, dose: yeast === 'none' ? null : 1,
+          expectedHours: hours, cupScore: score, flavor, readings: [], intake: {}, checklist: {}, notes: 'Sample data from the batch tracker spreadsheet.'
+        };
+        if (code === 'BAT-2026-004') {
+          b.readings = SAMPLE_CURVE.map(([h, temp, ph, brix, psi, ta, notes]) => ({ h, temp, ph, brix, psi, ta, notes }));
+          b.expectedHours = 96;
+        }
+        state.batches.push(b);
+      });
+      state.selectedId = state.batches.find(b => b.code === 'BAT-2026-004').id;
+      save(); setTab('batches');
+    }
+    function removeSamples(silent) {
+      state.batches = state.batches.filter(b => !b.sample);
+      if (state.selectedId && !batchById(state.selectedId)) state.selectedId = null;
+      save();
+      if (silent !== true) renderAll();
+    }
+
+    // ---------------------------------------------------------------
+    // SETTINGS & TABS
+    // ---------------------------------------------------------------
+    function setPreset(v) { state.settings.preset = v; save(); renderAll(); }
+    function setRelief(v) { state.settings.reliefPsi = num(v); save(); renderAll(); }
+
+    function setTab(tab) {
+      state.tab = tab; save();
+      ['batches', 'calc', 'data'].forEach(t => document.getElementById('view-' + t).classList.toggle('hidden', t !== tab));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const on = btn.dataset.tab === tab;
+        btn.classList.toggle('bg-coffee-700', on); btn.classList.toggle('text-white', on); btn.classList.toggle('font-medium', on);
+        btn.classList.toggle('text-coffee-400', !on);
+      });
+      renderAll();
+    }
+
+    function renderBatches() { renderBatchList(); renderBatchDetail(); icons(); }
+    function renderAll() {
+      document.getElementById('presetSelect').value = state.settings.preset;
+      if (state.tab === 'batches') renderBatches();
+      if (state.tab === 'calc') renderCalc();
+      if (state.tab === 'data') renderData();
+      icons();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    load();
+    setTab(state.tab || 'batches');
+  </script>
+</body>
+</html>
