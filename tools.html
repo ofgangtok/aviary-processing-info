@@ -82,7 +82,9 @@
     .inline-why details.why[open] { display: block; margin-left: 0; }
     details.why > summary { display: inline; cursor: pointer; font-size: 0.75rem; color: #BBA27E; text-decoration: underline; list-style: none; }
     details.why > summary::-webkit-details-marker { display: none; }
-    details.why p { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; margin-top: 0.25rem; }
+    details.why .why-body { margin-top: 0.375rem; padding: 0.5rem 0.625rem; border-left: 2px solid #8A6A3F; background: rgba(138, 106, 63, 0.12); border-radius: 0 0.5rem 0.5rem 0; }
+    details.why .why-r { font-size: 0.875rem; line-height: 1.4; color: #E8DCC8; }
+    details.why .why-s { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: #9E8057; margin-top: 0.25rem; }
     .navbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0.55rem 0 0.45rem; font-size: 0.72rem; color: #9E8057; }
     .navbtn.on { color: #F59E0B; }
   </style>
@@ -127,45 +129,45 @@
 
     const THRESHOLDS = {
       phEndpoint:       { label: 'pH endpoint (wash / unload)', unit: '',
-        lucia: [3.5, 'Making Coffee #66'], research: [4.3, 'Schwan & Fleet 2014, ch. 11'], toolkit: [4.2, 'Toolkit doc §2.1 (4.2–4.5)'] },
+        lucia: [3.5, 'Making Coffee #66', 'Lucia puts a typical fermentation end near pH 3.5, starting from about 5.5–6.'], research: [4.3, 'SLACAN 2025, Arabica fermentation profile', 'In a 2025 trial, submerged washed fermentations reached pH 4.3–4.4 after 72 h (4.7–4.8 when fermented dry).'], toolkit: [4.2, 'Toolkit doc §2.1 (4.2–4.5)', 'The toolkit doc stops washed coffee at pH 4.2–4.5. It cites no source.'] },
       phFloor:          { label: 'pH low warning', unit: '',
-        research: [3.5, 'Schwan & Fleet 2014, ch. 11 (working range 3.5–5.5)'], toolkit: [4.0, 'Toolkit doc §2.1'] },
+        research: [3.5, 'Schwan & Fleet 2014, ch. 11 (working range 3.5–5.5)', 'Coffee fermentations run at about pH 3.5–5.5, so lower than 3.5 is past the normal range.'], toolkit: [4.0, 'Toolkit doc §2.1', 'The toolkit doc treats washed coffee below pH 4.0 as a defect risk. It cites no source.'] },
       tempMax:          { label: 'Fermentation temperature alert', unit: '°C',
-        lucia: [30, 'Producer Toolkit #2 (Manuel Mata alert)'], research: [25, 'Schwan & Fleet 2014, ch. 11 (20–25 °C)'], toolkit: [25, 'Toolkit doc §2.3'] },
+        lucia: [30, 'Producer Toolkit #2 (Manuel Mata alert)', 'Manuel Mata gets a phone alert when a barrel in the sun climbs toward 30 °C. In the episode: "It\'s too hot."'], research: [25, 'Schwan & Fleet 2014, ch. 11 (20–25 °C)', 'Washed coffee is usually fermented under water at 20–25 °C. Higher temperatures speed fermentation up (ch. 10).'], toolkit: [25, 'Toolkit doc §2.3', 'The toolkit doc warns when sealed tanks pass 25 °C, because yeast make heat. It cites no source.'] },
       phChecksPerDay:   { label: 'pH checks a day', unit: '',
-        lucia: [2, 'Producer Toolkit #3 (at least twice a day; she checks morning, midday and end of day)'], toolkit: [24, 'Toolkit doc §5 (hourly)'] },
+        lucia: [2, 'Producer Toolkit #3', 'Lucia checks pH at least twice a day (morning, midday and end of day). The pH meter and thermometer are "your eyes inside the fermentation".'], toolkit: [24, 'Toolkit doc §5 (hourly)', 'The toolkit doc asks for hourly readings. It cites no source.'] },
       stallPh:          { label: 'Stall: pH change under this over 12 h', unit: '',
-        tool: [0.05, ''] },
+        tool: [0.05, '', 'If pH has barely moved in 12 h, the fermentation may have stalled, and slow ferments risk butyric and propionic off-notes (Schwan & Fleet ch. 10). The 0.05 cut-off is my choice.'] },
       maxHoursOpen:     { label: 'Overdue: open tank fermentation', unit: 'h',
-        lucia: [48, 'Producer Toolkit #3 (Shira 48 h trial)'], research: [72, 'Schwan & Fleet 2014, ch. 10 (6–72 h)'], toolkit: [36, 'Toolkit doc §2.1'] },
+        lucia: [48, 'Producer Toolkit #3 (Shira 48 h trial)', 'At Shira, a washed lot went from 12 h wild to 48 h with a coffee yeast and tasted more intense. That is the longest open fermentation in her examples.'], research: [72, 'Schwan & Fleet 2014, ch. 10 (6–72 h)', 'Open fermentations take 6–72 h depending on temperature. Past 72 h is outside that range.'], toolkit: [36, 'Toolkit doc §2.1', 'The toolkit doc limit for open tanks. It cites no source.'] },
       maxHoursSealed:   { label: 'Overdue: sealed fermentation', unit: 'h',
-        research: [120, 'Cenicafé SIAF study (viability >80% to 120 h)'], toolkit: [120, 'Toolkit doc §2.3 (48–120 h)'] },
+        research: [120, 'Cenicafé SIAF study', 'In sealed tanks, over 80% of seeds were still alive at 120 h. In open tanks, about 25% were alive by 192 h. Cup scores changed little.'], toolkit: [120, 'Toolkit doc §2.3 (48–120 h)', 'The toolkit doc gives 48–120 h for sealed tanks. It cites no source.'] },
       washToDryMaxH:    { label: 'Wash to drying start limit', unit: 'h',
-        research: [6, 'Schwan & Fleet 2014, ch. 10'] },
+        research: [6, 'Schwan & Fleet 2014, ch. 10', 'Wet parchment that waits more than 6 h between washing and drying risks butyric fermentation.'] },
       pickToProcessH:   { label: 'Start processing within (from picking)', unit: 'h',
-        research: [12, 'ATI Philippines 2007 (within 12 h of harvest)'] },
+        research: [12, 'ATI Philippines 2007', 'The guide says to start processing within 12 h of harvest.'] },
       pickMaxH:         { label: 'Quality drops if pulped later than (from picking)', unit: 'h',
-        research: [48, 'ATI Philippines 2007 (pulping delayed past 48 h)'] },
+        research: [48, 'ATI Philippines 2007', 'Pulping delayed more than 48 h deteriorates the beans.'] },
       ripeTargetPct:    { label: 'Ripe cherry target', unit: '%',
-        lucia: [80, 'Producer Toolkit #2 (aim for 80% red ripe)'] },
+        lucia: [80, 'Producer Toolkit #2', 'Aim for 80% red ripe, not 100%. Chasing the last 20% costs a lot and throws away good cherry.'] },
       seedMaxParchment: { label: 'Seed temperature limit: parchment', unit: '°C',
-        lucia: [40, 'Producer Toolkit #2 (after Borém)'], research: [40, 'Schwan & Fleet 2014, ch. 10'] },
+        lucia: [40, 'Producer Toolkit #2 (after Borém)', 'Lucia follows Flávio Borém: above 40 °C for long, the seed structure bursts and the coffee fades early, as if pre-aged.'], research: [40, 'Schwan & Fleet 2014, ch. 10', 'Parchment should not exceed 40 °C. Sun drying can overshoot this if the coffee is not turned or covered at midday.'] },
       seedMaxHoney:     { label: 'Seed temperature limit: honey', unit: '°C',
-        lucia: [36, 'Producer Toolkit #2'] },
+        lucia: [36, 'Producer Toolkit #2', 'Honeys have a lower limit than washed coffee: Lucia keeps them at or below 36 °C.'] },
       seedMaxCherry:    { label: 'Seed temperature limit: cherry', unit: '°C',
-        research: [45, 'Schwan & Fleet 2014, ch. 10'] },
+        research: [45, 'Schwan & Fleet 2014, ch. 10', 'Cherries (naturals) should not exceed 45 °C.'] },
       moistureTarget:   { label: 'Drying moisture target', unit: '%',
-        lucia: [11, 'Producer Toolkit #2 (buyer spec)'], research: [12, 'Schwan & Fleet 2014, ch. 10 (10–11% in humid areas)'], toolkit: [11, 'Toolkit doc §3 (10.5–11.5%)'] },
+        lucia: [11, 'Producer Toolkit #2 (buyer spec)', 'The buyer in the episode only accepts coffee at 11%. One producer arrived at 12–12.5% and spent three days drying it at the buying station.'], research: [12, 'Schwan & Fleet 2014, ch. 10', 'About 12% keeps coffee safe in storage. In humid areas, 10–11% buys more time. Above 12% risks quality and weight loss.'], toolkit: [11, 'Toolkit doc §3 (10.5–11.5%)', 'The toolkit doc target band. It cites no source.'] },
       dryerSwitch:      { label: 'Dryer first, move to patio at', unit: '%',
-        lucia: [16, 'Producer Toolkit #2'] },
+        lucia: [16, 'Producer Toolkit #2', 'Use the dryer first, while the water comes off easily. Below about 20% the water is bound tightly, and heating brittle coffee makes it fade, so finish slowly on the patio from about 16%.'] },
       dryDaysNatural:   { label: 'Drying days needed: natural', unit: 'days',
-        lucia: [15, 'Making Coffee #71 (about 15 days shaded)'], research: [12, 'Schwan & Fleet 2014, ch. 10 (12–21 days on patios)'] },
+        lucia: [15, 'Making Coffee #71', 'Lucia\'s shaded naturals dried in about 15 days.'], research: [12, 'Schwan & Fleet 2014, ch. 10', 'Cherries take 12–21 days on patios, depending on the climate.'] },
       dryDaysWashed:    { label: 'Drying days needed: washed', unit: 'days',
-        research: [7, 'Schwan & Fleet 2014, ch. 10 (7–15 days on patios, 5–10 on racks)'] },
+        research: [7, 'Schwan & Fleet 2014, ch. 10', 'Parchment takes 7–15 days on patios and 5–10 days on raised racks.'] },
       doseGPerKg:       { label: 'Yeast dose', unit: 'g/kg',
-        lucia: [1, 'Producer Toolkit #3 (Victor: 500 g per 500 kg)'], research: [1, 'Fermentis SafCoffee data sheet'] },
+        lucia: [1, 'Producer Toolkit #3', 'Victor Chara uses 500 g of coffee yeast for every 500 kg of pulped coffee.'], research: [1, 'Fermentis SafCoffee data sheet', 'The label rate is 100 g per 100 kg of cherry or pulped coffee. Underdosing lets wild microbes compete.'] },
       pressureMax:      { label: 'Tank pressure limit', unit: 'PSI',
-        toolkit: [15, 'Toolkit doc §2.3 (5–15 PSI)'] },
+        toolkit: [15, 'Toolkit doc §2.3 (5–15 PSI)', 'The toolkit doc keeps sealed tanks at 5–15 PSI. It cites no source. Always use an airlock or valve.'] },
       // Weather and timing heuristics: starting values, editable in Settings
       rainProbPct:      { label: 'Cover when rain chance reaches', unit: '%', tool: [60, ''] },
       rainMmH:          { label: 'Cover when rain per hour reaches', unit: 'mm', tool: [0.5, ''] },
@@ -176,8 +178,8 @@
       coldMillC:        { label: 'Cold mill below (72 h mean air)', unit: '°C', tool: [15, ''] },
       coverLeadMin:     { label: 'Cover reminder lead time', unit: 'min', tool: [30, ''] },
       moistureCheckH:   { label: 'Moisture check interval while drying', unit: 'h', tool: [24, ''] },
-      holdHours:        { label: 'Dry reading must still hold after', unit: 'h', tool: [18, 'a "next day" check'] },
-      meterSpots:       { label: 'Meter readings needed per check', unit: 'spots', tool: [3, '"several spots"'] },
+      holdHours:        { label: 'Dry reading must still hold after', unit: 'h', tool: [18, 'a "next day" check', 'Moisture evens out inside the bean as it rests (SICC), so a reading that still holds the next day is more trustworthy. 18 h is my choice.'] },
+      meterSpots:       { label: 'Meter readings needed per check', unit: 'spots', tool: [3, '"several spots"', 'An average can hide uneven drying, so sample several parts of the lot (SICC). Three spots is my choice.'] },
       altitudeBand:     { label: 'Recipe matches farms within', unit: 'm', tool: [200, ''] },
     };
 
@@ -185,10 +187,10 @@
       preset = preset || state.settings.preset;
       const t = THRESHOLDS[key];
       const ov = state.settings.overrides && state.settings.overrides[key];
-      if (ov != null && ov !== '') return { v: Number(ov), ref: 'edited in Settings', from: 'you', fallback: false };
+      if (ov != null && ov !== '') return { v: Number(ov), ref: 'edited in Settings', why: 'You changed this value in Settings.', from: 'you', fallback: false };
       const order = [preset, preset === 'lucia' ? 'research' : 'lucia', 'toolkit', 'tool'];
       for (const s of order) {
-        if (t[s]) return { v: t[s][0], ref: t[s][1], from: s, fallback: s !== preset };
+        if (t[s]) return { v: t[s][0], ref: t[s][1], why: t[s][2] || '', from: s, fallback: s !== preset };
       }
       return null;
     }
@@ -198,17 +200,20 @@
       return r.from === 'tool' ? `${SOURCE_NAMES[r.from]} (${r.ref})` : `${SOURCE_NAMES[r.from]}: ${r.ref}`;
     }
     const V = key => resolve(key).v;
+    // The reasoning behind a value, then its source, for why()
+    function explainR(r) { return !r ? '' : r.why || (r.from === 'tool' ? 'A starting value I chose, not from a source. Change it in Settings if it doesn\'t fit your mill.' : ''); }
+    function explain(r) { return r ? `${explainR(r)} ¦ ${srcLabel(r)}` : ''; }
 
     // ---------------------------------------------------------------
     // PROCESSES, CULTURES, CULTIVARS, REFERENCE LOTS
     // ---------------------------------------------------------------
     const METHODS = [
-      { id: 'Washed', tank: true, drying: 'parchment', main: true, ref: 'washed' },
-      { id: 'Natural', tank: false, drying: 'cherry', main: true, ref: 'natural' },
-      { id: 'Honey', tank: false, drying: 'honey', main: true, ref: 'honey' },
-      { id: 'Anaerobic washed', tank: true, sealed: true, drying: 'parchment', ref: 'anaerobic washed' },
-      { id: 'Anaerobic natural', tank: true, sealed: true, drying: 'cherry', ref: 'anaerobic natural' },
-      { id: 'Carbonic maceration', tank: true, sealed: true, drying: 'cherry', ref: 'carbonic maceration' },
+      { id: 'Washed', tank: true, drying: 'parchment', main: true, ref: 'washed', gloss: [3, 'The mucilage comes off before drying, by fermentation or by machine. Everything else can vary, including time.'] },
+      { id: 'Natural', tank: false, drying: 'cherry', main: true, ref: 'natural', gloss: [2, 'The coffee dries with its skin and pulp on. "Natural" usually means no extra fermentation steps before drying.'] },
+      { id: 'Honey', tank: false, drying: 'honey', main: true, ref: 'honey', gloss: [4, 'The skin comes off, then the coffee dries with its mucilage still attached. Feran treats honey and pulped natural as the same method.'] },
+      { id: 'Anaerobic washed', tank: true, sealed: true, drying: 'parchment', ref: 'anaerobic washed', gloss: [6, 'Named for fermenting with little oxygen in a closed container. Fully oxygen-free is hard to reach, so "anoxic" is often more accurate.'] },
+      { id: 'Anaerobic natural', tank: true, sealed: true, drying: 'cherry', ref: 'anaerobic natural', gloss: [6, 'Named for fermenting with little oxygen in a closed container. Fully oxygen-free is hard to reach, so "anoxic" is often more accurate.'] },
+      { id: 'Carbonic maceration', tank: true, sealed: true, drying: 'cherry', ref: 'carbonic maceration', gloss: [5, 'Named after the Beaujolais winemaking practice: whole cherry sealed in a vessel flushed with CO₂, so the first fermentation happens inside the cherry.'] },
       { id: 'Other', tank: true, drying: 'parchment', ref: 'other' },
     ];
     const methodOf = id => METHODS.find(m => m.id === id) || METHODS[METHODS.length - 1];
@@ -222,19 +227,19 @@
           `Rehydrate ${fmt(g)} g of yeast in ${fmt(g * 10 / 1000, 1)} L of clean, unchlorinated water at 10–25 °C (10× its weight).`,
           'Stir gently, then rest 15–30 min.',
           'Add the starter while mixing the tank.'
-        ], ref: 'Fermentis SafCoffee data sheet' },
+        ], ref: 'The maker says to rehydrate dry yeast in 10× its weight of clean water at 10–25 °C for 15–30 min before adding it. ¦ Fermentis SafCoffee data sheet' },
       { id: 'activate', name: 'Dry yeast, warm activation (Victor Chara)', needsDose: true,
         prep: (g, kg, barrels) => [
           `Heat ${fmt(kg * 14 / 500, 1)} L of water to about 30 °C (14 L per 500 kg).`,
           `Mix in ${fmt(g)} g of yeast and let it activate for about 10 min.`,
           barrels > 1 ? `Split the solution evenly: about ${fmt(kg * 14 / 500 / barrels, 2)} L per barrel.` : 'Add all the solution to the tank and mix.'
-        ], ref: 'Producer Toolkit #3' },
+        ], ref: 'This is Victor Chara\'s protocol in Huila: warm activation, then one litre of solution per 40–45 kg barrel. ¦ Lucia Solis: Producer Toolkit #3' },
       { id: 'direct', name: 'Direct-pitch culture (e.g. Novonesis Pichia)', needsDose: true,
         prep: (g) => [`Apply ${fmt(g)} g straight to the cherry or pulped coffee. No rehydration or waiting needed.`],
-        ref: 'Producer Toolkit #3' },
+        ref: 'Some coffee cultures are made to go straight onto the coffee, with no rehydration or waiting. ¦ Lucia Solis: Producer Toolkit #3' },
       { id: 'lab', name: 'Lactic bacteria culture', needsDose: true,
-        prep: (g) => [`Prepare ${fmt(g)} g following the supplier's sheet.`], ref: 'Supplier data sheet' },
-      { id: 'baker', name: "Baker's or beer yeast", warn: true, prep: () => [], ref: 'Producer Toolkit #3' },
+        prep: (g) => [`Prepare ${fmt(g)} g following the supplier's sheet.`], ref: 'Each bacteria culture has its own preparation, so follow its sheet. ¦ Supplier data sheet' },
+      { id: 'baker', name: "Baker's or beer yeast", warn: true, prep: () => [], ref: 'Bred for dough or grain, these get stressed in an acidic coffee tank and give cheesy or sulphur notes. ¦ Lucia Solis: Producer Toolkit #3' },
     ];
     const cultureOf = id => CULTURES.find(c => c.id === id) || CULTURES[0];
 
@@ -252,21 +257,21 @@
     // Research descriptions and examples, not promises. Keys are METHODS[].ref.
     const HS6 = 'Hackler & Särchen 2025, ch. 6';
     const PROCESS_FLAVOURS = {
-      washed: [['Zesty acidity with clear floral, caramel and fruity notes', HS6]],
-      natural: [['More body, less acidity and a broader range of fruit, often a "funky" fruitiness', HS6]],
-      honey: [['More body and sweetness and less acidity than a washed coffee', HS6]],
-      'anaerobic washed': [['Anaerobic fermentation gives more fermented, tangy and sour notes', HS6], ['One research example tasted floral and fruity, with citrus and sugarcane', HS6]],
-      'anaerobic natural': [['Anaerobic fermentation gives more fermented, tangy and sour notes', HS6], ['One research example tasted floral, fruity, winey, woody, caramel and alcoholic', HS6]],
-      'carbonic maceration': [['The book groups carbonic maceration with anaerobic fermentation: more fermented, tangy and sour notes', HS6]],
+      washed: [['Zesty acidity with clear floral, caramel and fruity notes', 'Fermenting under water adds organic acids, esters and alcohols that become aroma when roasted, and the fruit is gone before drying. ¦ ' + HS6]],
+      natural: [['More body, less acidity and a broader range of fruit, often a "funky" fruitiness', 'The whole fruit ferments as it dries, for longer and with air, so more sugar stays in the bean and more aroma compounds form. ¦ ' + HS6]],
+      honey: [['More body and sweetness and less acidity than a washed coffee', 'The mucilage left on the parchment gives the microbes more to work with and leaves more sugar. ¦ ' + HS6]],
+      'anaerobic washed': [['Anaerobic fermentation gives more fermented, tangy and sour notes', 'Without oxygen, lactic bacteria and yeasts dominate, and the bean ends up with more lactic acid. ¦ ' + HS6], ['One research example tasted floral and fruity, with citrus and sugarcane', 'A single published study, so take it as one data point. ¦ ' + HS6]],
+      'anaerobic natural': [['Anaerobic fermentation gives more fermented, tangy and sour notes', 'Without oxygen, lactic bacteria and yeasts dominate, and the bean ends up with more lactic acid. ¦ ' + HS6], ['One research example tasted floral, fruity, winey, woody, caramel and alcoholic', 'A single published study, so take it as one data point. ¦ ' + HS6]],
+      'carbonic maceration': [['The book groups carbonic maceration with anaerobic fermentation: more fermented, tangy and sour notes', 'Whole cherries ferment in a CO₂-rich tank with little oxygen. SICC\'s Indian carbonic lots below show what that tasted like in practice. ¦ ' + HS6]],
     };
     const OFF_NOTES = [
-      ['Vinegar or potato: the wrong microbes took over', 'Lucia Solis: Producer Toolkit #3'],
-      ['Onion-like: a fermentation that went wrong, too short or too long', HS6],
-      ['Flat and empty: dried too fast', 'Lucia Solis: Producer Toolkit #2 (keep the coffee below 40 °C)'],
+      ['Vinegar or potato: the wrong microbes took over', 'Some wild microbes make fruit flavours and acidity, others make vinegar and potato defects. Without control, you get whichever wins. ¦ Lucia Solis: Producer Toolkit #3'],
+      ['Onion-like: a fermentation that went wrong, too short or too long', 'Poorly controlled fermentation lets unwanted microbes make off-flavours. ¦ ' + HS6],
+      ['Flat and empty: dried too fast', 'Lucia has tasted coffee dried in one day: "flat and empty". Too much heat bursts the seed and it fades. ¦ Lucia Solis: Producer Toolkit #2'],
     ];
 
     const WCR_URL = 'https://varieties.worldcoffeeresearch.org/arabica/varieties';
-    const GAGNE = 'Gagné 2019, washed lots, roaster tasting notes';
+    const GAGNE = 'Gagné compared roasters\' published tasting notes for washed lots of each cultivar. A tendency across many lots, not a guarantee. ¦ Gagné 2019, washed lots, roaster tasting notes';
     const DEFAULT_CULTIVARS = [
       { name: 'Geisha / Gesha', flavor: 'Leads on floral and fruity notes', flavorRef: GAGNE },
       { name: 'SL28', flavor: 'Leans blackcurrant and blackberry', flavorRef: GAGNE },
@@ -280,6 +285,14 @@
     // What roasters say about their lots. Only what each page states; see the
     // "Roaster processing notes" doc. Not used for defaults or alerts.
     const ROASTER_LOTS = [
+      // SICC (South India Coffee Company) lot pages: process, cup notes and score as stated
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (Four Strain Yeast)', p: 'carbonic maceration', f: '48 h aerobic whole cherry with four commercial yeasts (three S. cerevisiae, one T. delbrueckii), then 60 h carbonic maceration in a plastic drum at 0.2 bar, plus Lactobacillus casei', d: 'Raised beds in a partly shaded polyhouse, to 11%', t: 'Mulberry compote, grape, rambutan', s: 90, u: 'https://www.sicc.coffee/lots/arabica-natural-four-strain-yeast/' },
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (60 Hours Carbonic Maceration)', p: 'carbonic maceration', f: 'Whole-cherry carbonic maceration with S. cerevisiae in a plastic drum at 0.2 bar (title says 60 h, process table 72 h), then pectinase and a Lactobacillus spray', d: '12 days on raised beds, to 12%', t: 'Blackberry, black cherry, toffee', s: 88, u: 'https://www.sicc.coffee/lots/mooleh-manay-estate-arabica-experimental-60-hours-carbonic-maceration/' },
+      { o: 'India', r: 'SICC', lot: 'Sirangalli community, Coorg, 1,100–1,600 m, Selection 11 (SX 86)', p: 'carbonic maceration', f: '48 h open lactic ferment with L. casei, then 60 h carbonic maceration with T. delbrueckii at 0.2 bar', d: '12 days on raised beds, to 12%', t: 'Passion fruit, tangerine, vanilla', s: 86.5, u: 'https://www.sicc.coffee/lots/sirangalli-community-project-exp-lot-sx-86-project-sirangalli-community-arabica-natural/' },
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (DF87)', p: 'carbonic maceration', f: '48 h open lactic ferment with L. casei, then 60 h carbonic maceration with T. delbrueckii at 0.2 bar', d: '12 days on raised beds, to 12%', t: 'Blackberry, black mission fig, cocoa', s: 86, u: 'https://www.sicc.coffee/lots/mooleh-manay-estate-lot-df87-arabica-natural-sequential-fermented/' },
+      { o: 'India', r: 'SICC', lot: 'Sirangalli community, Coorg, 1,100–1,600 m, Selection 6 and 13', p: 'carbonic maceration', f: '48 h with S. cerevisiae, then 60 h carbonic maceration at 0.2 bar, L. casei afterwards', d: '12 days on raised beds, to 12%', t: 'Pink grapefruit, mandarin orange, vanilla', s: 85.25, u: 'https://www.sicc.coffee/lots/sirangalli-community-project-project-sirangalli-community-arabica-natural-carbonic-macerated/' },
+      { o: 'India', r: 'SICC', lot: 'Mooleh Manay Estate, Coorg, 850–1,000 m, Selection 13 (Wine Yeast)', p: 'carbonic maceration', f: '72 h whole-cherry carbonic maceration with a wine yeast (S. cerevisiae) at 0.2 bar', d: '12 days on raised beds, to 12%', t: 'Orange zest, brown sugar, green grape', s: 84, u: 'https://www.sicc.coffee/lots/mooleh-manay-estate-exp-lot-48-arabica-natural-wine-yeast-ferment/' },
+      { o: 'India', r: 'SICC', lot: 'Lithanro, Kohima, Nagaland, 1,200–1,450 m, Selection 9', p: 'washed', f: 'Hand-sorted and floated, 24 h fermentation, then washed', d: 'Not stated', t: 'Apple, chocolate, bright acidity', u: 'https://www.sicc.coffee/lots/lithanro-nagaland-24-hours-fermented-washed/' },
       { o: 'India', r: 'Subko', lot: 'Kalledevarapura Estate, Chikmagalur, 1,280 m, Sln 795', p: 'anaerobic natural', f: 'Picked at 18% Brix. 120 h anaerobic, yeast (not named)', d: '20 days on raised beds, raked regularly', u: 'https://www.subko.coffee/products/kalledevarapura-estate-lot-22-anaerobic-yeast-naturals-medium-roast-pan-india' },
       { o: 'India', r: 'Subko', lot: 'Badra Estates, Chikmagalur', p: 'honey', f: 'Red honey. Cherries washed, 72 h partially anaerobic, pulped without water', d: '4 days on shaded trays, then drying grounds raked hourly to 10.5–11%', u: 'https://www.subko.coffee/products/project-360-badra-estates-chikmagalur-karnataka-arabica-anaerobic-naturals-medium-copy' },
       { o: 'India', r: 'Subko', lot: 'Ratnagiri Estate (Project Pearl), 1,310 m, Catuai', p: 'anaerobic natural', f: 'Washed cherries, 38 h anaerobic in stainless steel', d: '25 days on raised beds', u: 'https://www.subko.coffee/products/project-pearl-ratnagiri-estate-karnataka-anaerobic-naturals-medium-roast' },
@@ -533,30 +546,30 @@
       if (b.pickedAt) {
         const age = hoursBetween(b.pickedAt, b.arrivedAt || new Date());
         const soon = resolve('pickToProcessH'), max = resolve('pickMaxH');
-        if (age > max.v) general.push(note('red', `Picked ${fmt(age)} h ago. Pulping later than ${max.v} h lowers quality.`, srcLabel(max)));
-        else if (age > soon.v) general.push(note('amber', `Picked ${fmt(age)} h ago. Processing should start within ${soon.v} h of picking.`, srcLabel(soon)));
+        if (age > max.v) general.push(note('red', `Picked ${fmt(age)} h ago. Pulping later than ${max.v} h lowers quality.`, explain(max)));
+        else if (age > soon.v) general.push(note('amber', `Picked ${fmt(age)} h ago. Processing should start within ${soon.v} h of picking.`, explain(soon)));
       }
-      if (b.container === 'sacks') general.push(note('amber', 'Arrived in sacks. Heavy sacks crush the fruit, leak juice and heat up. Ventilated, stackable baskets of 18–23 kg protect it.', 'Lucia Solis: Producer Toolkit #7'));
-      if (b.crushed || b.warm) general.push(note('amber', `Cherry arrived ${[b.crushed && 'crushed', b.warm && 'warm'].filter(Boolean).join(' and ')}. Uncontrolled fermentation may already have started.`, 'Lucia Solis: Producer Toolkit #7'));
+      if (b.container === 'sacks') general.push(note('amber', 'Arrived in sacks. Heavy sacks crush the fruit, leak juice and heat up. Ventilated, stackable baskets of 18–23 kg protect it.', 'Under the weight of a full sack, cherries break and leak juice, which starts a fermentation you didn\'t ask for. Ventilated baskets keep them cooler and stack without crushing. ¦ Lucia Solis: Producer Toolkit #7'));
+      if (b.crushed || b.warm) general.push(note('amber', `Cherry arrived ${[b.crushed && 'crushed', b.warm && 'warm'].filter(Boolean).join(' and ')}. Uncontrolled fermentation may already have started.`, 'Broken, leaking or warm fruit has already started fermenting with whatever microbes are around, before you can control it. ¦ Lucia Solis: Producer Toolkit #7'));
 
       // Ripeness
       const ri = ripeInfo(b);
       const tgt = resolve('ripeTargetPct');
       const lowRipe = (ri.ripePct != null && ri.ripePct < tgt.v) || ['mixed', 'early', 'late'].includes(b.ripeness);
-      if (ri.ripePct != null) general.push(note(ri.ripePct >= tgt.v ? 'green' : 'amber', `Ripe ${fmt(ri.ripePct)}% on the classifier board (target ${tgt.v}%).`, srcLabel(tgt)));
-      if (lowRipe) general.push(note('amber', 'Lower-quality or mixed cherry: commercial microbes give the biggest lift here (one lot went from 82 to 85), and little on lots already at 89 or more. Remove floaters and overripe cherry first.', 'Lucia Solis: Producer Toolkit #3 and #2'));
+      if (ri.ripePct != null) general.push(note(ri.ripePct >= tgt.v ? 'green' : 'amber', `Ripe ${fmt(ri.ripePct)}% on the classifier board (target ${tgt.v}%).`, explain(tgt)));
+      if (lowRipe) general.push(note('amber', 'Lower-quality or mixed cherry: commercial microbes give the biggest lift here (one lot went from 82 to 85), and little on lots already at 89 or more. Remove floaters and overripe cherry first.', 'Commercial microbes lifted an 82-point coffee to 85, but rarely help a coffee already at 89–90. Floating removes the dry and overripe fruit that floats. ¦ Lucia Solis: Producer Toolkit #3 and #2'));
 
       // Altitude vs cultivar
       const cv = cultivarOf(b.cultivar);
       if (cv && b.masl != null && cv.optMin != null && b.masl < cv.optMin) {
-        general.push(note('amber', `Farm at ${fmt(b.masl)} m is below ${cv.name}'s optimal ${fmt(cv.optMin)}${cv.optMax ? '–' + fmt(cv.optMax) : '+'} m. Controlled fermentation with regular pH checks can narrow the gap for lower farms.`, 'World Coffee Research catalog (your entry); Making Coffee #59'));
+        general.push(note('amber', `Farm at ${fmt(b.masl)} m is below ${cv.name}'s optimal ${fmt(cv.optMin)}${cv.optMax ? '–' + fmt(cv.optMax) : '+'} m. Controlled fermentation with regular pH checks can narrow the gap for lower farms.`, 'Each cultivar has an altitude range where it does best, from the World Coffee Research catalogue (you enter it). Lucia says better fermentation control can help lower farms close part of the gap. ¦ World Coffee Research catalog (your entry); Making Coffee #59'));
       }
 
       // Mill temperature from the forecast
       if (sum && sum.meanT != null) {
         const cold = resolve('coldMillC'), hot = resolve('tempMax');
-        if (sum.meanT < cold.v) general.push(note('amber', `Cold mill: the next 72 h average ${fmt(sum.meanT, 1)} °C. Expect a longer fermentation (6–72 h depending on temperature). If tank space is short, a commercial yeast selected for cold cut one mill's fermentations from 100 h to 24 h.`, `Schwan & Fleet 2014, ch. 10; Producer Toolkit #3; cold line: ${srcLabel(cold)}`));
-        if (sum.maxT >= hot.v) general.push(note('amber', `Hot spell: air reaches ${fmt(sum.maxT, 1)} °C in the next 72 h. Plan a shorter fermentation and keep tanks in shade.`, `${srcLabel(hot)}; Schwan & Fleet 2014, ch. 10 (heat speeds fermentation)`));
+        if (sum.meanT < cold.v) general.push(note('amber', `Cold mill: the next 72 h average ${fmt(sum.meanT, 1)} °C. Expect a longer fermentation (6–72 h depending on temperature). If tank space is short, a commercial yeast selected for cold cut one mill's fermentations from 100 h to 24 h.`, `Fermentation takes 6–72 h depending on temperature, and colder is slower. At a cold mill, tanks stayed busy 100 h until a cold-tolerant coffee yeast cut it to 24 h. ${explainR(cold)} ¦ Schwan & Fleet 2014, ch. 10; Producer Toolkit #3; cold line: ${srcLabel(cold)}`));
+        if (sum.maxT >= hot.v) general.push(note('amber', `Hot spell: air reaches ${fmt(sum.maxT, 1)} °C in the next 72 h. Plan a shorter fermentation and keep tanks in shade.`, `Higher temperatures speed fermentation up, so it can overshoot between checks. ${explainR(hot)} ¦ ${srcLabel(hot)}; Schwan & Fleet 2014, ch. 10`));
       } else {
         general.push(note('info', 'Set the mill location in Settings to get weather-based advice.', ''));
       }
@@ -569,31 +582,31 @@
       const poorMax = resolve('poorShareMax');
       const ranked = order.map(id => {
         const notes = []; let ok = true;
-        if (id === 'Washed') notes.push(note('info', 'Washed processing gives better control and generally fewer defects than naturals.', 'Hackler & Särchen 2025, ch. 5'));
+        if (id === 'Washed') notes.push(note('info', 'Washed processing gives better control and generally fewer defects than naturals.', 'The fruit and mucilage come off before drying, and washed coffee dries faster than a natural. ¦ Hackler & Särchen 2025, ch. 5–6'));
         if (id === 'Natural' || id === 'Honey' || id === 'Anaerobic natural' || id === 'Carbonic maceration') {
           const need = resolve('dryDaysNatural');
           if (sum) {
             const share = sum.n ? sum.poor / sum.n * 100 : 0;
             const what = id === 'Honey' ? 'A honey' : 'A natural';
-            const ref = `days: ${srcLabel(need)}${id === 'Honey' ? '; honey can dry even slower than a natural: Lucia Solis: Producer Toolkit #2' : ''}`;
+            const reason = `${explainR(need)}${id === 'Honey' ? ' A honey can dry even slower than a natural.' : ''}`, ref = `days: ${srcLabel(need)}${id === 'Honey' ? '; honey: Lucia Solis, Producer Toolkit #2' : ''}`;
             if (share > poorMax.v) {
               ok = false;
-              notes.push(note('amber', `${sum.poor} of the next ${sum.n} days look poor for drying (${fmt(share)}%). ${what} needs about ${need.v}+ days of drying.`, `${ref}; risky above ${poorMax.v}% poor days: ${srcLabel(poorMax)}`));
+              notes.push(note('amber', `${sum.poor} of the next ${sum.n} days look poor for drying (${fmt(share)}%). ${what} needs about ${need.v}+ days of drying.`, `A natural or honey sits on the beds for weeks, and long stretches of wet weather mean mould risk. ${reason} The ${poorMax.v}% cut-off is my choice. ¦ ${ref}; cut-off: ${srcLabel(poorMax)}`));
             } else {
-              notes.push(note('green', `${sum.good} good, ${sum.fair} fair and ${sum.poor} poor drying days in the next ${sum.n}. ${what} needs about ${need.v}+ days of drying.`, `Forecast: Open-Meteo; ${ref}`));
+              notes.push(note('green', `${sum.good} good, ${sum.fair} fair and ${sum.poor} poor drying days in the next ${sum.n}. ${what} needs about ${need.v}+ days of drying.`, `A natural or honey needs many dry days in a row. The forecast looks good enough for that. ${reason} ¦ Forecast: Open-Meteo; ${ref}`));
             }
           }
-          if ((id === 'Natural' || id === 'Anaerobic natural' || id === 'Carbonic maceration') && (ri.over > 0 || b.ripeness === 'late')) notes.push(note('amber', 'Sort out overripe cherry before a natural.', 'Making Coffee #71'));
+          if ((id === 'Natural' || id === 'Anaerobic natural' || id === 'Carbonic maceration') && (ri.over > 0 || b.ripeness === 'late')) notes.push(note('amber', 'Sort out overripe cherry before a natural.', 'Lucia\'s episode on "de-funkifying" naturals starts with sorting out overripe cherry. ¦ Making Coffee #71'));
         }
         if (id === 'Honey') {
           notes.push(preset === 'research'
-            ? note('info', 'Turned daily, honey has a much lower defect risk than a natural.', 'Hackler & Särchen 2025, ch. 5')
-            : note('amber', 'The hardest process: the mucilage is exposed as in a washed, and it can dry even slower than a natural.', 'Lucia Solis: Producer Toolkit #2'));
+            ? note('info', 'Turned daily, honey has a much lower defect risk than a natural.', 'Part of the pulp comes off before drying, unlike a natural, and the book rates its defect risk much lower. ¦ Hackler & Särchen 2025, ch. 5')
+            : note('amber', 'The hardest process: the mucilage is exposed as in a washed, and it can dry even slower than a natural.', 'Lucia calls honey the hardest process: it has the worst part of a washed (exposed, sugary mucilage) and of a natural (slow drying). ¦ Lucia Solis: Producer Toolkit #2'));
           const seed = resolve('seedMaxHoney');
-          if (!S.setup.shade) notes.push(note('amber', `Needs shade cloth to keep the seed at or below ${seed.v} °C. Your setup has none.`, srcLabel(seed)));
+          if (!S.setup.shade) notes.push(note('amber', `Needs shade cloth to keep the seed at or below ${seed.v} °C. Your setup has none.`, explain(seed)));
         }
-        if (id === 'Washed' && sum && sum.n && sum.poor / sum.n > 0.5) notes.push(note('amber', 'More than half the forecast days are poor. Even washed coffee will dry slowly.', 'Tool heuristic'));
-        if (['Anaerobic washed', 'Anaerobic natural', 'Carbonic maceration'].includes(id)) notes.push(note('info', 'Offered because you marked this lot as an experiment.', 'Design choice'));
+        if (id === 'Washed' && sum && sum.n && sum.poor / sum.n > 0.5) notes.push(note('amber', 'More than half the forecast days are poor. Even washed coffee will dry slowly.', 'Slow drying keeps the seed moist for longer, which brings a risk of mould (Producer Toolkit #2). The "more than half" cut-off is my choice. ¦ Tool heuristic'));
+        if (['Anaerobic washed', 'Anaerobic natural', 'Carbonic maceration'].includes(id)) notes.push(note('info', 'Offered because you marked this lot as an experiment.', 'Sealed and anaerobic methods are only shown when you ask for them, because they need more control and more checks. ¦ Design choice'));
         return { id, ok, notes };
       });
       ranked.sort((a, c) => (c.ok - a.ok));
@@ -663,50 +676,50 @@
       const st = lotStage(l);
       const S = state.settings;
       const c = cultureOf(l.culture);
-      if (c.warn) out.push(note('red', "Baker's or beer yeast in use. In coffee they tend to give stress compounds such as cheesy or sulphur notes.", 'Producer Toolkit #3'));
-      if (c.needsDose && l.labelDose != null && l.dose != null && l.dose < l.labelDose) out.push(note('amber', `Dose ${fmt(l.dose, 2)} g/kg is below the label ${fmt(l.labelDose, 2)} g/kg. Underdosing lets wild microbes compete.`, 'Producer Toolkit #3'));
+      if (c.warn) out.push(note('red', "Baker's or beer yeast in use. In coffee they tend to give stress compounds such as cheesy or sulphur notes.", 'Bread and beer yeasts are bred for warm dough or grain sugars. A coffee tank is acidic, has little oxygen and holds fruit sugars, so they get stressed and make sulphur compounds. ¦ Lucia Solis: Producer Toolkit #3'));
+      if (c.needsDose && l.labelDose != null && l.dose != null && l.dose < l.labelDose) out.push(note('amber', `Dose ${fmt(l.dose, 2)} g/kg is below the label ${fmt(l.labelDose, 2)} g/kg. Underdosing lets wild microbes compete.`, 'Too little starter lets the wild microbes already on the fruit compete with it, so you lose the control you paid for. ¦ Lucia Solis: Producer Toolkit #3; Fermentis'));
       const chk = l.checklist || {};
       const missing = [['water', 'unchlorinated water'], ['clean', 'clean tanks'], ['soap', 'no scented soap'], ['calib', 'pH meter calibrated'], ['smell', 'no smoke, fuel or kitchen smells nearby']].filter(([k]) => !chk[k]).map(([, t]) => t);
-      if (!l.sample && missing.length && st === 'fermenting') out.push(note('amber', `Not confirmed: ${missing.join(', ')}.`, 'Producer Toolkit #3 and #7'));
+      if (!l.sample && missing.length && st === 'fermenting') out.push(note('amber', `Not confirmed: ${missing.join(', ')}.`, 'Chlorine kills the microbes you add, coffee soaks up scents like a sponge, and an uncalibrated pH meter gives you wrong endpoints. ¦ Lucia Solis: Producer Toolkit #3 and #7'));
 
       if (st === 'fermenting') {
         const rs = readingsOf(l), last = rs[rs.length - 1];
         const fr = fermentReady(l);
         const floor = resolve('phFloor'), tMax = resolve('tempMax');
         if (last) {
-          if (last.temp != null && last.temp > tMax.v) out.push(note('red', `Tank at ${fmt(last.temp, 1)} °C, above ${tMax.v} °C. Shade or cool it.`, srcLabel(tMax)));
-          if (last.psi != null && last.psi > V('pressureMax')) out.push(note('red', `Pressure ${fmt(last.psi, 1)} PSI is above ${V('pressureMax')} PSI. Vent the tank.`, srcLabel(resolve('pressureMax'))));
-          if (last.ph != null && last.ph < floor.v) out.push(note('red', `pH ${fmt(last.ph, 2)} is below ${floor.v}. Risk of over-fermentation.`, srcLabel(floor)));
-          else if (fr.ph) out.push(note('green', `pH ${fmt(last.ph, 2)} has reached the ${fr.end.v} endpoint. Do the hand test, then wash or unload.`, srcLabel(fr.end)));
+          if (last.temp != null && last.temp > tMax.v) out.push(note('red', `Tank at ${fmt(last.temp, 1)} °C, above ${tMax.v} °C. Shade or cool it.`, explain(tMax)));
+          if (last.psi != null && last.psi > V('pressureMax')) out.push(note('red', `Pressure ${fmt(last.psi, 1)} PSI is above ${V('pressureMax')} PSI. Vent the tank.`, explain(resolve('pressureMax'))));
+          if (last.ph != null && last.ph < floor.v) out.push(note('red', `pH ${fmt(last.ph, 2)} is below ${floor.v}. Risk of over-fermentation.`, explain(floor)));
+          else if (fr.ph) out.push(note('green', `pH ${fmt(last.ph, 2)} has reached the ${fr.end.v} endpoint. Do the hand test, then wash or unload.`, explain(fr.end)));
           if (fr.hand) out.push(note('green', 'Hand test passed: the parchment feels gritty, like pebbles. Wash now.', 'Schwan & Fleet 2014, ch. 10'));
           const prior = rs.filter(r => r.ph != null && hoursBetween(r.at, last.at) >= 12).pop();
-          if (prior && last.ph != null && (prior.ph - last.ph) < V('stallPh') && last.ph > fr.end.v) out.push(note('amber', `pH has barely moved in ${fmt(hoursBetween(prior.at, last.at))} h (${fmt(prior.ph, 2)} → ${fmt(last.ph, 2)}). Slow ferments risk butyric and propionic off-notes.`, 'Schwan & Fleet 2014, ch. 10'));
+          if (prior && last.ph != null && (prior.ph - last.ph) < V('stallPh') && last.ph > fr.end.v) out.push(note('amber', `pH has barely moved in ${fmt(hoursBetween(prior.at, last.at))} h (${fmt(prior.ph, 2)} → ${fmt(last.ph, 2)}). Slow ferments risk butyric and propionic off-notes.`, 'When fermentation is too slow, butyric or propionic acid can build up, and both hurt quality. ¦ Schwan & Fleet 2014, ch. 10'));
         }
         const maxH = maxHoursFor(l);
         const limit = l.expectedHours || (maxH && maxH.v);
         const h = fermentHours(l);
-        if (limit && h > limit) out.push(note('amber', `Fermenting for ${fmt(h)} h, past the expected ${limit} h.`, l.expectedHours ? 'Your plan' : srcLabel(maxH)));
+        if (limit && h > limit) out.push(note('amber', `Fermenting for ${fmt(h)} h, past the expected ${limit} h.`, l.expectedHours ? 'The hours you planned for this lot. ¦ Your plan' : explain(maxH)));
         if (!S.thermometer) {
           const sum = wxSummary(24);
-          if (sum && sum.maxT != null && sum.maxT >= tMax.v - 5) out.push(note('amber', `No tank thermometer: forecast air reaches ${fmt(sum.maxT, 1)} °C, and a fermenting mass can run warmer than the air.`, 'Forecast: Open-Meteo; Schwan & Fleet 2014, ch. 10'));
+          if (sum && sum.maxT != null && sum.maxT >= tMax.v - 5) out.push(note('amber', `No tank thermometer: forecast air reaches ${fmt(sum.maxT, 1)} °C, and a fermenting mass can run warmer than the air.`, 'Microbes give off heat as they work, so the tank can be warmer than the forecast air. ¦ Forecast: Open-Meteo; Schwan & Fleet 2014, ch. 10'));
         }
       }
       if (st === 'to dry' && l.washedAt) {
         const wd = resolve('washToDryMaxH');
         const gap = hoursBetween(l.washedAt, new Date());
-        if (gap > wd.v && !l.sample) out.push(note('amber', `Washed ${fmt(gap, 1)} h ago and drying hasn't started (limit ${wd.v} h).`, srcLabel(wd)));
+        if (gap > wd.v && !l.sample) out.push(note('amber', `Washed ${fmt(gap, 1)} h ago and drying hasn't started (limit ${wd.v} h).`, explain(wd)));
       }
       if (st === 'drying') {
         const di = dryingInfo(l);
         const seed = seedLimitFor(methodOf(l.method).drying);
         const lastSeed = di.ws.filter(w => w.seedTemp != null).pop();
-        if (lastSeed && lastSeed.seedTemp > seed.v) out.push(note('red', `Seed at ${fmt(lastSeed.seedTemp, 1)} °C, above ${seed.v} °C. Shade it or lower the dryer air.`, srcLabel(seed)));
-        if (di.ready) out.push(note('green', `Dry: every meter reading is at or below ${di.target}%, it held over ${di.hold.v} h, and it feels hard and brittle. Bag it.`, srcLabel(resolve('moistureTarget'))));
+        if (lastSeed && lastSeed.seedTemp > seed.v) out.push(note('red', `Seed at ${fmt(lastSeed.seedTemp, 1)} °C, above ${seed.v} °C. Shade it or lower the dryer air.`, explain(seed)));
+        if (di.ready) out.push(note('green', `Dry: every meter reading is at or below ${di.target}%, it held over ${di.hold.v} h, and it feels hard and brittle. Bag it.`, explain(resolve('moistureTarget'))));
       }
       if (st === 'resting' && l.bag && l.bag.type !== 'barrier') {
         out.push(note('amber', l.bag.type === 'jute'
           ? 'Stored in jute: coffee can take moisture back up to 15% and pick up a "baggy" taste. Use barrier bags (polyethylene plus EVOH).'
-          : 'Plain polyethylene stops moisture but lets oxygen through, so the coffee ages faster. Barrier bags stop both.', 'Lucia Solis: Producer Toolkit #7'));
+          : 'Plain polyethylene stops moisture but lets oxygen through, so the coffee ages faster. Barrier bags stop both.', 'Polyethylene is good at stopping moisture but not oxygen. EVOH stops oxygen but not moisture, so barrier bags layer both. ¦ Lucia Solis: Producer Toolkit #7'));
       }
       return out;
     }
@@ -737,18 +750,18 @@
         const base = rs.length ? new Date(rs[rs.length - 1].at).getTime() : new Date(l.fermentStart || l.createdAt).getTime();
         const iv = resolve('phChecksPerDay');
         const at = Math.max(nextPhCheck(base + 3 * HOUR, iv.v), now - 6 * HOUR);
-        out.push({ lot: l, kind: 'ph', at, text: `Check pH${S.thermometer ? ' and tank temperature' : ''}${methodOf(l.method).drying === 'parchment' ? ', and do the hand test' : ''}`, ref: srcLabel(iv) });
+        out.push({ lot: l, kind: 'ph', at, text: `Check pH${S.thermometer ? ' and tank temperature' : ''}${methodOf(l.method).drying === 'parchment' ? ', and do the hand test' : ''}`, ref: explain(iv) });
       }
       if (st === 'to dry' && l.washedAt) {
         const wd = resolve('washToDryMaxH');
-        add('drystart', new Date(l.washedAt).getTime() + wd.v * HOUR, 'Start drying (limit after washing)', srcLabel(wd));
+        add('drystart', new Date(l.washedAt).getTime() + wd.v * HOUR, 'Start drying (limit after washing)', explain(wd));
       }
       if (st === 'drying') {
         // Spread at sunrise, pile and cover before sunset (ATI Philippines 2007)
         for (let k = 0; k < 3; k++) {
           const s = sunTimes(now + (k - 1) * DAY + 12 * HOUR);
-          add('spread', s.sunrise, 'Spread the coffee out', 'ATI Philippines 2007');
-          add('pile', s.sunset - V('coverLeadMin') * 60000, 'Pile and cover for the night', 'ATI Philippines 2007; Hackler & Särchen 2025');
+          add('spread', s.sunrise, 'Spread the coffee out', 'Spread in thin layers, about 10 cm, each morning after the night under cover. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10');
+          add('pile', s.sunset - V('coverLeadMin') * 60000, 'Pile and cover for the night', 'Piled and covered, the coffee is protected from dew and rain overnight. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10');
         }
         // Raking 8–10 times a day (Schwan & Fleet ch. 10), spread across daylight
         const s0 = sunTimes(now);
@@ -759,7 +772,7 @@
           const s = sunTimes(next);
           if (next < s.sunrise) next = s.sunrise + iv / 2;
           if (next > s.sunset) { const t = sunTimes(next + 12 * HOUR); next = t.sunrise + iv / 2; }
-          if (next <= end) out.push({ lot: l, kind: 'rake', at: next, text: 'Rake', ref: 'Schwan & Fleet 2014, ch. 10 (8–10 times a day)' });
+          if (next <= end) out.push({ lot: l, kind: 'rake', at: next, text: 'Rake', ref: 'Raking turns the layer so it dries evenly and doesn\'t overheat on top. The book says 8–10 times a day. ¦ Schwan & Fleet 2014, ch. 10' });
           break;
         }
         // Rain and shade blocks from the forecast
@@ -773,12 +786,12 @@
           });
           blocks.forEach(b => {
             if (b.mode === 'cover') {
-              add('cover', b.start - V('coverLeadMin') * 60000, `Rain likely ${hm(b.start)}–${hm(b.end)}: pile and cover`, 'Forecast: Open-Meteo; Schwan & Fleet 2014, ch. 10');
-              if (b.end < sunTimes(b.end).sunset - V('coverLeadMin') * 60000) add('uncover', b.end, 'Rain passing: spread out again', 'Forecast: Open-Meteo');
+              add('cover', b.start - V('coverLeadMin') * 60000, `Rain likely ${hm(b.start)}–${hm(b.end)}: pile and cover`, 'Wet coffee on the beds takes longer to dry and risks mould. The rain timing comes from the forecast. ¦ Forecast: Open-Meteo; Schwan & Fleet 2014, ch. 10');
+              if (b.end < sunTimes(b.end).sunset - V('coverLeadMin') * 60000) add('uncover', b.end, 'Rain passing: spread out again', 'Every dry hour counts, so spread it out again once the rain has passed. ¦ Forecast: Open-Meteo');
             }
             if (b.mode === 'shade' && S.setup.shade) {
-              add('shade-on', b.start, `Strong sun ${hm(b.start)}–${hm(b.end)}: shade cloth on`, 'Lucia Solis: Producer Toolkit #2; Making Coffee #71');
-              add('shade-off', b.end, 'Shade cloth off', 'Forecast: Open-Meteo');
+              add('shade-on', b.start, `Strong sun ${hm(b.start)}–${hm(b.end)}: shade cloth on`, 'Midday sun can push the seed past 40 °C. Shade lowers the peak, and Lucia\'s shaded naturals still dried in about 15 days. ¦ Lucia Solis: Producer Toolkit #2; Making Coffee #71');
+              add('shade-off', b.end, 'Shade cloth off', 'Once the strong sun has passed, open sun dries faster again. ¦ Forecast: Open-Meteo');
             }
           });
         }
@@ -791,7 +804,7 @@
         const ms = sunTimes(mAt);
         // Weigh in daylight, while the coffee is spread out
         if (mAt < ms.sunrise) mAt = ms.sunrise + HOUR; else if (mAt > ms.sunset - HOUR) mAt = sunTimes(mAt + 12 * HOUR).sunrise + HOUR;
-        out.push({ lot: l, kind: 'moisture', at: mAt, text: near ? 'Near target: meter readings in several spots, weigh, feel for brittle' : 'Weigh and take meter readings', ref: srcLabel(resolve('moistureCheckH')) });
+        out.push({ lot: l, kind: 'moisture', at: mAt, text: near ? 'Near target: meter readings in several spots, weigh, feel for brittle' : 'Weigh and take meter readings', ref: explain(resolve('moistureCheckH')) });
       }
       if (st === 'resting') {
         const b0 = new Date(l.bag.at).getTime();
@@ -1079,7 +1092,12 @@
     // UI HELPERS
     // ---------------------------------------------------------------
     // Sources sit behind a small "why?" so the screen stays short
-    function why(ref) { return ref ? `<details class="why"><summary>why?</summary><p>${esc(ref)}</p></details>` : ''; }
+    // "Reason ¦ Source": the reason is the short note, the source goes underneath
+    function why(ref) {
+      if (!ref) return '';
+      const i = ref.indexOf(' ¦ '), r = i >= 0 ? ref.slice(0, i) : '', src = i >= 0 ? ref.slice(i + 3) : ref;
+      return `<details class="why"><summary>why?</summary><div class="why-body">${r ? `<div class="why-r">${esc(r)}</div>` : ''}${src ? `<div class="why-s">Source: ${esc(src)}</div>` : ''}</div></details>`;
+    }
     function heading(text, extra) { return `<div class="flex items-center justify-between gap-2 mt-6 mb-2"><h2 class="text-xs font-semibold uppercase tracking-wider text-coffee-400">${text}</h2>${extra || ''}</div>`; }
     function chip(label, on, onclick, sub) {
       return `<button type="button" onclick="${onclick}" class="chip ${on ? 'chip-on' : ''} ${sub ? 'text-left' : ''}">${esc(label)}${sub ? `<span class="block text-xs ${on ? 'text-white/80' : 'text-coffee-400'} font-normal">${esc(sub)}</span>` : ''}</button>`;
@@ -1156,7 +1174,7 @@
             <div class="text-[11px] text-coffee-300">${esc(new Date(d.sunrise).toLocaleDateString([], { weekday: 'short' }) + ' ' + new Date(d.sunrise).getDate())}</div>
             <div class="text-xs font-semibold ${d.outlook === 'good' ? 'text-emerald-300' : d.outlook === 'fair' ? 'text-amber-300' : 'text-sky-300'}">${d.outlook}</div>
             <div class="text-[10px] text-coffee-400">${fmt(d.ppMax)}% rain</div></div>`).join('')}</div>
-          <div class="inline-why text-xs text-coffee-400 mt-2">Good: 6+ drying hours and at most 1 rain hour. Poor: under 3 drying hours or 4+ rain hours.${why('Tool heuristic. The hour thresholds can be changed under More, Where the numbers come from.')}</div>
+          <div class="inline-why text-xs text-coffee-400 mt-2">Good: 6+ drying hours and at most 1 rain hour. Poor: under 3 drying hours or 4+ rain hours.${why('A day\'s rating counts the daylight hours that are good for drying and the hours with rain, from the hourly forecast. The cut-offs are my own, and you can change them under More, Where the numbers come from. ¦ Tool heuristic')}</div>
         </details>
         <div class="flex items-center justify-between text-xs text-coffee-400"><span>Updated ${fmt(age, age < 1 ? 1 : 0)} h ago · <a class="underline" href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</span><button onclick="fetchWeather()" class="flex items-center gap-1 underline"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh</button></div>
         ${wxStatus.startsWith('error') ? '<p class="text-xs text-rose-300">Could not refresh. Showing the last forecast.</p>' : ''}
@@ -1327,7 +1345,7 @@
           html += `<button onclick="pickProcess('${esc(r.id)}')" class="w-full text-left rounded-xl border p-4 ${on ? 'border-amber-500 bg-amber-500/10' : 'border-coffee-800 bg-coffee-900/60'}">
             <div class="flex items-center gap-3"><span class="w-5 h-5 rounded-full border-2 flex-shrink-0 ${on ? 'border-amber-500 bg-amber-500' : 'border-coffee-600'}"></span><span class="text-lg font-bold text-white flex-1">${esc(r.id)}</span>${i === 0 ? '<span class="text-xs font-semibold bg-amber-500 text-white rounded-full px-2 py-0.5">Suggested</span>' : !r.ok ? '<span class="text-xs text-amber-300">risky now</span>' : ''}</div>
             ${main ? `<div class="text-sm mt-1 ml-8 ${main.tone === 'amber' || main.tone === 'red' ? 'text-amber-200' : 'text-coffee-300'}">${esc(main.text)}</div>` : ''}
-          </button>`;
+          </button>${on ? glossHtml(r.id) : ''}`;
         });
         html += `</div><button onclick="wpick('experiment', ${!d.experiment})" class="text-sm text-coffee-300 underline mt-3">${d.experiment ? 'Hide' : 'Show'} sealed and anaerobic options</button>`;
         html += `<label class="q">Starter or wild?</label>
@@ -1339,8 +1357,8 @@
             <input value="${esc(d.product)}" oninput="wset('product', this.value)" placeholder="Product name (optional)" class="field-lg">
             ${c.needsDose ? `<div class="relative"><input type="number" step="0.1" inputmode="decimal" value="${d.dose ?? ''}" onchange="wset('dose', num(this.value)); renderAll()" class="field-lg pr-16"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-coffee-400">g/kg</span></div>
               ${d.cherryKg ? `<div class="text-sm">${planHtml(plan)}</div>` : '<p class="text-sm text-coffee-400">Enter the kg on the first screen to get grams and mixing steps.</p>'}
-              <div class="inline-why text-sm text-coffee-400">Check the dose on your product's label.${why(srcLabel(resolve('doseGPerKg')))}</div>` : ''}
-            ${c.warn ? notesHtml([note('red', "Baker's and beer yeast tend to give cheesy or sulphur notes in coffee.", 'Lucia Solis: Producer Toolkit #3')]) : ''}
+              <div class="inline-why text-sm text-coffee-400">Check the dose on your product's label.${why(explain(resolve('doseGPerKg')))}</div>` : ''}
+            ${c.warn ? notesHtml([note('red', "Baker's and beer yeast tend to give cheesy or sulphur notes in coffee.", 'They are bred for dough or grain, not acidic fruit with little oxygen, so they get stressed and make sulphur compounds. ¦ Lucia Solis: Producer Toolkit #3')]) : ''}
           </div>`;
         }
         html += `<label class="q">Dries on</label>
@@ -1361,7 +1379,7 @@
         if (m.tank) {
           html += `<details class="card mt-6"><summary class="text-[15px] text-coffee-100 cursor-pointer">Before you start: tank checklist</summary>
             <div class="space-y-2 mt-3">${[['water', 'Water is not chlorinated'], ['clean', 'Tanks and tools are clean'], ['soap', 'No scented soap'], ['calib', 'pH meter calibrated (4 and 7)'], ['smell', 'No smoke, fuel or kitchen smells nearby']].map(([k, t]) => `<label class="chk-lg"><input type="checkbox" ${d.checklist[k] ? 'checked' : ''} onchange="wcheck('${k}', this.checked)"> ${t}</label>`).join('')}</div>
-            <div class="inline-why text-xs text-coffee-400 mt-1">${why('Lucia Solis: Producer Toolkit #3 (cleaning, water, soap, meters) and #7 (coffee is a sponge).')}</div>
+            <div class="inline-why text-xs text-coffee-400 mt-1">${why('Chlorine kills the microbes, dirty tanks carry over the wrong ones, coffee soaks up soap and smoke smells, and an uncalibrated meter gives wrong readings. ¦ Lucia Solis: Producer Toolkit #3 and #7')}</div>
           </details>`;
         }
         html += `<button onclick="saveLot()" class="btn-big mt-6"><i data-lucide="play" class="w-5 h-5"></i> Start this lot</button>
@@ -1442,8 +1460,8 @@
       html += `<div class="card space-y-3">`;
       if (ready) html += `<div class="rounded-xl bg-emerald-500/15 border border-emerald-500/50 p-3 text-emerald-200 text-[15px] font-semibold">${fr.needHand ? 'Ready. Wash it now.' : 'Ready. Take it out and start drying.'}</div>`;
       html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
-        ${tick(fr.ph, `pH is ${fr.end.v} or lower${fr.last && fr.last.ph != null ? ` <span class="text-coffee-400">(last: ${fmt(fr.last.ph, 2)})</span>` : ''}`, srcLabel(fr.end))}
-        ${fr.needHand ? tick(fr.hand, 'Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10') : ''}</div>`;
+        ${tick(fr.ph, `pH is ${fr.end.v} or lower${fr.last && fr.last.ph != null ? ` <span class="text-coffee-400">(last: ${fmt(fr.last.ph, 2)})</span>` : ''}`, explain(fr.end))}
+        ${fr.needHand ? tick(fr.hand, 'Hand test: the parchment feels gritty, like pebbles', 'Rub and rinse a few beans. When the mucilage is fully broken down they make a grating noise and feel gritty. Stop then to avoid over-fermenting. ¦ Schwan & Fleet 2014, ch. 10') : ''}</div>`;
       html += open ? `<form onsubmit="addReading(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
           <div class="grid grid-cols-2 gap-2"><div><div class="text-sm text-coffee-300 mb-1">pH</div><input name="ph" type="number" step="0.01" inputmode="decimal" class="field-lg" autofocus></div>
           ${S.thermometer ? '<div><div class="text-sm text-coffee-300 mb-1">Tank °C</div><input name="temp" type="number" step="0.1" inputmode="decimal" class="field-lg"></div>' : ''}</div>
@@ -1466,14 +1484,14 @@
     // ---------------------------------------------------------------
     // Sourced planning ranges. A saved recipe replaces them.
     function fermentRange(m, recipe) {
-      if (recipe && recipe.fermentH) return { lo: recipe.fermentH, hi: recipe.fermentH, ref: `Your recipe from ${recipe.fromLot}` };
-      if (m.sealed) return { lo: 36, hi: V('maxHoursSealed'), ref: `Shortest sealed lot in the roaster notes: 36 h (Seven Seeds). Upper end: ${srcLabel(resolve('maxHoursSealed'))}` };
-      return { lo: 6, hi: 72, ref: 'Schwan & Fleet 2014, ch. 10 (6–72 h, depending on temperature)' };
+      if (recipe && recipe.fermentH) return { lo: recipe.fermentH, hi: recipe.fermentH, ref: `Your own lot took this long, so the timeline uses it. ¦ Your recipe from ${recipe.fromLot}` };
+      if (m.sealed) return { lo: 36, hi: V('maxHoursSealed'), ref: `The shortest sealed lot in the roaster notes ran 36 h. ${explainR(resolve('maxHoursSealed'))} ¦ Seven Seeds lot page; ${srcLabel(resolve('maxHoursSealed'))}` };
+      return { lo: 6, hi: 72, ref: 'Open fermentations take 6–72 h depending on temperature: warm mills and thick mucilage finish fast, cold mills slow. ¦ Schwan & Fleet 2014, ch. 10' };
     }
     function dryRange(m, surface, recipe) {
-      if (recipe && recipe.dryDays) { const d = Math.round(recipe.dryDays); return { lo: d, hi: d, ref: `Your recipe from ${recipe.fromLot}` }; }
-      if (m.drying === 'parchment') return /raised|bed/i.test(surface || '') ? { lo: 5, hi: 10, ref: 'Schwan & Fleet 2014, ch. 10 (parchment: 5–10 days on raised racks)' } : { lo: 7, hi: 15, ref: 'Schwan & Fleet 2014, ch. 10 (parchment: 7–15 days on patios)' };
-      return { lo: 12, hi: 21, ref: `Schwan & Fleet 2014, ch. 10 (cherry: 12–21 days on patios). Lucia's shaded naturals dried in about 15 days (Making Coffee #71).${m.drying === 'honey' ? ' Honey can dry even slower than a natural (Producer Toolkit #2).' : ''}` };
+      if (recipe && recipe.dryDays) { const d = Math.round(recipe.dryDays); return { lo: d, hi: d, ref: `Your own lot dried in this many days, so the timeline uses it. ¦ Your recipe from ${recipe.fromLot}` }; }
+      if (m.drying === 'parchment') return /raised|bed/i.test(surface || '') ? { lo: 5, hi: 10, ref: 'Air moves under raised beds, so parchment dries in 5–10 days depending on the weather. ¦ Schwan & Fleet 2014, ch. 10' } : { lo: 7, hi: 15, ref: 'On patios, parchment takes 7–15 days depending on the weather. ¦ Schwan & Fleet 2014, ch. 10' };
+      return { lo: 12, hi: 21, ref: `Whole cherries hold far more water, so they take 12–21 days on patios. Lucia\'s shaded naturals took about 15.${m.drying === 'honey' ? ' A honey can be even slower than a natural.' : ''} ¦ Schwan & Fleet 2014, ch. 10; Making Coffee #71${m.drying === 'honey' ? '; Producer Toolkit #2' : ''}` };
     }
     // What roasters say other mills did for this process, India and Nepal first
     function otherMills(method, field, max) {
@@ -1518,11 +1536,11 @@
 
       // 1. Sort
       const sort = { key: 'sort', title: m.drying === 'cherry' ? 'Sort the cherry' : 'Sort and pulp', ...span(t0, t0), todo: [], done: [] };
-      sort.todo.push([`Start within ${R('pickToProcessH').v} h of picking`, srcLabel(R('pickToProcessH'))]);
-      sort.todo.push(['Float the cherry and remove the floaters', 'Lucia Solis: Producer Toolkit #2 and #3']);
-      sort.todo.push(m.drying === 'cherry' ? ['Pick out overripe cherry before a natural', 'Lucia Solis: Making Coffee #71'] : ['Pick out green and overripe cherry', 'Lucia Solis: Producer Toolkit #2 and #3']);
-      if (m.drying !== 'cherry') sort.todo.push([`Pulp it. Quality drops if pulping waits past ${R('pickMaxH').v} h from picking`, srcLabel(R('pickMaxH'))]);
-      if (m.drying === 'honey') sort.todo.push(['Leave the mucilage on the parchment', 'Lucia Solis: Producer Toolkit #2']);
+      sort.todo.push([`Start within ${R('pickToProcessH').v} h of picking`, explain(R('pickToProcessH'))]);
+      sort.todo.push(['Float the cherry and remove the floaters', 'Dry, damaged and overripe cherries float, so a float tank sorts out the low-quality fruit cheaply. ¦ Lucia Solis: Producer Toolkit #2 and #3']);
+      sort.todo.push(m.drying === 'cherry' ? ['Pick out overripe cherry before a natural', 'Lucia\'s episode on "de-funkifying" naturals starts with sorting out overripe cherry. ¦ Lucia Solis: Making Coffee #71'] : ['Pick out green and overripe cherry', 'Aim for about 80% red ripe. Removing the worst fruit matters more than chasing 100%. ¦ Lucia Solis: Producer Toolkit #2 and #3']);
+      if (m.drying !== 'cherry') sort.todo.push([`Pulp it. Quality drops if pulping waits past ${R('pickMaxH').v} h from picking`, explain(R('pickMaxH'))]);
+      if (m.drying === 'honey') sort.todo.push(['Leave the mucilage on the parchment', 'The sweetness of a honey comes from the mucilage, so pulp with as little water as you can. ¦ Lucia Solis: Producer Toolkit #2']);
       if (!m.tank && c.needsDose) sort.todo.push([`Apply the starter (${starter}) to the coffee: ${doseText}`, c.ref]);
       stages.push(sort);
 
@@ -1533,20 +1551,20 @@
         if (c.needsDose) {
           const plan = p.kg ? computePlan({ kg: p.kg, yeast: p.culture, dose: p.dose, container: 'barrel' }) : null;
           f.todo.push([`Add ${doseText} of ${starter}.${plan ? ' ' + plan.steps.join(' ') : ''}`, c.ref]);
-          f.todo.push(["Starters can shorten or lengthen it: a fast commercial microbe cut one cold mill's fermentations from 100 h to 24 h, and at Shira a yeast let them go from 12 h to 48 h for more flavour", 'Lucia Solis: Producer Toolkit #3']);
+          f.todo.push(["Starters can shorten or lengthen it: a fast commercial microbe cut one cold mill's fermentations from 100 h to 24 h, and at Shira a yeast let them go from 12 h to 48 h for more flavour", 'A cold-tolerant coffee yeast freed up one mill\'s tanks. At Shira, the yeast kept a long fermentation clean, and the coffee tasted more intense. ¦ Lucia Solis: Producer Toolkit #3']);
         }
-        f.todo.push(['Check pH twice a day, in the morning and at the end of the day', 'Lucia Solis: Producer Toolkit #3 (at least twice a day; she checks morning, midday and end of day)']);
-        if (S.thermometer) f.todo.push([`Check the tank temperature at the same time. Alert above ${R('tempMax').v} °C`, srcLabel(R('tempMax'))]);
-        if (m.sealed && S.extraInstruments) f.todo.push([`Vent if the pressure passes ${R('pressureMax').v} PSI`, srcLabel(R('pressureMax'))]);
-        f.done.push([`pH is ${R('phEndpoint').v} or lower`, srcLabel(R('phEndpoint'))]);
-        if (parchment) f.done.push(['Hand test: the parchment feels gritty, like pebbles', 'Schwan & Fleet 2014, ch. 10']);
+        f.todo.push(['Check pH twice a day, in the morning and at the end of the day', 'pH falls as the microbes make acid, so it shows how far the fermentation has gone. Lucia checks at least twice a day. ¦ Lucia Solis: Producer Toolkit #3']);
+        if (S.thermometer) f.todo.push([`Check the tank temperature at the same time. Alert above ${R('tempMax').v} °C`, explain(R('tempMax'))]);
+        if (m.sealed && S.extraInstruments) f.todo.push([`Vent if the pressure passes ${R('pressureMax').v} PSI`, explain(R('pressureMax'))]);
+        f.done.push([`pH is ${R('phEndpoint').v} or lower`, explain(R('phEndpoint'))]);
+        if (parchment) f.done.push(['Hand test: the parchment feels gritty, like pebbles', 'Rub and rinse a few beans. When the mucilage is fully broken down they make a grating noise and feel gritty. Stop then to avoid over-fermenting. ¦ Schwan & Fleet 2014, ch. 10']);
         f.others = otherMills(p.method, 'f');
         stages.push(f);
         if (parchment) {
           const w = { key: 'wash', title: 'Wash', ...span(fe[0], fe[1]), todo: [], done: [] };
           w.expect = [l && l.washedAt ? `Done ${when(l.washedAt)}` : 'As soon as the fermentation is ready', ''];
-          w.todo.push(['Wash off the fermented mucilage', '']);
-          w.todo.push([`Start drying within ${R('washToDryMaxH').v} h of washing`, srcLabel(R('washToDryMaxH'))]);
+          w.todo.push(['Wash off the fermented mucilage', 'Fermented parchment should be washed right after fermentation ends. ¦ Schwan & Fleet 2014, ch. 10']);
+          w.todo.push([`Start drying within ${R('washToDryMaxH').v} h of washing`, explain(R('washToDryMaxH'))]);
           stages.push(w);
         }
       }
@@ -1565,28 +1583,29 @@
         if (last && de[1] > last.sunset) d.forecast += ` The forecast only runs to ${shortDate(last.sunrise)}.`;
       }
       const seed = seedLimitFor(m.drying);
-      d.todo.push(['Every morning: spread it out in thin layers, about 10 cm', 'ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
-      d.todo.push(['Through the day: rake 8–10 times', 'Schwan & Fleet 2014, ch. 10']);
-      d.todo.push(['Every evening: pile and cover before sunset', 'ATI Philippines 2007; Hackler & Särchen 2025']);
-      d.todo.push(['Before rain: pile and cover. The app reminds you from the forecast', 'Forecast: Open-Meteo']);
-      d.todo.push([`Keep the seed at or below ${seed.v} °C${S.setup.shade ? '. Shade cloth on in strong sun' : ''}`, srcLabel(seed)]);
-      if (m.drying === 'cherry') d.todo.push(["Light shade helps: Lucia's shaded lots dried in about 15 days under roughly 30–40% shade", 'Lucia Solis: Making Coffee #71']);
-      if (S.setup.dryer) d.todo.push([`With the dryer: use it first, then move to the patio at about ${R('dryerSwitch').v}%`, srcLabel(R('dryerSwitch'))]);
-      d.todo.push(['From the last few days: weigh it and take meter readings to see when it is ready', 'Tool heuristic']);
-      d.done.push([`Meter reads ${R('moistureTarget').v}% or less in ${R('meterSpots').v} spots`, srcLabel(R('moistureTarget'))]);
-      d.done.push([`The reading still holds ${R('holdHours').v} h later`, srcLabel(R('holdHours'))]);
-      d.done.push(['The beans feel hard and brittle', 'ATI Philippines 2007']);
+      d.todo.push(['Every morning: spread it out in thin layers, about 10 cm', 'Start with thin layers, about 10 cm. Once partly dry, the layer can be thicker. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Through the day: rake 8–10 times', 'Raking turns the layer so it dries evenly and the top doesn\'t overheat. ¦ Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Every evening: pile and cover before sunset', 'Piled and covered, the coffee is protected from dew and rain overnight. ¦ ATI Philippines 2007; Schwan & Fleet 2014, ch. 10']);
+      d.todo.push(['Before rain: pile and cover. The app reminds you from the forecast', 'Rewetting slows drying and keeps the seed moist, which risks mould. ¦ Lucia Solis: Producer Toolkit #2; forecast: Open-Meteo']);
+      d.todo.push([`Keep the seed at or below ${seed.v} °C${S.setup.shade ? '. Shade cloth on in strong sun' : ''}`, explain(seed)]);
+      if (m.drying === 'cherry') d.todo.push(["Light shade helps: Lucia's shaded lots dried in about 15 days under roughly 30–40% shade", 'Shade lowers the midday peak temperature, and Lucia\'s shaded naturals still dried in about 15 days. ¦ Lucia Solis: Making Coffee #71']);
+      if (S.setup.dryer) d.todo.push([`With the dryer: use it first, then move to the patio at about ${R('dryerSwitch').v}%`, explain(R('dryerSwitch'))]);
+      d.todo.push(['From the last few days: weigh it and take meter readings to see when it is ready', 'Weight loss tracks moisture loss, so two weighings let the app estimate the ready date. Starting near the end is my choice. ¦ Tool heuristic']);
+      d.done.push([`Meter reads ${R('moistureTarget').v}% or less in ${R('meterSpots').v} spots`, explain(R('moistureTarget'))]);
+      d.done.push([`The reading still holds ${R('holdHours').v} h later`, explain(R('holdHours'))]);
+      d.done.push(['The beans feel hard and brittle', 'A quick hand check that backs up the meter: dry coffee is hard and brittle. ¦ ATI Philippines 2007']);
       d.others = otherMills(p.method, 'd');
       stages.push(d);
 
       // 4. Bag and rest
       const b = { key: 'bag', title: 'Bag and rest', ...span(de[0], de[1]), todo: [], done: [] };
-      b.expect = [l && l.bag ? `Bagged ${dayLabel(l.bag.at)}` : `Then rest several weeks before hulling`, l && l.bag ? '' : 'Hackler & Särchen 2025'];
-      b.todo.push(['Use barrier bags (polyethylene plus EVOH)', 'Lucia Solis: Producer Toolkit #7']);
-      b.todo.push(['Store away from smoke, fuel and kitchen smells', 'Lucia Solis: Producer Toolkit #7']);
-      b.todo.push(['Re-check the moisture once a month', 'Tool heuristic']);
-      b.todo.push(['After resting, cup it and write down what you taste', 'Lucia Solis: Producer Toolkit #3']);
-      b.todo.push(['The app saves the lot as a recipe, so next time the timeline uses your own hours and days', '']);
+      b.expect = [l && l.bag ? `Bagged ${dayLabel(l.bag.at)}` : `Then rest several weeks before hulling`, l && l.bag ? '' : 'Dried coffee is stored for several weeks before the parchment comes off, to improve shelf life. ¦ Hackler & Särchen 2025, ch. 5'];
+      b.todo.push(['Use barrier bags (polyethylene plus EVOH)', 'Polyethylene stops moisture and EVOH stops oxygen, so together they slow ageing. ¦ Lucia Solis: Producer Toolkit #7']);
+      b.todo.push(['Store away from smoke, fuel and kitchen smells', '"Coffee is a sponge": it soaks up any smell near it. ¦ Lucia Solis: Producer Toolkit #7']);
+      b.todo.push(["Don't bag it while it is still warm from the sun", 'SICC advises against bagging warm coffee, and resting lets moisture even out inside the bean. ¦ SICC: Moisture Content vs Water Activity']);
+      b.todo.push(['Re-check the moisture once a month', 'Stored coffee can take moisture back from humid air. Monthly is my choice. ¦ Tool heuristic; Schwan & Fleet 2014, ch. 10']);
+      b.todo.push(['After resting, cup it and write down what you taste', 'Cupping is how you connect what happened in the tank to what is in the cup: "without that feedback loop, you really can\'t improve". ¦ Lucia Solis: Producer Toolkit #3']);
+      b.todo.push(['The app saves the lot as a recipe, so next time the timeline uses your own hours and days', 'Your own mill\'s numbers beat any book\'s range. ¦ Design choice']);
       stages.push(b);
       return stages;
     }
@@ -1629,11 +1648,18 @@
         </li>`;
       }).join('')}</ol>`;
     }
+    // What the process is, from the Aviary glossary (index.html)
+    function glossHtml(id) {
+      const g = methodOf(id).gloss;
+      if (!g) return '';
+      return `<div class="inline-why text-sm text-coffee-300 ml-8 mt-2">${esc(g[1])}${why('Feran\'s glossary defines each process by what is done to the cherry (skin, environment, additives), not by time. Time is "not critical to the definition" for most of them, which is why the timeline uses research ranges. ¦ Christopher Feran, A sort of glossary of coffee processes (2022)')} <a href="index.html#p=${g[0]}" class="underline text-coffee-400">Glossary entry</a></div>`;
+    }
+
     // What it might taste like: process, starter, cultivar, your own past cups
     function flavourHtml(p) {
       const m = methodOf(p.method), c = cultureOf(p.culture), l = p.lot;
       const rows = (PROCESS_FLAVOURS[m.ref] || []).slice();
-      if (m.sealed && c.id !== 'none') rows.push(['With an S. cerevisiae yeast starter, sealed lots showed more citrus, floral, plum or peach than without one', HS6]);
+      if (m.sealed && c.id !== 'none') rows.push(['With an S. cerevisiae yeast starter, sealed lots showed more citrus, floral, plum or peach than without one', 'Research compared the same anaerobic fermentation with and without that yeast. ¦ ' + HS6]);
       if (m.tank && c.id !== 'none') rows.push(['In one trial, a longer fermentation with a coffee yeast tasted more intense and a little cleaner. The notes stayed similar', 'Lucia Solis: Producer Toolkit #3 (La Cabra and Shira, 12 h wild vs 48 h with yeast)']);
       const cv = (state.cultivars || []).find(x => x.name === p.cultivar);
       if (cv && cv.flavor) rows.push([`${cv.name}: ${cv.flavor.charAt(0).toLowerCase()}${cv.flavor.slice(1)} (washed lots)`, cv.flavorRef]);
@@ -1642,9 +1668,11 @@
       let html = heading('What it might taste like') + `<div class="card space-y-3">`;
       if (l && l.flavor) html += `<p class="text-[15px] text-emerald-200">You tasted: <b class="text-white">${esc(l.flavor)}</b>${l.cupScore != null ? ` · ${fmt(l.cupScore, 2)}` : ''}</p>`;
       html += rows.length ? `<ul class="space-y-1.5 text-[15px]">${rows.map(([t, r]) => li(t, r)).join('')}</ul>` : `<p class="text-[15px] text-coffee-300">No flavour description for this process in the sources yet.</p>`;
+      const cups = ROASTER_LOTS.filter(x => x.t && x.p === m.ref).sort((a, b) => (b.s || 0) - (a.s || 0)).slice(0, 4);
+      if (cups.length) html += `<details><summary class="text-sm text-coffee-300 underline cursor-pointer">What other mills' ${esc(m.ref)} lots tasted like</summary><ul class="space-y-1.5 mt-2 text-[15px]">${cups.map(x => `<li class="flex gap-2 text-coffee-100"><span class="text-coffee-500">•</span><div>${esc(x.t)}${x.s ? ` · ${fmt(x.s, 2)} pts` : ''} <span class="text-sm text-coffee-400">(${esc(x.r)}: ${esc(x.lot)})</span> <a class="underline text-sm text-coffee-400" href="${x.u}" target="_blank" rel="noopener">source</a></div></li>`).join('')}</ul></details>`;
       if (mine.length) html += `<ul class="space-y-1.5 text-[15px] border-t border-coffee-800 pt-3">${mine.map(([t]) => li(t, '')).join('')}</ul>`;
       html += `<details><summary class="text-sm text-coffee-300 underline cursor-pointer">Off-notes to watch for</summary><ul class="space-y-1.5 mt-2 text-[15px]">${OFF_NOTES.map(([t, r]) => li(t, r)).join('')}</ul></details>`;
-      html += `<div class="inline-why text-sm text-coffee-400 ">A direction, not a promise. Fermentation leaves acids and other compounds in the bean, and the flavour itself forms when it is roasted.${why('Hackler & Särchen 2025. Your own cupping is what counts (Lucia Solis, Producer Toolkit #3).')}</div>`;
+      html += `<div class="inline-why text-sm text-coffee-400 ">A direction, not a promise. Fermentation leaves acids and other compounds in the bean, and the flavour itself forms when it is roasted.${why('Microbes make acids and other compounds in the mucilage, which move into the seed and shape the aroma formed in roasting. So the process sets a direction, and only your own cupping tells you the result. ¦ Hackler & Särchen 2025; Lucia Solis: Producer Toolkit #3')}</div>`;
       return html + '</div>';
     }
 
@@ -1653,22 +1681,22 @@
       const m = methodOf(l ? l.method : method), rs = l ? readingsOf(l) : [], ws = l && l.drying ? (l.drying.weighings || []) : [];
       const T3 = 'Lucia Solis: Producer Toolkit #3', T2 = 'Lucia Solis: Producer Toolkit #2';
       const items = [
-        [l && l.counts && Object.values(l.counts).some(v => v), 'Ripeness: count ripe, unripe and overripe in a sample of 100 cherries', `${T2} (a cherry classifier board with 100 holes)`],
-        [l && !!(l.crushed || l.warm || l.notes), 'The condition of the cherry before you start', T3],
+        [l && l.counts && Object.values(l.counts).some(v => v), 'Ripeness: count ripe, unripe and overripe in a sample of 100 cherries', `A board with 100 holes gives you a ripeness percentage you can track across the harvest and compare with the cup. ¦ ${T2}`],
+        [l && !!(l.crushed || l.warm || l.notes), 'The condition of the cherry before you start', `Lucia lists the cherry\'s condition among the notes to keep, so you can find what links to the cup later. ¦ ${T3}`],
       ];
       if (m.tank) items.push(
-        [rs.some(r => r.ph != null), 'pH, morning and end of day', T3],
-        [rs.some(r => r.temp != null), 'Tank temperature', `${T3}: "a pH meter and a thermometer are your eyes inside the fermentation"`],
-        [rs.some(r => r.smell), 'What the tank smells like', T3]);
+        [rs.some(r => r.ph != null), 'pH, morning and end of day', `pH shows how far the fermentation has gone. ¦ ${T3}`],
+        [rs.some(r => r.temp != null), 'Tank temperature', `Temperature sets the speed: "a pH meter and a thermometer are your eyes inside the fermentation". ¦ ${T3}`],
+        [rs.some(r => r.smell), 'What the tank smells like', `Lucia lists the tank's smell among the notes to keep, so you can link it to the cup later. ¦ ${T3}`]);
       items.push(
-        [l && l.wx && Object.keys(l.wx).length, 'The weather each day (the app saves it whenever it fetches the forecast)', T3],
-        [ws.length > 0, 'Drying: weight and moisture meter readings', T2],
-        [ws.some(w => w.seedTemp != null), 'Coffee temperature while drying, to keep it below 40 °C', T2],
-        [null, 'Photos and videos on your phone: they keep the date and time', T3],
-        [l && l.cupScore != null, 'After resting: cup it, write the flavour notes, then compare them with these notes', T3]);
+        [l && l.wx && Object.keys(l.wx).length, 'The weather each day (the app saves it whenever it fetches the forecast)', `Heat and rain change both fermentation and drying, so they help explain a good or bad lot. ¦ ${T3}`],
+        [ws.length > 0, 'Drying: weight and moisture meter readings', `Lucia: "buy the best moisture meter you can afford". Weight shows the drying rate between readings. ¦ ${T2}`],
+        [ws.some(w => w.seedTemp != null), 'Coffee temperature while drying, to keep it below 40 °C', `Above 40 °C the seed is damaged and fades early. ¦ ${T2}`],
+        [null, 'Photos and videos on your phone: they keep the date and time', `A photo records the date, time and weather for you. ¦ ${T3}`],
+        [l && l.cupScore != null, 'After resting: cup it, write the flavour notes, then compare them with these notes', `This is the feedback loop that lets you improve. ¦ ${T3}`]);
       return `<details class="card mt-4"${l && l.bag ? ' open' : ''}><summary class="text-[15px] text-coffee-100 cursor-pointer font-semibold">Write these down for next time</summary>
         <ul class="space-y-1.5 mt-3 text-[15px]">${items.map(([ok, t, r]) => `<li class="flex gap-2 ${ok ? 'text-emerald-100' : 'text-coffee-100'}"><i data-lucide="${ok ? 'check-circle-2' : 'circle'}" class="w-4 h-4 mt-0.5 flex-shrink-0 ${ok ? 'text-emerald-400' : 'text-coffee-600'}"></i><div class="inline-why">${esc(t)}${why(r)}</div></li>`).join('')}</ul>
-        <div class="inline-why text-sm text-coffee-400 mt-3 ">Cherry Brix is not a reliable sign of a sweet cup.${why(`${T2}: the data hasn't supported it, and Brix also rises when cherries lose water.`)}</div>
+        <div class="inline-why text-sm text-coffee-400 mt-3 ">Cherry Brix is not a reliable sign of a sweet cup.${why(`The data hasn't supported a link between high-Brix cherry and a sweet cup, and Brix also rises when cherries lose water. ¦ ${T2}`)}</div>
       </details>`;
     }
 
@@ -1706,7 +1734,7 @@
           <select name="surface" class="field-lg">${surfaceOptions().map(s => `<option ${s === l.surface ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
           <button class="btn-big"><i data-lucide="sun" class="w-5 h-5"></i> Start drying now</button>
         </form>
-        <div class="inline-why text-sm text-coffee-400">Spread in thin layers, about 10 cm, and rake 8–10 times a day.${why('Schwan & Fleet 2014, ch. 10')}</div>
+        <div class="inline-why text-sm text-coffee-400">Spread in thin layers, about 10 cm, and rake 8–10 times a day.${why('Thin layers and frequent raking dry the coffee evenly and stop the top from overheating. ¦ Schwan & Fleet 2014, ch. 10')}</div>
       </div>`;
     }
 
@@ -1722,10 +1750,10 @@
       if (di.estNow != null) facts.push(`About <b class="text-white">${fmt(di.estNow, 1)}%</b> now${di.pts.length ? ' (from weight)' : ''}`);
       if (di.targetW) facts.push(`Ready at about <b class="text-white">${fmt(di.targetW, 1)} kg</b>`);
       if (di.eta) facts.push(`Expected around <b class="text-white">${esc(dayLabel(di.eta))}</b>`);
-      html += facts.length ? `<p class="text-[15px] text-coffee-200">${facts.join(' · ')}${di.eta ? why('At the latest drying rate. Below about 20% drying slows down (Lucia Solis, Producer Toolkit #2), so the real date is likely later.') : ''}</p>` : `<p class="text-[15px] text-coffee-300">Weigh it and take a meter reading. After two weighings the app can estimate the ready date.</p>`;
+      html += facts.length ? `<p class="text-[15px] text-coffee-200">${facts.join(' · ')}${di.eta ? why('Worked out from the latest drying rate. Below about 20% the water is bound more tightly and drying slows, so the real date is likely later. ¦ Lucia Solis: Producer Toolkit #2') : ''}</p>` : `<p class="text-[15px] text-coffee-300">Weigh it and take a meter reading. After two weighings the app can estimate the ready date.</p>`;
       html += `<div><div class="text-sm text-coffee-400 mb-1">Ready when</div>
-        ${tick(di.meterOk, `Meter reads ${di.target}% or less in ${di.spots.v} spots`, `Target: ${srcLabel(resolve('moistureTarget'))}. Number of spots: ${srcLabel(di.spots)}.`)}
-        ${tick(di.holdOk, `The reading still holds ${di.hold.v} h later`, srcLabel(di.hold))}
+        ${tick(di.meterOk, `Meter reads ${di.target}% or less in ${di.spots.v} spots`, `${explainR(resolve('moistureTarget'))} ${explainR(di.spots)} ¦ Target: ${srcLabel(resolve('moistureTarget'))}. Spots: ${srcLabel(di.spots)}`)}
+        ${tick(di.holdOk, `The reading still holds ${di.hold.v} h later`, explain(di.hold))}
         ${tick(di.brittle, 'The beans feel hard and brittle', 'ATI Philippines 2007')}</div>`;
       if (!open) html += `<button onclick="toggleForm('weigh')" class="btn-big ${di.ready ? 'ghost' : ''}"><i data-lucide="scale" class="w-5 h-5"></i> Weigh and take readings</button>`;
       else html += `<form onsubmit="addWeighing(event,'${l.id}')" class="space-y-3 border-t border-coffee-800 pt-3">
@@ -1756,7 +1784,7 @@
         <input name="notes" placeholder="What worked? What would you change?" class="field-lg">
         <label class="chk-lg"><input name="recipe" type="checkbox" checked> Save as a recipe for next time</label>
         <button class="btn-big"><i data-lucide="package" class="w-5 h-5"></i> Bag it</button>
-        <div class="inline-why text-sm text-coffee-400">Barrier bags keep out moisture and air.${why('Lucia Solis: Producer Toolkit #7. A 60 kg barrier bag costs about $3 and can be reused about three times if washed and dried.')}</div>
+        <div class="inline-why text-sm text-coffee-400">Barrier bags keep out moisture and air.${why('A 60 kg barrier bag costs about $3 and can be reused about three times if washed and dried, so it costs a few cents per kilo. ¦ Lucia Solis: Producer Toolkit #7')}</div>
       </form>`;
     }
 
@@ -1764,14 +1792,14 @@
       const days = (Date.now() - new Date(l.bag.at)) / DAY;
       return (bare ? '' : heading('Bagged')) + `<div class="card space-y-2">
         <p class="text-[15px] text-coffee-100">Bagged ${esc(dayLabel(l.bag.at))} at ${fmt(l.bag.moisture, 1)}% in ${esc({ barrier: 'barrier bags', pe: 'plain plastic', jute: 'jute' }[l.bag.type] || 'bags')}. Resting for ${fmt(days)} days.</p>
-        <div class="inline-why text-sm text-coffee-400">Lots rest for several weeks before hulling. Keep the bags away from smells.${why('Rest: Hackler & Särchen 2025. Smells: Lucia Solis, Producer Toolkit #7.')}</div>
+        <div class="inline-why text-sm text-coffee-400">Lots rest for several weeks before hulling. Keep the bags away from smells.${why('Resting improves shelf life, and coffee soaks up any smell near it. ¦ Hackler & Särchen 2025, ch. 5; Lucia Solis: Producer Toolkit #7')}</div>
         ${l.recipeSaved ? '<p class="text-sm text-emerald-300">Saved as a recipe.</p>' : ''}
         <form onsubmit="saveCup(event,'${l.id}')" class="space-y-2 border-t border-coffee-800 pt-3">
           <div class="text-[15px] text-white font-semibold">Cup it <span class="opt">(after resting)</span></div>
           <input name="flavor" value="${esc(l.flavor || '')}" placeholder="What did you taste? e.g. lime, black tea, caramel" class="field-lg">
           <input name="cupScore" type="number" step="0.25" min="0" max="100" inputmode="decimal" value="${l.cupScore ?? ''}" placeholder="Score (optional)" class="field-lg">
           <button class="btn-big ghost">Save</button>
-          <div class="inline-why text-sm text-coffee-400 ">Then compare it with your notes from the tank and the drying beds.${why('Lucia Solis: Producer Toolkit #3')}</div>
+          <div class="inline-why text-sm text-coffee-400 ">Then compare it with your notes from the tank and the drying beds.${why('Cupping is how you link what happened in the tank to the cup. Without that feedback loop you can\'t improve. ¦ Lucia Solis: Producer Toolkit #3')}</div>
         </form>
       </div>`;
     }
@@ -1878,16 +1906,17 @@
       const cats = ['all', 'washed', 'natural', 'honey', 'anaerobic washed', 'anaerobic natural', 'carbonic maceration', 'other'];
       const f = state.refFilter || 'all';
       const refs = ROASTER_LOTS.filter(x => f === 'all' || x.p === f);
-      return `<p class="text-sm text-coffee-400 mb-3">Only what each roaster's page says. These are examples, not targets, and they never change the app's advice.</p>
+      return `<p class="text-sm text-coffee-400 mb-3">Only what each roaster's or exporter's page says. These are examples, not targets, and they never change the app's advice.</p>
         <div class="flex flex-wrap gap-2 mb-3">${cats.map(c => chip(c, f === c, `state.refFilter='${c}';renderAll()`)).join('')}</div>
         <div class="space-y-2">${refs.map(x => `<div class="card space-y-1">
           <div class="text-white font-semibold">${esc(x.lot)}</div>
           <div class="text-sm text-coffee-400">${esc(x.o)} · ${esc(x.p)} · <a class="underline" href="${x.u}" target="_blank" rel="noopener">${esc(x.r)}</a></div>
           <p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Fermentation:</span> ${esc(x.f)}</p>
           <p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Drying:</span> ${esc(x.d)}</p>
+          ${x.t ? `<p class="text-[15px] text-coffee-200"><span class="text-coffee-400">Cup:</span> ${esc(x.t)}${x.s ? ` · ${fmt(x.s, 2)} pts` : ''}</p>` : ''}
         </div>`).join('')}</div>
         ${heading('Starter cultures and the flavours they push')}
-        <div class="card space-y-2">${CULTURE_FLAVOURS.map(r => `<div class="inline-why text-[15px] text-coffee-200"><span class="text-white">${esc(r[0])}</span> · ${esc(r[1])}: ${esc(r[2])}</div>`).join('')}<div class="inline-why text-xs text-coffee-400">Research examples, not guarantees.${why('Hackler & Särchen 2025, Tab. 6.1')}</div></div>`;
+        <div class="card space-y-2">${CULTURE_FLAVOURS.map(r => `<div class="inline-why text-[15px] text-coffee-200"><span class="text-white">${esc(r[0])}</span> · ${esc(r[1])}: ${esc(r[2])}</div>`).join('')}<div class="inline-why text-xs text-coffee-400">Research examples, not guarantees.${why('Each culture makes its own set of aroma building blocks. The book shows what trials found, but the links are complex and are examples for that process only. ¦ Hackler & Särchen 2025, Tab. 6.1')}</div></div>`;
     }
 
     function renderSettingsPage() {

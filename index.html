@@ -922,6 +922,9 @@
       lucide.createIcons();
       renderIndexList();
       renderAllViews();
+      // Deep link from the mill assistant: index.html#p=<id> opens that process
+      const deep = location.hash.match(/^#p=(\d+)$/);
+      if (deep) openModal(Number(deep[1]));
     });
 
     // VIEW MODE SWITCHER
